@@ -1,0 +1,51 @@
+/* You can add global styles to this file, and also import other style files */
+/* You can add global styles to this file, and also import other style files */
+
+@import 'primeicons/primeicons.css';
+@import 'primeflex/primeflex.css';
+
+:root {
+  --primary-color: #3b82f6;
+  --primary-400: #60a5fa;
+  --primary-600: #2563eb;
+  --surface-0: #ffffff;
+  --surface-50: #f8fafc;
+  --surface-100: #f1f5f9;
+  --surface-200: #e2e8f0;
+  --surface-300: #cbd5e1;
+  --surface-ground: #f8fafc;
+  --text-color: #334155;
+  --text-color-secondary: #64748b;
+  --border-radius: 6px;
+  --focus-ring: 0 0 0 2px rgba(59, 130, 246, 0.25);
+  --card-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+  --red-500: #ef4444;
+}
+
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif, 'Roboto', sans-serif;
+}
+
+/* Global button styles */
+.p-button.p-button-primary {
+  background-color: #3b82f6 !important;
+  border-color: #3b82f6 !important;
+  color: #ffffff !important;
+}
+
+.p-button.p-button-primary:hover {
+  background-color: #2563eb !important;
+  border-color: #2563eb !important;
+}
+
+footer {
+  position: fixed;
+  bottom: 0;
+  right: 0;
+  padding: 10px;
+}
+
+.footer-text {
+  font-size: 12px;
+  color: #666;
+}

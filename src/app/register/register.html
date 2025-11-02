@@ -1,0 +1,171 @@
+<p-toast position="top-right"></p-toast>
+<div class="register-container">
+  <div class="register-card">
+    <p-card>
+      <ng-template pTemplate="header">
+        <div class="text-center">
+          <h2 class="p-card-title">Create a New Account</h2>
+        </div>
+      </ng-template>
+
+      <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="register-form">
+        <div class="grid">
+          <!-- First Name -->
+          <div class="col-12 md:col-6 form-field">
+            <p-inputgroup>
+              <p-inputgroup-addon>
+                <i class="pi pi-user"></i>
+              </p-inputgroup-addon>
+              <input id="firstName" type="text" pInputText formControlName="firstName" class="w-full"
+                placeholder="First name" [ngClass]="{
+                  'p-invalid':
+                    registerForm.get('firstName')?.invalid && registerForm.get('firstName')?.touched
+                }" />
+            </p-inputgroup>
+            <small *ngIf="registerForm.get('firstName')?.invalid && registerForm.get('firstName')?.touched"
+              class="p-error">
+              First name is required
+            </small>
+          </div>
+
+          <!-- Last Name -->
+          <div class="col-12 md:col-6 form-field">
+            <p-inputgroup>
+              <p-inputgroup-addon>
+                <i class="pi pi-user"></i>
+              </p-inputgroup-addon>
+              <input id="lastName" type="text" pInputText formControlName="lastName" class="w-full"
+                placeholder="Last name" [ngClass]="{
+                  'p-invalid':
+                    registerForm.get('lastName')?.invalid && registerForm.get('lastName')?.touched
+                }" />
+            </p-inputgroup>
+            <small *ngIf="registerForm.get('lastName')?.invalid && registerForm.get('lastName')?.touched"
+              class="p-error">
+              Last name is required
+            </small>
+          </div>
+
+          <!-- Email -->
+          <div class="col-12 form-field">
+            <p-inputgroup>
+              <p-inputgroup-addon>
+                <i class="pi pi-envelope"></i>
+              </p-inputgroup-addon>
+              <input id="email" type="email" pInputText formControlName="email" class="w-full"
+                placeholder="Email address" [ngClass]="{
+                  'p-invalid':
+                    registerForm.get('email')?.invalid && registerForm.get('email')?.touched
+                }" />
+            </p-inputgroup>
+            <small *ngIf="registerForm.get('email')?.invalid && registerForm.get('email')?.touched" class="p-error">
+              <span *ngIf="registerForm.get('email')?.errors?.['required']">Email is required</span>
+              <span *ngIf="registerForm.get('email')?.errors?.['email']">Please enter a valid email</span>
+            </small>
+          </div>
+
+          <!-- Username -->
+          <div class="col-12 form-field">
+            <p-inputgroup>
+              <p-inputgroup-addon>
+                <i class="pi pi-id-card"></i>
+              </p-inputgroup-addon>
+              <input id="username" type="text" pInputText formControlName="username" class="w-full"
+                placeholder="Username" [ngClass]="{
+                  'p-invalid':
+                    registerForm.get('username')?.invalid && registerForm.get('username')?.touched
+                }" />
+            </p-inputgroup>
+            <small *ngIf="registerForm.get('username')?.invalid && registerForm.get('username')?.touched"
+              class="p-error">
+              <span *ngIf="registerForm.get('username')?.errors?.['required']">Username is required</span>
+              <span *ngIf="registerForm.get('username')?.errors?.['minlength']">Username must be at least 4
+                characters</span>
+            </small>
+          </div>
+
+          <!-- Password -->
+          <div class="col-12 form-field">
+            <p-inputgroup>
+              <p-inputgroup-addon>
+                <i class="pi pi-lock"></i>
+              </p-inputgroup-addon>
+              <p-password id="password" formControlName="password" [ngClass]="{
+                  'p-invalid':
+                    registerForm.get('password')?.invalid && registerForm.get('password')?.touched
+                }" placeholder="Password" [feedback]="true" [toggleMask]="true" styleClass="w-full"></p-password>
+            </p-inputgroup>
+            <small *ngIf="registerForm.get('password')?.invalid && registerForm.get('password')?.touched"
+              class="p-error">
+              <span *ngIf="registerForm.get('password')?.errors?.['required']">Password is required</span>
+              <span *ngIf="registerForm.get('password')?.errors?.['minlength']">Password must be at least 8
+                characters</span>
+              <span *ngIf="registerForm.get('password')?.errors?.['passwordStrength']">
+                Password must contain uppercase, lowercase, number and special character
+              </span>
+            </small>
+          </div>
+
+          <!-- Confirm Password -->
+          <div class="col-12 form-field">
+            <p-inputgroup>
+              <p-inputgroup-addon>
+                <i class="pi pi-lock"></i>
+              </p-inputgroup-addon>
+              <p-password id="confirmPassword" formControlName="confirmPassword" [ngClass]="{
+                  'p-invalid':
+                    (registerForm.get('confirmPassword')?.invalid && registerForm.get('confirmPassword')?.touched) ||
+                    (registerForm.errors?.['passwordMismatch'] && registerForm.get('confirmPassword')?.touched)
+                }" placeholder="Confirm password" [feedback]="false" [toggleMask]="true"
+                styleClass="w-full"></p-password>
+            </p-inputgroup>
+            <small *ngIf="(registerForm.get('confirmPassword')?.invalid && registerForm.get('confirmPassword')?.touched) ||
+                     (registerForm.errors?.['passwordMismatch'] && registerForm.get('confirmPassword')?.touched)"
+              class="p-error">
+              <span *ngIf="registerForm.get('confirmPassword')?.errors?.['required']">Confirm password is
+                required</span>
+              <span *ngIf="registerForm.errors?.['passwordMismatch']">Passwords do not match</span>
+            </small>
+          </div>
+
+          <!-- Terms and Conditions -->
+          <div class="col-12 form-field">
+            <div class="flex align-items-center">
+              <p-checkbox formControlName="acceptTerms" [binary]="true" inputId="acceptTerms" [ngClass]="{
+                  'p-invalid':
+                    registerForm.get('acceptTerms')?.invalid &&
+                    registerForm.get('acceptTerms')?.touched
+                }"></p-checkbox>
+              <label for="acceptTerms" class="ml-2">
+                I agree to the <a class="text-primary">Terms and Conditions</a>
+              </label>
+            </div>
+            <small *ngIf="
+                registerForm.get('acceptTerms')?.invalid && registerForm.get('acceptTerms')?.touched
+              " class="p-error">
+              You must accept the terms and conditions
+            </small>
+          </div>
+        </div>
+
+        <div *ngIf="errorMessage" class="error-message mt-3">
+          <p-message severity="error" [text]="errorMessage"></p-message>
+        </div>
+
+        <div class="form-actions mt-4">
+          <p-button type="submit" label="Register" icon="pi pi-user-plus" iconPos="right" styleClass="w-full"
+            [loading]="isLoading"></p-button>
+        </div>
+
+        <p-divider align="center">
+          <span class="text-600">OR</span>
+        </p-divider>
+
+        <div class="login-link text-center mt-3">
+          <span class="text-color-secondary">Already have an account?</span>
+          <a routerLink="/login" class="ml-2">Sign In</a>
+        </div>
+      </form>
+    </p-card>
+  </div>
+</div>

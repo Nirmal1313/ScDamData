@@ -1,0 +1,76 @@
+.register-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  padding: 2rem;
+  background-color: var(--surface-ground);
+}
+
+.register-card {
+  width: 100%;
+  max-width: 550px;
+
+  .p-card {
+    border-radius: 1rem;
+    box-shadow: 0 2px 1px -1px rgba(0, 0, 0, 0.2), 0 1px 1px 0 rgba(0, 0, 0, 0.14),
+      0 1px 3px 0 rgba(0, 0, 0, 0.12);
+
+    .p-card-title {
+      margin-bottom: 0;
+      color: var(--primary-color);
+    }
+  }
+}
+
+.register-form {
+  .form-field {
+    margin-bottom: 1.5rem;
+
+    .p-inputgroup {
+      width: 100%;
+    }
+
+    .p-inputtext,
+    .p-password-input {
+      width: 100%;
+    }
+  }
+
+  .p-password {
+    width: 100%;
+  }
+
+  .form-actions {
+    margin-top: 1.5rem;
+  }
+
+  .error-message {
+    margin-bottom: 1rem;
+
+    .p-message {
+      width: 100%;
+    }
+  }
+
+  .login-link {
+    margin-top: 1.5rem;
+
+    a {
+      color: var(--primary-color);
+      text-decoration: none;
+      font-weight: 600;
+
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+  }
+}
+
+// Responsive adjustments
+@media (max-width: 576px) {
+  .register-container {
+    padding: 1rem;
+  }
+}

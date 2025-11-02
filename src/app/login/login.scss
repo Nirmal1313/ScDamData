@@ -1,0 +1,194 @@
+.login-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+ // background: var(--surface-ground);
+  padding: 2rem;
+
+  // Custom background gradient (optional - can use PrimeNG var instead)
+  //background: linear-gradient(120deg, var(--surface-0, #f8f9fa) 0%, var(--surface-100, #e9ecef) 100%);
+}
+
+.login-card {
+  width: 90%;
+  height: auto;
+  max-width: 40rem;
+  animation: fadeIn 0.5s ease-in-out;
+
+  // PrimeNG Card customization
+  ::ng-deep {
+    .p-card {
+      border-radius: var(--border-radius);
+      box-shadow: var(--card-shadow, 0 2px 12px 0 rgba(0, 0, 0, 0.1));
+
+      .p-card-title {
+        font-size: 1.5rem;
+        color: var(--text-color);
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+      }
+
+      .p-card-content {
+        padding: 1.5rem;
+      }
+
+      .p-card-header {
+        background-color: var(--surface-0);
+        padding: 1.5rem 1.5rem 0;
+        border-top-left-radius: var(--border-radius);
+        border-top-right-radius: var(--border-radius);
+      }
+    }
+  }
+}
+
+.login-form {
+  padding: 0.5rem 0;
+
+  ::ng-deep {
+    // InputGroup styling
+    .p-inputgroup {
+      .p-inputgroup-addon {
+        background-color: var(--surface-50);
+        border-color: var(--surface-300);
+        color: var(--text-color-secondary);
+      }
+
+      .p-inputtext {
+        &:enabled:focus {
+          box-shadow: var(--focus-ring);
+        }
+      }
+    }
+
+    // Password component styling
+    .p-password {
+      width: 100%;
+
+      input {
+        width: 100%;
+      }
+    }
+  }
+}
+
+.form-field {
+  margin-bottom: 1.5rem;
+
+  // Error message styling using PrimeNG variables
+  .p-error {
+    color: var(--red-500);
+    font-size: 0.875rem;
+    margin-top: 0.5rem;
+    display: block;
+  }
+}
+
+.remember-me {
+  display: flex;
+  align-items: center;
+  margin: 1.25rem 0;
+
+  label {
+    margin-left: 0.5rem;
+    color: var(--text-color-secondary);
+  }
+
+  ::ng-deep {
+    .p-checkbox {
+      .p-checkbox-box {
+        &.p-highlight {
+          border-color: var(--primary-color);
+          background: var(--primary-color);
+        }
+      }
+    }
+  }
+}
+
+.form-actions {
+  margin: 1.5rem 0;
+
+  ::ng-deep {
+    .p-button {
+      background: #3B82F6 !important; // Use explicit blue color for primary
+      border-color: #3B82F6 !important;
+      color: #ffffff !important; // Force white text color
+      font-weight: 600;
+      height: auto;
+      padding: 0.75rem 1.5rem;
+
+      .p-button-label {
+        font-size: 1rem;
+        font-weight: 600;
+      }
+
+      .p-button-icon {
+        font-size: 1rem;
+      }
+
+      &:hover {
+        background: #2563EB !important; // Darker blue on hover
+        border-color: #2563EB !important;
+      }
+
+      &:focus {
+        box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.25);
+      }
+
+      &.p-button-loading {
+        background: #60A5FA !important; // Lighter blue when loading
+        opacity: 0.8;
+      }
+    }
+  }
+}
+
+.register-link {
+  text-align: center;
+  margin-top: 1.25rem;
+
+  a {
+    color: var(--primary-color);
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 0.9rem;
+    transition: color 0.2s;
+
+    &:hover {
+      color: var(--primary-600);
+      text-decoration: underline;
+    }
+  }
+}
+
+.error-message {
+  margin: 1rem 0;
+
+  ::ng-deep {
+    .p-message {
+      margin-bottom: 0;
+      border-radius: var(--border-radius);
+    }
+  }
+}
+
+// PrimeNG compatible utility classes
+.w-full {
+  width: 100%;
+}
+
+.ml-2 {
+  margin-left: 0.5rem;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

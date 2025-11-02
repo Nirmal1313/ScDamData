@@ -1,0 +1,438 @@
+<div class="project-notes-container">
+  <!-- Toast for notifications -->
+  <p-toast />
+
+  <!-- Confirmation dialog -->
+  <p-confirmDialog />
+
+  <!-- Main Panel -->
+  <p-panel header="Project Notes" [toggleable]="true" [collapsed]="true">
+    <div class="card">
+      <!-- Toolbar -->
+      <p-toolbar class="mb-6">
+        <ng-template #start>
+          <p-button label="New" icon="pi pi-plus" class="mr-2" (onClick)="onAdd()" />
+          <p-button severity="danger" label="Delete" icon="pi pi-trash" outlined (onClick)="deleteSelectedNotes()"
+            [disabled]="!selectedNotes || !selectedNotes.length" />
+        </ng-template>
+      </p-toolbar>
+
+      <!-- Data Table with Expandable Rows -->
+      <p-table #dt1 [value]="projectNotes" [loading]="loading" [paginator]="true" [rows]="10"
+        [rowsPerPageOptions]="[5, 10, 20, 50]" [showCurrentPageReport]="true"
+        currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries" dataKey="id"
+        [(selection)]="selectedNotes" [rowHover]="true" stripedRows showGridlines [scrollable]="true"
+        [globalFilterFields]="['title', 'client', 'author', 'description', 'notes']" sortField="dueDate" [sortOrder]="1"
+        [resizableColumns]="true" columnResizeMode="expand" scrollHeight="500px" [expandedRowKeys]="expandedRows"
+        (onRowExpand)="onRowExpand($event)" (onRowCollapse)="onRowCollapse($event)">
+
+        <!-- Table Header -->
+        <ng-template #caption>
+          <div class="table-header">
+            <div class="header-actions">
+              <p-button label="Clear" [outlined]="true" icon="pi pi-filter-slash" (click)="clear(dt1)" />
+              <p-button label="Expand All" icon="pi pi-plus" text (onClick)="expandAll()" />
+              <p-button label="Collapse All" icon="pi pi-minus" text (onClick)="collapseAll()" />
+            </div>
+            <div class="header-search">
+              <p-iconfield>
+                <p-inputicon class="pi pi-search" />
+                <input pInputText type="text" [(ngModel)]="searchValue"
+                  (input)="dt1.filterGlobal(searchValue, 'contains')" placeholder="Search..." />
+              </p-iconfield>
+            </div>
+          </div>
+        </ng-template>
+
+        <ng-template #header>
+          <tr>
+            <th class="expand-column"></th>
+            <th>
+              <p-tableHeaderCheckbox />
+            </th>
+            <th *ngFor="let column of getMainTableColumns()"
+              [pSortableColumn]="column.sortable ? column.field : undefined"
+              [style.width]="column.width"
+              class="column-header">
+              <span class="column-header-content">
+                {{ column.header }}
+                <p-sortIcon *ngIf="column.sortable" [field]="column.field" />
+              </span>
+            </th>
+            <th>Actions</th>
+          </tr>
+        </ng-template>
+
+        <!-- Table Body - Main Row -->
+        <ng-template #body let-note let-expanded="expanded">
+          <tr>
+            <td>
+              <p-button type="button" pRipple [pRowToggler]="note" [text]="true" severity="secondary" [rounded]="true"
+                [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'" />
+            </td>
+            <td>
+              <p-tableCheckbox [value]="note" />
+            </td>
+
+            <!-- Dynamic Columns -->
+            <td *ngFor="let column of getMainTableColumns()" class="dynamic-cell">
+              <ng-container [ngSwitch]="getCellType(column)">
+                <!-- Title field with special rendering -->
+                <div *ngSwitchCase="'title'" class="title-cell">
+                  <div class="title-primary">{{ note[column.field] }}</div>
+                  <div class="title-secondary" *ngIf="note.name">{{ note.name }}</div>
+                </div>
+
+                <!-- Enum fields with tags -->
+                <p-tag *ngSwitchCase="'enum'"
+                  [value]="note[column.field] | enumToLabel: getEnumType(column.field)"
+                  [severity]="getSeverity(column.field, note[column.field])" />
+
+                <!-- Date fields -->
+                <span *ngSwitchCase="'date'" class="date-cell">
+                  {{ note[column.field] | dateFormat: (column.format || 'dddd DD/MM/YYYY') }}
+                </span>
+
+                <!-- Regular text fields -->
+                <span *ngSwitchDefault>
+                  {{ renderCellValue(note, column) }}
+                </span>
+              </ng-container>
+            </td>
+
+            <td>
+              <p-button icon="pi pi-pencil" class="mr-2" [rounded]="true" [outlined]="true" (click)="onEdit(note)"
+                pTooltip="Edit" />
+              <p-button icon="pi pi-trash" severity="danger" [rounded]="true" [outlined]="true" (click)="onDelete(note)"
+                pTooltip="Delete" />
+            </td>
+          </tr>
+        </ng-template>
+
+        <!-- Expanded Row - Detailed Information -->
+        <ng-template #expandedrow let-note>
+          <tr>
+            <td [attr.colspan]="getMainTableColumns().length + 3">
+              <div class="expanded-content">
+
+                <!-- Dynamic Sections -->
+                <ng-container *ngFor="let section of expandableViewConfig.sections">
+                  <div class="detail-section" *ngIf="shouldShowSection(note, section)">
+                    <!-- Section Header -->
+                    <div class="section-header">
+                      <i [class]="section.icon + ' text-primary'"></i>
+                      <span class="section-title">{{ section.title }}</span>
+                    </div>
+
+                    <!-- Section Content -->
+                    <div class="section-content" [ngSwitch]="section.type">
+                      <!-- Description Type Section -->
+                      <div *ngSwitchCase="'description'">
+                        <p class="content-text description-text"
+                           *ngFor="let field of section.fields"
+                           [hidden]="!hasFieldValue(note, field)">
+                          {{ note[field] }}
+                        </p>
+                      </div>
+
+                      <!-- Notes Type Section -->
+                      <div *ngSwitchCase="'notes'">
+                        <div class="content-text notes-content"
+                             *ngFor="let field of section.fields"
+                             [hidden]="!hasFieldValue(note, field)">
+                          {{ note[field] }}
+                        </div>
+                      </div>
+
+                      <!-- Details, Status, and Dates Type Sections -->
+                      <div *ngSwitchDefault>
+                        <div class="detail-row" *ngFor="let field of getVisibleFieldsForSection(note, section)">
+                          <span class="detail-label">{{ getFieldLabel(field) }}</span>
+                          <span class="detail-value" [ngSwitch]="section.type">
+                            <!-- Status values with tags -->
+                            <p-tag *ngSwitchCase="'status'"
+                              [value]="note[field] | enumToLabel: getEnumType(field)"
+                              [severity]="getSeverity(field, note[field])" />
+                            <!-- Date values -->
+                            <span *ngSwitchCase="'dates'" class="date-value">
+                              {{ note[field] | dateFormat: 'dddd DD/MM/YYYY' }}
+                            </span>
+                            <!-- Regular values -->
+                            <span *ngSwitchDefault>{{ note[field] }}</span>
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </ng-container>
+
+              </div>
+            </td>
+          </tr>
+        </ng-template>
+
+        <!-- Empty Message -->
+        <ng-template pTemplate="emptymessage">
+          <tr>
+            <td [attr.colspan]="getMainTableColumns().length + 3" class="empty-message">
+              <div class="empty-state">
+                <i class="pi pi-inbox"></i>
+                <h3>No project notes found</h3>
+                <p>Click "New" to create your first note</p>
+              </div>
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </div>
+  </p-panel>
+
+  <!-- UNIFIED PROJECT NOTE DIALOG -->
+  <p-dialog [(visible)]="showFormDialog" header="{{ isEditMode ? '✏️ Edit Project Note' : '➕ Create Project Note' }}"
+    [modal]="true" [closable]="true" [draggable]="true" [resizable]="true" styleClass="project-notes-form-dialog"
+    (onHide)="closeDialog()">
+
+    <!-- Note Form -->
+    <form class="p-fluid" [formGroup]="noteForm" (ngSubmit)="onSave()">
+
+      <!-- Title Field with Icon -->
+      <div class="field">
+        <p-inputgroup>
+          <p-inputgroup-addon>
+            <i class="pi pi-file"></i>
+          </p-inputgroup-addon>
+          <p-floatlabel variant="in">
+            <input pInputText id="title" formControlName="title" autocomplete="off"
+              placeholder="Enter a descriptive title for your note"
+              [class.ng-invalid]="noteForm.get('title')?.invalid && noteForm.get('title')?.touched" />
+            <label for="title">Title</label>
+          </p-floatlabel>
+        </p-inputgroup>
+        <small class="p-error" *ngIf="noteForm.get('title')?.hasError('required') && noteForm.get('title')?.touched">
+          Title is required
+        </small>
+      </div>
+
+      <!-- Name Field with Icon -->
+      <div class="field">
+        <p-inputgroup>
+          <p-inputgroup-addon>
+            <i class="pi pi-user"></i>
+          </p-inputgroup-addon>
+          <p-floatlabel variant="in">
+            <input pInputText id="name" formControlName="name" autocomplete="off"
+              placeholder="Enter name or identifier" />
+            <label for="name">Name</label>
+          </p-floatlabel>
+        </p-inputgroup>
+      </div>
+
+      <!-- Description Field -->
+      <div class="field">
+        <p-floatlabel variant="in">
+          <textarea pInputTextarea id="description" formControlName="description" rows="3" autocomplete="off"
+            placeholder="Add details about your note (optional)" class="w-full" maxlength="4000"></textarea>
+          <label for="description">Description</label>
+        </p-floatlabel>
+        <small class="char-counter">
+          {{ noteForm.get('description')?.value?.length || 0 }} / 4000 characters
+        </small>
+      </div>
+
+      <!-- Basic Information Section -->
+      <div class="field">
+        <!-- Client -->
+        <div class="field">
+          <p-inputgroup>
+            <p-inputgroup-addon>
+              <i class="pi pi-briefcase"></i>
+            </p-inputgroup-addon>
+            <p-floatlabel variant="in">
+              <input pInputText id="client" formControlName="client" autocomplete="off" placeholder="Enter client name"
+                [class.ng-invalid]="noteForm.get('client')?.invalid && noteForm.get('client')?.touched" />
+              <label for="client">Client <span class="required">*</span></label>
+            </p-floatlabel>
+          </p-inputgroup>
+          <small class="p-error"
+            *ngIf="noteForm.get('client')?.hasError('required') && noteForm.get('client')?.touched">
+            Client is required
+          </small>
+        </div>
+
+        <!-- Author -->
+        <div class="field">
+          <p-inputgroup>
+            <p-inputgroup-addon>
+              <i class="pi pi-user-edit"></i>
+            </p-inputgroup-addon>
+            <p-floatlabel variant="in">
+              <input pInputText id="author" formControlName="author" autocomplete="off"
+                placeholder="Enter author name" />
+              <label for="author">Author</label>
+            </p-floatlabel>
+          </p-inputgroup>
+        </div>
+
+        <!-- Task Detail -->
+        <div class="field">
+          <p-inputgroup>
+            <p-inputgroup-addon>
+              <i class="pi pi-list"></i>
+            </p-inputgroup-addon>
+            <p-floatlabel variant="in">
+              <input pInputText id="taskDetail" formControlName="taskDetail" autocomplete="off"
+                placeholder="Enter task details" />
+              <label for="taskDetail">Task Detail</label>
+            </p-floatlabel>
+          </p-inputgroup>
+        </div>
+
+        <!-- Compilation -->
+        <div class="field">
+          <p-inputgroup>
+            <p-inputgroup-addon>
+              <i class="pi pi-folder-open"></i>
+            </p-inputgroup-addon>
+            <p-floatlabel variant="in">
+              <input pInputText id="compilation" formControlName="compilation" autocomplete="off"
+                placeholder="Enter compilation details" />
+              <label for="compilation">Compilation</label>
+            </p-floatlabel>
+          </p-inputgroup>
+        </div>
+
+        <!-- Notes -->
+        <div class="field mb-0">
+          <p-floatlabel variant="in">
+            <textarea pInputTextarea id="notes" formControlName="notes" rows="4" autocomplete="off"
+              placeholder="Additional notes and comments" class="w-full" maxlength="4000"></textarea>
+            <label for="notes">Notes</label>
+          </p-floatlabel>
+          <small class="char-counter">
+            {{ noteForm.get('notes')?.value?.length || 0 }} / 4000 characters
+          </small>
+        </div>
+      </div>
+
+      <!-- Status and Priority Section -->
+      <div class="field">
+        <!-- Status and Priority in Grid -->
+        <div class="formgrid grid">
+          <div class="field col-12 md:col-6">
+            <p-floatlabel variant="in">
+              <p-select id="status" formControlName="status" [options]="statusOptions" optionLabel="label"
+                optionValue="value" />
+              <label for="status">Status <span class="required">*</span></label>
+            </p-floatlabel>
+          </div>
+
+          <div class="field col-12 md:col-6">
+            <p-floatlabel variant="in">
+              <p-select id="priority" formControlName="priority" [options]="priorityOptions" optionLabel="label"
+                optionValue="value" />
+              <label for="priority">Priority <span class="required">*</span></label>
+            </p-floatlabel>
+          </div>
+        </div>
+
+        <!-- Note Status and Note Type in Grid -->
+        <div class="formgrid grid">
+          <div class="field col-12 md:col-6">
+            <p-floatlabel variant="in">
+              <p-select id="noteStatus" formControlName="noteStatus" [options]="noteStatusOptions" optionLabel="label"
+                optionValue="value" />
+              <label for="noteStatus">Note Status <span class="required">*</span></label>
+            </p-floatlabel>
+          </div>
+
+          <div class="field col-12 md:col-6 mb-0">
+            <p-floatlabel variant="in">
+              <p-select id="noteType" formControlName="noteType" [options]="noteTypeOptions" optionLabel="label"
+                optionValue="value" />
+              <label for="noteType">Note Type <span class="required">*</span></label>
+            </p-floatlabel>
+          </div>
+        </div>
+      </div>
+
+      <!-- Dates Section -->
+      <div class="field">
+        <!-- Reporting Date and Due Date -->
+        <div class="formgrid grid">
+          <div class="field col-12 md:col-6">
+            <label for="reportingDate" class="block font-medium mb-2">
+              Reporting Date <span class="required">*</span>
+            </label>
+            <p-datepicker id="reportingDate" formControlName="reportingDate" dateFormat="dd/mm/yy" iconDisplay="input"
+              placeholder="Select reporting date" />
+          </div>
+
+          <div class="field col-12 md:col-6">
+            <label for="dueDate" class="block font-medium mb-2">
+              Due Date <span class="required">*</span>
+            </label>
+            <p-datepicker id="dueDate" formControlName="dueDate" dateFormat="dd/mm/yy" iconDisplay="input"
+              placeholder="Select due date" />
+          </div>
+        </div>
+
+        <!-- Start Date and End Date -->
+        <div class="formgrid grid">
+          <div class="field col-12 md:col-6">
+            <label for="startDate" class="block font-medium mb-2">
+              Start Date <span class="required">*</span>
+            </label>
+            <p-datepicker id="startDate" formControlName="startDate" dateFormat="dd/mm/yy" iconDisplay="input"
+              placeholder="Select start date"
+              [class.ng-invalid]="noteForm.get('startDate')?.invalid && noteForm.get('startDate')?.touched" />
+            <small class="p-error"
+              *ngIf="noteForm.get('startDate')?.hasError('required') && noteForm.get('startDate')?.touched">
+              Start date is required
+            </small>
+          </div>
+
+          <div class="field col-12 md:col-6">
+            <label for="endDate" class="block font-medium mb-2">
+              End Date <span class="required">*</span>
+            </label>
+            <p-datepicker id="endDate" formControlName="endDate" dateFormat="dd/mm/yy" iconDisplay="input"
+              placeholder="Select end date"
+              [class.ng-invalid]="noteForm.get('endDate')?.invalid && noteForm.get('endDate')?.touched" />
+            <small class="p-error"
+              *ngIf="noteForm.get('endDate')?.hasError('required') && noteForm.get('endDate')?.touched">
+              End date is required
+            </small>
+          </div>
+        </div>
+
+        <!-- Date Validation Error Message -->
+        <p-message *ngIf="dateValidationError" severity="error" [text]="dateValidationError"
+          styleClass="w-full mt-2"></p-message>
+      </div>
+
+    </form>
+
+    <!-- Dialog Footer -->
+    <ng-template pTemplate="footer">
+      <div class="flex justify-content-between align-items-center w-full">
+        <!-- Delete Button (for existing notes) -->
+        <div class="flex-shrink-0">
+          <p-button *ngIf="isEditMode && currentNote" type="button" icon="pi pi-trash" label="Delete" severity="danger"
+            variant="outlined" (click)="onDelete(currentNote)" class="delete-note-button">
+          </p-button>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="flex gap-2 flex-shrink-0">
+          <p-button type="button" icon="pi pi-times" label="Cancel" severity="secondary" variant="outlined"
+            (click)="closeDialog()">
+          </p-button>
+
+          <p-button type="button" icon="pi pi-check" label="{{ isEditMode ? 'Update' : 'Create' }}" severity="success"
+            (click)="onSave()" [disabled]="noteForm.invalid">
+          </p-button>
+        </div>
+      </div>
+    </ng-template>
+  </p-dialog>
+</div>

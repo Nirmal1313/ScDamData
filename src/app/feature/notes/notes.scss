@@ -1,0 +1,1167 @@
+.project-notes-container {
+  // ========================================
+  // BASE TABLE STYLES
+  // ========================================
+
+  // Ensure smooth scrolling for the table
+  ::ng-deep {
+    .p-datatable-wrapper {
+      scroll-behavior: smooth;
+      overflow-y: auto;
+    }
+
+    .p-datatable-tbody {
+      scroll-behavior: smooth;
+    }
+
+    // Prevent scroll jumping on row expansion
+    .p-datatable-tbody tr {
+      scroll-margin-top: 1.25rem;
+    }
+  }
+
+  // ========================================
+  // COMPONENT STYLES
+  // ========================================
+
+  // Base font size increase for better readability
+  font-size: 1rem;
+
+  // Ensure all content aligns left except dates
+  ::ng-deep {
+    .p-datatable-tbody td {
+      text-align: left;
+      font-size: 1rem;
+    }
+
+    // Date columns should be right-aligned ONLY in main table cells
+    .p-datatable-tbody td .date-cell:not(.expanded-content .date-cell),
+    .p-datatable-tbody td[class*="date"]:not(.expanded-content *) {
+      text-align: right;
+    }
+  }
+
+  .color-box {
+    width: 1.875rem;
+    height: 1.875rem;
+    border-radius: 0.25rem;
+    border: 0.0625rem solid #dee2e6;
+    display: inline-block;
+  }
+
+  // Enhanced p-tag styling for better visibility
+  ::ng-deep {
+    p-tag {
+      .p-tag {
+        padding: 0.5rem 0.875rem;
+        font-size: 1rem;
+        font-weight: 500;
+        border-radius: 0.375rem;
+        text-transform: capitalize;
+      }
+    }
+  }
+
+  // ========================================
+  // HEADER AND LAYOUT STYLES
+  // ========================================
+
+  .empty-state {
+    color: #6c757d;
+    padding: 2rem;
+    text-align: center;
+
+    i {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+      color: #adb5bd;
+    }
+
+    h3 {
+      font-size: 1.5rem;
+      margin-bottom: 0.5rem;
+      color: #495057;
+    }
+
+    p {
+      font-size: 1rem;
+      margin: 0;
+    }
+  }
+
+  .empty-message {
+    text-align: center;
+    padding: 2rem 0;
+  }
+
+  // Form styles
+  .p-dialog {
+    .p-fluid {
+      .grid {
+        margin-top: 1rem;
+      }
+
+      label {
+        display: block;
+        margin-bottom: 0.5rem;
+      }
+
+      .p-error {
+        display: block;
+        margin-top: 0.25rem;
+      }
+    }
+  }
+
+  // Column header styles
+  .column-header {
+    .column-header-content {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+  }
+
+  // Dynamic cell styles
+  .dynamic-cell {
+    text-align: left;
+    font-size: 1rem;
+
+    .title-cell {
+      .title-primary {
+        font-weight: 500;
+        color: #212529;
+        font-size: 1.1rem;
+      }
+
+      .title-secondary {
+        font-size: 1rem;
+        color: #6c757d;
+        margin-top: 0.25rem;
+      }
+    }
+
+    .date-cell {
+      font-family: 'Courier New', monospace;
+      font-size: 1rem;
+      text-align: right;
+      font-weight: 500;
+    }
+
+    // Override date cell alignment when inside expanded content
+    &.expanded-content .date-cell {
+      text-align: left;
+    }
+
+    // Ensure tags have appropriate font size
+    p-tag .p-tag {
+      font-size: 1rem;
+    }
+
+    // Regular text content
+    span:not(.date-cell) {
+      font-size: 1rem;
+    }
+  }
+
+  // Table header styles
+  .table-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    .header-actions {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .header-search {
+      flex-shrink: 0;
+    }
+  }
+
+  // Table header styles
+  ::ng-deep {
+    // Checkbox column width
+    .p-datatable-thead > tr > th:first-child,
+    .p-datatable-tbody > tr > td:first-child {
+      width: 3rem;
+      text-align: center;
+    }
+
+    // Expand column width
+    .expand-column {
+      width: 3rem !important;
+      text-align: center;
+    }
+
+    // Actions column width
+    .p-datatable-thead > tr > th:last-child,
+    .p-datatable-tbody > tr > td:last-child {
+      min-width: 8rem;
+      width: 8rem;
+    }
+
+    // Column-specific widths
+    .p-datatable-thead > tr > th,
+    .p-datatable-tbody > tr > td {
+      &:nth-child(2) { // Title
+        min-width: 10rem; // 160px
+        max-width: 12rem; // 190.125rem
+      }
+
+      &:nth-child(3) { // Client
+        min-width: 8rem;  // 128px
+        max-width: 10rem; // 160px
+      }
+
+      &:nth-child(4) { // Author
+        min-width: 7rem;  // 110.125rem
+        max-width: 9rem;  // 144px
+      }
+
+      &:nth-child(5) { // Task Detail
+        min-width: 8rem;  // 128px
+        max-width: 10rem; // 160px
+      }
+
+      &:nth-child(6) { // Compilation
+        min-width: 8rem;  // 128px
+        max-width: 10rem; // 160px
+      }
+
+      &:nth-child(7) { // Notes
+        min-width: 8rem;  // 128px
+        max-width: 10rem; // 160px
+      }
+
+      &:nth-child(8) { // Start Date
+        min-width: 6rem;  // 96px
+        width: 6rem;
+      }
+
+      &:nth-child(9) { // End Date
+        min-width: 6rem;  // 96px
+        width: 6rem;
+      }
+
+      &:nth-child(10) { // Due Date
+        min-width: 6rem;  // 96px
+        width: 6rem;
+      }
+
+      &:nth-child(11) { // Reporting Date
+        min-width: 6.5rem;  // 104px
+        width: 6.5rem;
+      }
+
+      &:nth-child(12) { // Status
+        min-width: 5rem;  // 80px
+        width: 5rem;
+      }
+
+      &:nth-child(13) { // Priority
+        min-width: 5rem;  // 80px
+        width: 5rem;
+      }
+
+      &:nth-child(14) { // Note Status
+        min-width: 6rem;  // 96px
+        width: 6rem;
+      }
+
+      &:nth-child(15) { // Note Type
+        min-width: 5.5rem;  // 88px
+        width: 5.5rem;
+      }
+    }
+
+    // Wrap text in table cells
+    .p-datatable-tbody > tr > td {
+      white-space: normal;
+      word-wrap: break-word;
+      overflow-wrap: break-word;
+      vertical-align: top;
+      padding: 0.5rem;
+      font-size: 0.75rem; // Reduced font size for table rows
+    }
+
+    .p-datatable-thead > tr > th {
+      padding: 0.5rem;
+      white-space: nowrap;
+      background-color: #f8f9fa;
+      border-bottom: 0.125rem solid #dee2e6;
+      font-size: 0.75rem; // Reduced font size for headers
+
+      // Main flex container for header content
+      .flex {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        width: 100%;
+        gap: 0.25rem;
+
+        // First flex div containing header text and sort icon
+        > .flex {
+          display: flex;
+          align-items: center;
+          gap: 0.25rem;
+          flex: 1;
+          min-width: 0;
+
+          span {
+            font-weight: 600;
+            font-size: 0.75rem; // Reduced font size for header text
+            color: #495057;
+            white-space: nowrap;
+          }
+
+          // Sort icon styling
+          p-sorticon {
+            display: flex;
+            align-items: center;
+            margin-left: 0.25rem;
+          }
+        }
+
+        // Column filter styling
+        p-columnfilter {
+          display: flex;
+          align-items: center;
+          flex-shrink: 0;
+          margin-left: 0.25rem;
+        }
+      }
+
+      // Legacy support for old structure
+      .flex.items-center.justify-between {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        width: 100%;
+        gap: 0.25rem;
+
+        > div.flex.items-center.gap-2 {
+          display: flex;
+          align-items: center;
+          gap: 0.25rem;
+          flex: 1;
+          min-width: 0;
+
+          span {
+            font-weight: 600;
+            font-size: 0.75rem; // Reduced font size for header text
+            color: #495057;
+            white-space: nowrap;
+          }
+        }
+      }
+    }
+
+    // Sort icon styling
+    .p-sortable-column-icon {
+      margin-left: 0.25rem;
+      font-size: 0.625rem;
+      color: #6c757d;
+      display: inline-flex;
+      align-items: center;
+    }
+
+    // Sort icon in header
+    p-sorticon {
+      display: inline-flex;
+      align-items: center;
+      margin-left: 0.25rem;
+
+      .p-sortable-column-icon {
+        margin-left: 0;
+        font-size: 0.625rem;
+        color: #6c757d;
+      }
+    }
+
+    // Active sort styling
+    .p-datatable-thead > tr > th.p-sortable-column.p-highlight {
+      .p-sortable-column-icon {
+        color: #007bff;
+      }
+    }
+
+    // Filter menu overlay
+    .p-column-filter-overlay {
+      min-width: 12rem;
+    }
+
+    // Ensure proper spacing for flex items
+    .flex {
+      display: flex;
+    }
+
+    .items-center {
+      align-items: center;
+    }
+
+    .justify-between {
+      justify-content: space-between;
+    }
+  }
+
+  // Table responsive
+  @media screen and (max-width: 48rem) {
+    ::ng-deep {
+      .p-datatable-wrapper {
+        overflow-x: auto;
+      }
+    }
+  }
+
+  // Table row hover
+  ::ng-deep {
+    .p-datatable .p-datatable-tbody > tr:hover {
+      background-color: rgba(0, 123, 255, 0.05);
+      cursor: pointer;
+    }
+
+    // Dialog widths
+    p-confirmDialog .p-dialog {
+      width: 28.125rem;
+    }
+  }
+
+  // Form dialog width
+  ::ng-deep {
+    .p-dialog{
+      min-width: 45rem;
+    }
+    .project-notes-form-dialog .p-dialog {
+      // Prevent autoscroll to top
+      .p-dialog-content {
+        scroll-behavior: auto;
+
+        &:focus {
+          outline: none;
+        }
+
+        // Prevent autoscroll when datepicker opens
+        * {
+          scroll-margin: 0;
+          scroll-padding: 0;
+        }
+
+        // Prevent focus from scrolling the dialog
+        input:focus,
+        .p-inputtext:focus,
+        .p-datepicker:focus {
+          scroll-margin: 0;
+        }
+      }
+    }
+
+    .project-notes-form-dialog .p-dialog-header {
+      background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+      color: white;
+      padding: 1.5rem;
+      border-bottom: none;
+      border-radius: 0.375rem 0.375rem 0 0;
+
+      .p-dialog-title {
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: white;
+      }
+
+      .p-dialog-header-icon {
+        color: white;
+        width: 2rem;
+        height: 2rem;
+        background-color: rgba(255, 255, 255, 0.15);
+        border-radius: 0.25rem;
+        transition: all 0.2s ease;
+
+        &:hover {
+          background-color: rgba(255, 255, 255, 0.25);
+          color: white;
+          transform: scale(1.05);
+        }
+
+        &:focus {
+          box-shadow: 0 0 0 0.2rem rgba(255, 255, 255, 0.4);
+          background-color: rgba(255, 255, 255, 0.2);
+        }
+      }
+    }
+
+    .project-notes-form-dialog .p-dialog-content {
+      padding: 1.5rem;
+      max-height: 70vh;
+      overflow-y: auto;
+      background-color: #f8f9fa;
+      scroll-behavior: auto !important;
+      overflow-anchor: none !important;
+
+      // Prevent autoscroll when dialog opens
+      &:focus-visible {
+        outline: none;
+      }
+
+      // Prevent datepicker from causing scroll
+      .p-datepicker-input-icon-container,
+      p-datepicker {
+        scroll-margin-top: 0 !important;
+        scroll-margin-bottom: 0 !important;
+      }
+
+      // Lock scroll position
+      &:focus-within {
+        scroll-behavior: auto !important;
+      }
+
+      // Prevent all form elements from triggering scroll
+      * {
+        scroll-margin: 0 !important;
+        scroll-padding: 0 !important;
+
+        &:focus {
+          scroll-margin: 0 !important;
+        }
+      }
+    }
+
+    .project-notes-form-dialog .p-dialog-footer {
+      padding: 1rem 1.5rem;
+      background-color: #ffffff;
+      border-top: 0.0625rem solid #dee2e6;
+    }
+  }
+
+  // Field styling
+  .field {
+    margin-bottom: 1.25rem;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 500;
+      color: #495057;
+      font-size: 0.95rem;
+
+      .required {
+        color: #dc3545;
+        margin-left: 0.25rem;
+      }
+    }
+
+    .card {
+      background: #ffffff;
+      border: 0.0625rem solid #dee2e6;
+      border-radius: 0.5rem;
+      padding: 1.25rem;
+      box-shadow: 0 0.0625rem 0.1875rem rgba(0, 0, 0, 0.05);
+
+      .field {
+        margin-bottom: 1rem;
+
+        &:last-child {
+          margin-bottom: 0;
+        }
+      }
+    }
+
+    .p-error {
+      display: block;
+      margin-top: 0.35rem;
+      font-size: 0.85rem;
+      color: #dc3545;
+    }
+
+    .char-counter {
+      display: block;
+      margin-top: 0.35rem;
+      font-size: 0.8rem;
+      color: #6c757d;
+      text-align: right;
+      font-style: italic;
+    }
+  }
+
+  // Input group styling
+  ::ng-deep {
+    .project-notes-form-dialog {
+      .p-inputgroup {
+        display: flex;
+        width: 100%;
+
+        .p-inputgroup-addon {
+          background-color: #f8f9fa;
+          color: #007bff;
+          border-color: #ced4da;
+          min-width: 2.75rem;
+          width: 2.75rem;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          border-right: none;
+
+          i {
+            font-size: 1rem;
+          }
+        }
+
+        p-floatlabel {
+          flex: 1;
+          width: 100%;
+          display: block;
+
+          .p-inputtext {
+            width: 100%;
+            border-left: 0.0625rem solid #ced4da;
+          }
+        }
+      }
+    }
+  }
+
+  // Message styling
+  .p-message {
+    margin: 0.5rem 0;
+    border-radius: 0.375rem;
+
+    .p-message-wrapper {
+      padding: 0.75rem 1rem;
+    }
+
+    .p-message-icon {
+      font-size: 1.25rem;
+      margin-right: 0.5rem;
+    }
+
+    .p-message-text {
+      font-size: 0.9rem;
+      line-height: 1.5;
+    }
+  }  // Form field styling
+  ::ng-deep {
+    .project-notes-form-dialog {
+      .p-fluid {
+        .field {
+          margin-bottom: 1.25rem;
+
+          &:last-child {
+            margin-bottom: 0;
+          }
+        }
+      }
+
+      input.p-inputtext,
+      textarea.p-inputtextarea,
+      .p-select,
+      .p-datepicker,
+      .p-datepicker-input-icon-container {
+        width: 100%;
+        font-size: 0.95rem;
+      }
+
+      // Datepicker with icon on the right - FORCE ICON TO RIGHT SIDE
+      p-datepicker {
+        width: 100%;
+        display: block;
+
+        .p-datepicker-input-icon-container {
+          display: flex;
+          flex-direction: row-reverse;
+          align-items: center;
+          width: 100%;
+          position: relative;
+
+          input.p-inputtext {
+            flex: 1;
+            order: 1;
+            width: 100%;
+            padding-right: 2.5rem;
+          }
+
+          .p-icon {
+            order: 2;
+            position: absolute;
+            right: 0.75rem;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            color: #6c757d;
+            z-index: 1;
+            pointer-events: auto;
+          }
+
+          button {
+            position: absolute;
+            right: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            background: transparent;
+            border: none;
+            padding: 0.5rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            .p-icon {
+              color: #6c757d;
+              position: static;
+              transform: none;
+            }
+          }
+        }
+      }
+
+      // Legacy support
+      .p-datepicker-input-icon-container {
+        display: flex;
+        flex-direction: row-reverse !important;
+        align-items: center;
+        position: relative;
+        width: 100%;
+
+        input.p-inputtext {
+          flex: 1;
+          padding-right: 2.5rem;
+          order: 1;
+        }
+
+        .p-datepicker-icon,
+        .p-icon {
+          position: absolute !important;
+          right: 0.75rem !important;
+          left: auto !important;
+          top: 50% !important;
+          transform: translateY(-50%) !important;
+          cursor: pointer;
+          color: #6c757d;
+          order: 2;
+        }
+
+        button {
+          position: absolute;
+          right: 0;
+          top: 50%;
+          transform: translateY(-50%);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+      }
+
+      p-floatlabel {
+        width: 100%;
+        display: block;
+
+        input.p-inputtext,
+        textarea.p-inputtextarea {
+          width: 100%;
+        }
+      }
+
+      // Ensure nested p-floatlabel in inputgroups work
+      .p-inputgroup p-floatlabel {
+        flex: 1;
+
+        input.p-inputtext {
+          width: 100%;
+        }
+      }
+
+      textarea.p-inputtextarea {
+        resize: vertical;
+        min-height: 5rem;
+        width: 100%;
+        max-height: 12.5rem;
+        overflow-y: auto;
+
+        &#description {
+          height: 5rem;
+        }
+
+        &#notes {
+          height: 6.25rem;
+        }
+      }
+
+      input[type='color'] {
+        height: 2.6875rem;
+        padding: 0.25rem;
+        cursor: pointer;
+      }
+
+      .p-error {
+        display: block;
+        margin-top: 0.35rem;
+        font-size: 0.85rem;
+        color: #dc3545;
+      }
+
+      // Better focus states
+      input.p-inputtext:focus,
+      textarea.p-inputtextarea:focus,
+      .p-select:not(.p-disabled).p-focus,
+      .p-datepicker:not(.p-disabled).p-focus {
+        border-color: #007bff;
+        box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+      }
+
+      // Invalid state styling
+      input.ng-invalid.ng-touched,
+      textarea.ng-invalid.ng-touched,
+      .p-select.ng-invalid.ng-touched {
+        border-color: #dc3545;
+      }
+
+      // Checkbox styling
+      .p-checkbox {
+        .p-checkbox-label {
+          font-weight: 500;
+          margin-left: 0.5rem;
+        }
+      }
+
+      // Grid responsive
+      .formgrid.grid {
+        margin: 0;
+        gap: 0;
+      }
+    }
+  }
+
+  // Prevent dialog from causing page scroll/jump
+  ::ng-deep .p-dialog-mask {
+    &.p-component-overlay-enter {
+      scroll-behavior: auto;
+    }
+  }
+
+  // Keep scroll position when dialog opens
+  ::ng-deep body.p-overflow-hidden {
+    overflow: hidden !important;
+    position: fixed;
+    width: 100%;
+  }
+
+  // Prevent datepicker panel from scrolling dialog
+  ::ng-deep {
+    .p-datepicker-panel {
+      scroll-margin: 0 !important;
+    }
+
+    // Prevent any focus scroll behavior within the dialog
+    .project-notes-form-dialog {
+      .p-datepicker-input-icon-container input:focus,
+      input.p-inputtext:focus,
+      .p-select:focus,
+      textarea:focus {
+        scroll-margin: 0 !important;
+        scroll-behavior: auto !important;
+      }
+    }
+  }
+
+  // ========================================
+  // EXPANDABLE ROW STYLES
+  // ========================================
+  .expanded-content {
+    padding: 1.5rem;
+    background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+    border-left: 0.25rem solid var(--primary-color);
+    border-radius: 0.5rem;
+    margin: 0.5rem;
+    box-shadow: 0 0.125rem 0.5rem rgba(0, 0, 0, 0.05);
+    text-align: left;
+
+    // Ensure all text content is left-aligned in expandable content
+    * {
+      text-align: left !important;
+    }
+
+    // Specifically override date values in expandable content to be left-aligned
+    .date-value,
+    .date-cell {
+      text-align: left !important;
+    }
+
+    span {
+      text-align: left !important;
+    }
+
+    .detail-section {
+      margin-bottom: 1.5rem;
+
+      &:last-child {
+        margin-bottom: 0;
+      }
+
+      .section-header {
+        display: flex;
+        align-items: center;
+        margin-bottom: 1rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 0.125rem solid #e9ecef;
+
+        i {
+          font-size: 1.1rem;
+          margin-right: 0.5rem;
+        }
+
+        .section-title {
+          font-size: 1rem;
+          font-weight: 600;
+          color: #495057;
+          text-transform: uppercase;
+          letter-spacing: 0.03125rem;
+        }
+      }
+
+      .section-content {
+        text-align: left;
+
+        .description-text,
+        .notes-content {
+          font-size: 1rem;
+          line-height: 1.6;
+          color: #6c757d;
+          margin: 0;
+          padding: 1rem;
+          background: white;
+          border-radius: 0.375rem;
+          text-align: left;
+        }
+
+        .description-text {
+          border-left: 0.1875rem solid #e9ecef;
+        }
+
+        .notes-content {
+          padding: 1.25rem;
+          border: 0.0625rem solid #e9ecef;
+          box-shadow: inset 0 0.0625rem 0.1875rem rgba(0, 0, 0, 0.05);
+          border-radius: 0.5rem;
+        }
+
+        // Detail rows for information display
+        .detail-row {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          padding: 0.75rem 0;
+          border-bottom: 0.0625rem solid #f1f3f4;
+          font-size: 1rem;
+
+          &:last-child {
+            border-bottom: none;
+          }
+
+          .detail-label {
+            font-size: 1rem;
+            font-weight: 500;
+            color: #6c757d;
+            text-transform: uppercase;
+            letter-spacing: 0.01875rem;
+            min-width: 7.5rem;
+            text-align: left;
+            flex-shrink: 0;
+          }
+
+          .detail-value {
+            font-size: 1rem;
+            font-weight: 400;
+            color: #495057;
+            text-align: right !important;
+            flex: 1;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+
+            &.date-value {
+              font-family: 'Courier New', monospace;
+              font-size: 1rem;
+              text-align: right;
+              font-weight: 500;
+            }
+          }
+        }
+      }
+    }
+
+    .details-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(17.5rem, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 1.5rem;
+
+      .detail-column {
+        .section-header {
+          display: flex;
+          align-items: center;
+          margin-bottom: 1rem;
+          padding-bottom: 0.5rem;
+          border-bottom: 0.125rem solid #e9ecef;
+
+          i {
+            font-size: 1.1rem;
+            margin-right: 0.5rem;
+          }
+
+          .section-title {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #495057;
+            text-transform: uppercase;
+            letter-spacing: 0.03125rem;
+          }
+        }
+
+        .section-content {
+          .detail-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem 0;
+            border-bottom: 0.0625rem solid #f1f3f4;
+
+            &:last-child {
+              border-bottom: none;
+            }
+
+            .detail-label {
+              font-size: 1rem;
+              font-weight: 500;
+              color: #6c757d;
+              text-transform: uppercase;
+              letter-spacing: 0.01875rem;
+              min-width: 7.5rem;
+              text-align: left;
+              flex-shrink: 0;
+            }
+
+            .detail-value {
+              font-size: 1rem;
+              font-weight: 400;
+              color: #495057;
+              text-align: right;
+              flex: 1;
+              word-wrap: break-word;
+              overflow-wrap: break-word;
+
+              &.date-value {
+                font-family: 'Courier New', monospace;
+                font-size: 1rem;
+                text-align: right;
+                font-weight: 500;
+              }
+
+              .status-tag {
+                ::ng-deep .p-tag {
+                  font-size: 0.75rem;
+                  padding: 0.3rem 0.6rem;
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+
+    // Enhanced styles for dynamic sections
+    .detail-section {
+      .section-content {
+        .detail-row {
+          display: flex;
+          justify-content: flex-start;
+          align-items: flex-start;
+          padding: 0.75rem 0;
+          border-bottom: 0.0625rem solid #f1f3f4;
+          gap: 1rem;
+
+          &:last-child {
+            border-bottom: none;
+          }
+
+          .detail-label {
+            font-size: 1rem;
+            font-weight: 500;
+            color: #6c757d;
+            text-transform: uppercase;
+            letter-spacing: 0.01875rem;
+            min-width: 7.5rem;
+            text-align: left;
+            flex-shrink: 0;
+          }
+
+          .detail-value {
+            font-size: 1rem;
+            font-weight: 400;
+            color: #495057;
+            text-align: right;
+            flex: 1;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+
+            &.date-value {
+              font-family: 'Courier New', monospace;
+              font-size: 1rem;
+              text-align: right;
+              font-weight: 500;
+            }
+
+            .status-tag {
+              ::ng-deep .p-tag {
+                font-size: 0.75rem;
+                padding: 0.3rem 0.6rem;
+              }
+            }
+          }
+        }
+      }
+    }
+
+    .metadata-footer {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      padding-top: 1rem;
+      margin-top: 1.5rem;
+      border-top: 0.0625rem solid #e9ecef;
+      font-size: 0.8rem;
+      color: #6c757d;
+
+      .metadata-item {
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+
+        i {
+          font-size: 0.85rem;
+        }
+
+        strong {
+          color: #495057;
+        }
+      }
+    }
+
+    // Responsive design
+    @media (max-width: 48rem) {
+      padding: 1rem;
+
+      .details-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+      }
+
+      .metadata-footer {
+        flex-direction: column;
+        gap: 0.5rem;
+      }
+    }
+  }
+}

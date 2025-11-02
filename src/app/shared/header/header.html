@@ -1,0 +1,50 @@
+<div class="header-container">
+  <p-menubar class="eye-friendly-header" [model]="items">
+    <ng-template #start>
+      <div class="header-left">
+
+        <p-button class="menu-toggle logo" (click)="onToggleSidebar()" icon="pi pi-bars" />
+        <h3 class="title">Scrivener Dam</h3>
+      </div>
+    </ng-template>
+
+    <ng-template #item let-item let-root="root">
+      <a [href]="item.url" class="menu-link" target="_blank" rel="noopener noreferrer" [title]="item.label">
+        <span class="menu-label"> <i [class]="item.icon" *ngIf="item.icon"></i> {{ item.label }}</span>
+      </a>
+    </ng-template>
+    <ng-template #end>
+      <div class="header-right">
+        <span class="air-temp" *ngIf="weatherSummary?.airT as airTemp"
+              [pTooltip]="'Current temperature: ' + airTemp" tooltipPosition="bottom">
+          <strong class="temp-value">{{ getTemperatureParts(airTemp).value }}</strong>
+          <span class="temp-unit">{{ getTemperatureParts(airTemp).unit }}</span>
+        </span>
+        <span class="temp-display" *ngIf="displayHighestTemp"
+              [pTooltip]="'Highest temperature today at ' + displayHighestTime" tooltipPosition="bottom">
+          <img src="temperature-high-solid-full.svg" alt="high" class="weather-icon">
+          <strong class="temp-value">{{ getTemperatureParts(displayHighestTemp).value }}</strong>
+          <span class="temp-unit">{{ getTemperatureParts(displayHighestTemp).unit }}</span>
+        </span>
+        <span class="temp-display" *ngIf="displayLowestTemp"
+              [pTooltip]="'Lowest temperature today at ' + displayLowestTime" tooltipPosition="bottom">
+          <img src="temperature-low-solid-full.svg" alt="low" class="weather-icon">
+          <strong class="temp-value">{{ getTemperatureParts(displayLowestTemp).value }}</strong>
+          <span class="temp-unit">{{ getTemperatureParts(displayLowestTemp).unit }}</span>
+        </span>
+        <span [pTooltip]="weatherSummary?.rain" tooltipPosition="bottom">
+          <strong><img src="cloud-showers-heavy-solid-full.svg" alt="rain" class="weather-icon"> {{ displayRain }}</strong>
+        </span>
+        <span class="time-display" [pTooltip]="'Latest weather update: ' + displayLatestTime" tooltipPosition="bottom">
+          <i class="pi pi-clock"></i>{{ displayLatestTime }}
+        </span>
+        <span class="user-info" [pTooltip]="'Logged in as: ' + userName" tooltipPosition="bottom">
+          <i class="pi pi-user"></i>
+        </span>
+        <p-button label="" variant="outlined" [raised]="true" severity="help" icon="pi pi-sign-out"
+          (click)="onLogout()" (mousedown)="onLogout()">
+        </p-button>
+      </div>
+    </ng-template>
+  </p-menubar>
+</div>

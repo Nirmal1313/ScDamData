@@ -1,0 +1,72 @@
+<div class="login-container">
+  <div class="login-card">
+    <p-card>
+      <ng-template pTemplate="header">
+        <div class="text-center">
+          <h2 class="p-card-title">Login to Scrivener Dam</h2>
+        </div>
+      </ng-template>
+
+      <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="login-form">
+        <div class="form-field">
+          <p-inputgroup>
+            <p-inputgroup-addon>
+              <i class="pi pi-user"></i>
+            </p-inputgroup-addon>
+            <input id="username" type="text" pInputText formControlName="username" class="w-full"
+              placeholder="Enter your username" [ngClass]="{
+                'p-invalid':
+                  loginForm.get('username')?.invalid && loginForm.get('username')?.touched
+              }" />
+          </p-inputgroup>
+          <small *ngIf="loginForm.get('username')?.invalid && loginForm.get('username')?.touched" class="p-error">
+            Username is required
+          </small>
+        </div>
+
+        <div class="form-field">
+          <p-inputgroup>
+            <p-inputgroup-addon>
+              <i class="pi pi-lock"></i>
+            </p-inputgroup-addon>
+            <p-password id="password" formControlName="password" [ngClass]="{
+                'p-invalid':
+                  loginForm.get('password')?.invalid && loginForm.get('password')?.touched
+              }" placeholder="Enter your password" [feedback]="true" [toggleMask]="true"></p-password>
+          </p-inputgroup>
+          <small *ngIf="loginForm.get('password')?.invalid && loginForm.get('password')?.touched" class="p-error">
+            Password is required
+          </small>
+        </div>
+
+        <div class="flex align-items-center justify-content-between my-4">
+          <div class="remember-me">
+            <p-checkbox
+              formControlName="rememberMe"
+              [binary]="true"
+              inputId="rememberMe"
+            ></p-checkbox>
+            <label for="rememberMe" class="ml-2">Remember me</label>
+          </div>
+          <a href="/forgot-password" class="text-primary font-medium no-underline"
+            >Forgot password?</a
+          >
+        </div>
+
+        <div *ngIf="errorMessage" class="error-message">
+          <p-message severity="error" [text]="errorMessage"></p-message>
+        </div>
+
+        <div class="form-actions">
+          <p-button type="submit" label="Sign In" icon="pi pi-sign-in" iconPos="right" styleClass="w-full"
+            [loading]="isLoading"></p-button>
+        </div>
+
+        <div class="register-link">
+          <span class="text-color-secondary">Don't have an account?</span>
+          <a href="/register" class="ml-2">Create a New Account</a>
+        </div>
+      </form>
+    </p-card>
+  </div>
+</div>

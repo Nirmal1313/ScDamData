@@ -1,0 +1,88 @@
+<p-drawer [(visible)]="sidebarVisible" [closable]="true" (visibleChange)="onVisibleChange($event)" [style]="{ width: '25rem' }">
+  <ng-template #header>
+    <div class="flex items-center gap-2">
+      <i class="pi pi-cloud text-2xl"></i>
+      <span class="font-semibold text-xl">Weather Details</span>
+    </div>
+  </ng-template>
+
+  <div class="weather-table-section">
+    <p-table [value]="rowsWeather" size="small" [rowHover]="true" showGridlines stripedRows>
+      <ng-template #caption>
+        <div class="table-caption">Weather Report ACT</div>
+      </ng-template>
+      <ng-template #header>
+        <tr>
+          <th>Key</th>
+          <th>Value</th>
+        </tr>
+      </ng-template>
+      <ng-template #body let-rowsWeather>
+        <tr>
+          <td>{{ rowsWeather.key }}</td>
+          <td>{{ rowsWeather.value }}</td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+
+  <div class="table-divider"></div>
+
+  <div class="weather-table-section">
+    <p-table [value]="forecastWeather" size="small" [rowHover]="true" showGridlines stripedRows>
+      <ng-template #caption>
+        <div class="table-caption">Forecast Report ACT</div>
+      </ng-template>
+      <ng-template #header>
+        <tr>
+          <th>Time</th>
+          <th>Rainfall</th>
+          <th>Possibility</th>
+        </tr>
+      </ng-template>
+      <ng-template #body let-forecastWeather>
+        <tr>
+          <td>{{ forecastWeather.time }}</td>
+          <td>{{ forecastWeather.possibleRainfall }}</td>
+          <td>{{ forecastWeather.chanceOfRain }}</td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+
+  <div class="table-divider"></div>
+
+  <div class="weather-table-section">
+    <p-table [value]="weekdaysWeather" size="small" [rowHover]="true" showGridlines stripedRows>
+      <ng-template #caption>
+        <div class="table-caption">Week Days Report ACT</div>
+      </ng-template>
+      <ng-template #header>
+        <tr>
+          <th>Date</th>
+          <th>Max</th>
+          <th>Min</th>
+        </tr>
+      </ng-template>
+      <ng-template #body let-weekdaysWeather>
+        <tr>
+          <td>{{ weekdaysWeather.date }}</td>
+          <td>{{ weekdaysWeather.maxTemp }}</td>
+          <td>{{ weekdaysWeather.minTemp }}</td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+
+  <ng-template #footer>
+    <div class="weather-footer">
+      <div class="footer-info">
+        <i class="pi pi-info-circle"></i>
+        <span class="text-sm">Data from Bureau of Meteorology</span>
+      </div>
+      <div class="footer-timestamp text-xs text-gray-500">
+        Last updated: {{ weatherSummary?.latestWeatherTime || 'N/A' }}
+      </div>
+    </div>
+  </ng-template>
+</p-drawer>

@@ -1,0 +1,51 @@
+.table-caption {
+  font-weight: bold;
+  font-size: 1.1rem;
+}
+
+:host ::ng-deep .p-datatable .p-datatable-tbody > tr:hover {
+  background-color: #fff3e0 !important; // Light orange hover color
+}
+
+:host ::ng-deep .weather-drawer .p-drawer {
+  width: 25rem !important;
+}
+
+:host ::ng-deep .weather-drawer .p-drawer-content {
+  width: 25rem !important;
+}
+
+.weather-table-section {
+  margin-bottom: 1rem;
+}
+
+.table-divider {
+  height: 2px;
+  background: linear-gradient(to right, transparent, #e0e0e0, transparent);
+  margin: 1.5rem 0;
+  border-radius: 2px;
+}
+
+.weather-footer {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 0.5rem 0;
+  border-top: 1px solid #e0e0e0;
+
+  .footer-info {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: #666;
+
+    i {
+      font-size: 0.875rem;
+    }
+  }
+
+  .footer-timestamp {
+    padding-left: 1.375rem; // Align with text after icon
+    font-style: italic;
+  }
+}

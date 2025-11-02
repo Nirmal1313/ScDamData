@@ -1,0 +1,93 @@
+
+// Status cell colors - softer, easier on the eyes
+.status-in-service {
+  background-color: #a7f3d0 !important; // Soft mint green
+  color: #065f46 !important; // Dark green text
+  font-weight: 600;
+  text-align: center;
+}
+
+.status-out-of-service {
+  background-color: #fecaca !important; // Soft red/pink
+  color: #991b1b !important; // Dark red text
+  font-weight: 600;
+  text-align: center;
+}
+
+.status-emergency {
+  background-color: #fed7aa !important; // Soft peach/orange
+  color: #9a3412 !important; // Dark orange text
+  font-weight: 600;
+  text-align: center;
+}
+
+// State cell colors for ERRTS water level table
+.state-steady {
+  background-color: #bfdbfe !important; // Soft blue
+  color: #1e3a8a !important; // Dark blue text
+  font-weight: 600;
+  text-align: center;
+}
+
+.state-rising {
+  background-color: #a7f3d0 !important; // Soft mint green
+  color: #065f46 !important; // Dark green text
+  font-weight: 600;
+  text-align: center;
+}
+
+.state-falling {
+  background-color: #fed7aa !important; // Soft peach/orange
+  color: #9a3412 !important; // Dark orange text
+  font-weight: 600;
+  text-align: center;
+}
+
+// Make tables more compact
+::ng-deep {
+  .p-datatable {
+    font-size: 0.875rem !important;
+    width: auto !important; // Don't force full width
+
+    .p-datatable-wrapper {
+      width: fit-content !important;
+    }
+
+
+
+    .p-datatable-thead > tr > th {
+      padding: 0.3rem 0.5rem !important;
+      white-space: nowrap;
+      font-size: 0.875rem !important;
+    }
+
+    .p-datatable-tbody > tr > td {
+      padding: 0.3rem 0.5rem !important;
+      white-space: nowrap;
+      font-size: 0.813rem !important;
+    }
+
+    .p-datatable-caption {
+      padding: 0.5rem !important;
+    }
+  }
+
+  // ERRTS Image Dialog Styles
+  .errts-image-dialog {
+    width: 80vw !important;
+    max-width: 1000px !important;
+  }
+
+  // Monitoring Splitter Height
+  .monitoring-splitter {
+    min-height: 27rem !important;
+    height: calc(100vh - 250px) !important;
+  }
+}
+
+// ERRTS Station Image
+.errts-station-image {
+  max-width: 100%;
+  height: auto;
+  max-height: 70vh;
+}

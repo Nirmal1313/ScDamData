@@ -1,0 +1,487 @@
+<p-panel header="Calendar" toggleable="true" [collapsed]="true">
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-12 col-lg-10 mx-auto">
+        <div class="calendar-toolbar">
+          <div class="toolbar-left d-flex flex-wrap gap-2">
+            <p-button icon="pi pi-step-backward" mwlCalendarPreviousView [view]="view" [(viewDate)]="viewDate"
+              label="Previous" variant="text" [raised]="true" severity="info" (viewDateChange)="closeOpenMonthViewDay()"
+              class="m-2">
+            </p-button>
+
+            <p-button icon="pi pi-sun" mwlCalendarToday [(viewDate)]="viewDate" label="Today" variant="text"
+              [raised]="true" severity="info" (viewDateChange)="closeOpenMonthViewDay()" class="m-2">
+            </p-button>
+
+            <p-button icon="pi pi-step-forward" mwlCalendarNextView [view]="view" [(viewDate)]="viewDate" label="Next"
+              iconPos="right" variant="text" [raised]="true" severity="info" (viewDateChange)="closeOpenMonthViewDay()"
+              class="m-2">
+            </p-button>
+          </div>
+
+          <!-- Calendar Title -->
+          <div class="toolbar-title text-center">
+            <h3 class="mb-0">{{ viewDate | calendarDate: (view + 'ViewTitle') : 'en': weekStartsOn }}</h3>
+          </div>
+
+          <!-- View Selection Controls -->
+          <div class="toolbar-right">
+            <div class="btn-group" role="group" aria-label="Calendar view options">
+              <p-button (click)="setView(CalendarView.Month)" [class.active]="view === CalendarView.Month"
+                severity="contrast" icon="pi pi-calendar" [raised]="true" variant="text" label="Month" class="m-2">
+              </p-button>
+
+              <p-button (click)="setView(CalendarView.Week)" [class.active]="view === CalendarView.Week"
+                severity="contrast" icon="pi pi-calendar-plus" [raised]="true" variant="text" label="Week" class="m-2">
+              </p-button>
+
+              <p-button (click)="setView(CalendarView.Day)" [class.active]="view === CalendarView.Day"
+                severity="contrast" icon="pi pi-calendar-minus" [raised]="true" variant="text" label="Day" class="m-2">
+              </p-button>
+
+              <!-- Scroll to Current Time Button (only visible in Day/Week view) -->
+              <p-button
+                *ngIf="view === CalendarView.Day"
+                (click)="scrollToCurrentTimeManual()"
+                severity="info"
+                icon="pi pi-clock"
+                [raised]="true"
+                variant="text"
+                label="Now"
+                pTooltip="Scroll to current time"
+                tooltipPosition="bottom"
+                class="m-2">
+              </p-button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quick Create Button -->
+  <div class="quick-create-fab">
+    <p-button icon="pi pi-plus" [raised]="true" [rounded]="true" severity="primary" size="large"
+      pTooltip="Create New Event" tooltipPosition="left" (click)="createNewQuickEvent()" class="fab-button">
+    </p-button>
+  </div>
+
+  <!-- Calendar Views Container -->
+  <div class="calendar-container" #calendarContainer>
+    @switch (view) {
+    @case (CalendarView.Month) {
+    <mwl-calendar-month-view [viewDate]="viewDate" class="month-calendar-view" [events]="events"
+      [activeDayIsOpen]="activeDayIsOpen" (dayClicked)="dayClicked($event.day)" (eventClicked)="eventClicked($event)"
+      (eventTimesChanged)="eventTimesChanged($event)">
+    </mwl-calendar-month-view>
+    }
+    @case (CalendarView.Week) {
+    <mwl-calendar-week-view [viewDate]="viewDate" [events]="events" (eventClicked)="eventClicked($event)"
+      (eventTimesChanged)="eventTimesChanged($event)" (hourSegmentClicked)="timeSlotClicked($event.date)">
+    </mwl-calendar-week-view>
+    }
+    @case (CalendarView.Day) {
+    <mwl-calendar-day-view [viewDate]="viewDate" [hourSegments]="2" [hourSegmentHeight]="24" [events]="events"
+      (eventClicked)="eventClicked($event)" (eventTimesChanged)="eventTimesChanged($event)"
+      (hourSegmentClicked)="timeSlotClicked($event.date)">
+    </mwl-calendar-day-view>
+    }
+    }
+  </div>
+</p-panel>
+
+<!-- UNIFIED EVENT DIALOG -->
+<p-dialog [(visible)]="showEventEditDialog" header="{{ isEditMode ? '✏️ Edit Event' : '➕ Create Event' }}"
+  [modal]="true" [closable]="true" [draggable]="true" [resizable]="true" styleClass="event-dialog"
+  (onHide)="onDialogHide()">
+
+  <!-- Event Form -->
+  <form class="p-fluid" (ngSubmit)="saveEvent()" #eventForm="ngForm">
+
+    <!-- Event Title Field -->
+    <div class="field">
+      <p-inputgroup>
+        <p-inputgroup-addon> <i class="pi pi-envelope"></i></p-inputgroup-addon>
+        <p-floatlabel variant="in">
+          <input pInputText id="in_label" [(ngModel)]="currentEvent.title" name="eventTitle" class="w-full"
+            placeholder="Enter a descriptive title for your event" required #titleInput="ngModel"
+            [class.ng-invalid]="titleInput.invalid && titleInput.touched" />
+          <label for="in_label">Event Title</label>
+        </p-floatlabel>
+      </p-inputgroup>
+    </div>
+
+    <!-- Event Description Field -->
+    <div class="field">
+      <p-floatlabel variant="in">
+        <textarea pTextarea id="over_label" [(ngModel)]="currentEvent.meta.description" rows="5" cols="30"
+          name="eventDescription" class="w-full" placeholder="Add details about your event (optional)" rows="3"
+          autoResize="true"></textarea>
+        <label for="in_label">Description</label>
+      </p-floatlabel>
+    </div>
+
+    <!-- Quick Booking Feature -->
+    <div class="field">
+      <label class="block font-medium mb-3">🚀 Quick Booking</label>
+      <small class="text-sm text-600 block mb-3">
+        Select a predefined duration to quickly set up your event starting from now, or customize manually below.
+      </small>
+
+      <div class="card quick-booking-card">
+        <div class="flex flex-wrap gap-2 justify-content-center">
+          <p-button
+            type="button"
+            (click)="setQuickBooking(15)"
+            severity="primary"
+            icon="pi pi-clock"
+            label="15 min"
+            size="small"
+            [raised]="true"
+            pTooltip="Quick book 15-minute meeting starting now"
+            tooltipPosition="bottom">
+          </p-button>
+
+          <p-button
+            type="button"
+            (click)="setQuickBooking(30)"
+            severity="primary"
+            icon="pi pi-clock"
+            label="30 min"
+            size="small"
+            [raised]="true"
+            pTooltip="Quick book 30-minute meeting starting now"
+            tooltipPosition="bottom">
+          </p-button>
+
+          <p-button
+            type="button"
+            (click)="setQuickBooking(60)"
+            severity="primary"
+            icon="pi pi-clock"
+            label="1 hour"
+            size="small"
+            [raised]="true"
+            pTooltip="Quick book 1-hour meeting starting now"
+            tooltipPosition="bottom">
+          </p-button>
+
+          <p-button
+            type="button"
+            (click)="setQuickBookingAllDay()"
+            severity="success"
+            icon="pi pi-calendar"
+            label="All Day"
+            size="small"
+            [raised]="true"
+            pTooltip="Quick book all-day event for today"
+            tooltipPosition="bottom">
+          </p-button>
+
+          <p-button
+            type="button"
+            (click)="setEventOccurs()"
+            [severity]="isRecurringMode ? 'success' : 'info'"
+            [class.event-occurs-active]="isRecurringMode"
+            icon="pi pi-refresh"
+            label="Event Occurs"
+            size="small"
+            [raised]="true"
+            [outlined]="!isRecurringMode"
+            pTooltip="Set up recurring event with specific times and weekdays"
+            tooltipPosition="bottom">
+          </p-button>
+        </div>
+
+        <!-- Quick booking status message -->
+        <div class="mt-3" *ngIf="lastQuickBookingAction">
+          <div class="p-message p-message-success">
+            <div class="p-message-wrapper">
+              <span class="p-message-icon pi pi-check-circle"></span>
+              <div class="p-message-text">
+                <strong>Quick Booked:</strong> {{ lastQuickBookingAction }}
+                <br><small>You can modify the date and time below before saving.</small>
+              </div>
+              <p-button
+                type="button"
+                class="p-message-close p-link"
+                (click)="clearQuickBookingMessage()"
+                aria-label="Close">
+                <i class="pi pi-times"></i>
+              </p-button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Recurring Event Setup (shown when isRecurringMode is true) -->
+    <div class="field" *ngIf="isRecurringMode">
+      <label class="block font-medium mb-3">🔄 Recurring Event Configuration</label>
+      <small class="text-sm text-600 block mb-3">
+        Configure when this event occurs each week. Select start/end times and the days it repeats.
+      </small>
+
+      <div class="card recurring-event-card" [ngStyle]="{'--event-bg-color': currentEvent.color.secondary}">
+        <!-- Time Selection for Recurring Events -->
+        <div class="formgrid grid w-full mb-3">
+          <div class="field col-12 md:col-6">
+            <label class="block font-medium mb-2">Start Time</label>
+            <input type="time" [(ngModel)]="recurrenceStartTime" name="recurrenceStartTime"
+              class="w-full p-inputtext" required step="300">
+          </div>
+          <div class="field col-12 md:col-6">
+            <label class="block font-medium mb-2">End Time</label>
+            <input type="time" [(ngModel)]="recurrenceEndTime" name="recurrenceEndTime"
+              class="w-full p-inputtext" required step="300">
+          </div>
+        </div>
+
+        <!-- Weekday Selection for Recurring Events -->
+        <div class="field">
+          <label class="block font-medium mb-2">Repeat On</label>
+          <div class="flex flex-wrap gap-3">
+            <div class="field-checkbox">
+              <p-checkbox [(ngModel)]="recurrenceWeekdays.monday" name="recMon" inputId="recMon" binary="true">
+              </p-checkbox>
+              <label for="recMon" class="ml-2">Mon</label>
+            </div>
+            <div class="field-checkbox">
+              <p-checkbox [(ngModel)]="recurrenceWeekdays.tuesday" name="recTue" inputId="recTue" binary="true">
+              </p-checkbox>
+              <label for="recTue" class="ml-2">Tue</label>
+            </div>
+            <div class="field-checkbox">
+              <p-checkbox [(ngModel)]="recurrenceWeekdays.wednesday" name="recWed" inputId="recWed" binary="true">
+              </p-checkbox>
+              <label for="recWed" class="ml-2">Wed</label>
+            </div>
+            <div class="field-checkbox">
+              <p-checkbox [(ngModel)]="recurrenceWeekdays.thursday" name="recThu" inputId="recThu" binary="true">
+              </p-checkbox>
+              <label for="recThu" class="ml-2">Thu</label>
+            </div>
+            <div class="field-checkbox">
+              <p-checkbox [(ngModel)]="recurrenceWeekdays.friday" name="recFri" inputId="recFri" binary="true">
+              </p-checkbox>
+              <label for="recFri" class="ml-2">Fri</label>
+            </div>
+            <div class="field-checkbox">
+              <p-checkbox [(ngModel)]="recurrenceWeekdays.saturday" name="recSat" inputId="recSat" binary="true">
+              </p-checkbox>
+              <label for="recSat" class="ml-2">Sat</label>
+            </div>
+            <div class="field-checkbox">
+              <p-checkbox [(ngModel)]="recurrenceWeekdays.sunday" name="recSun" inputId="recSun" binary="true">
+              </p-checkbox>
+              <label for="recSun" class="ml-2">Sun</label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Recurring Event Summary -->
+        <div class="mt-3" *ngIf="getRecurringSummary()">
+          <div class="p-message p-message-info">
+            <div class="p-message-wrapper">
+              <span class="p-message-icon pi pi-info-circle"></span>
+              <div class="p-message-text">
+                <strong>Event Summary:</strong> {{ getRecurringSummary() }}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Exit Recurring Mode Button -->
+        <div class="mt-3">
+          <p-button
+            type="button"
+            icon="pi pi-times"
+            label="Exit Recurring Mode"
+            severity="secondary"
+            variant="outlined"
+            size="small"
+            (click)="exitRecurringMode()">
+          </p-button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Stepwise Date and Time Selection (hidden when in recurring mode) -->
+    <div class="field" *ngIf="!isRecurringMode">
+      <label class="block font-medium mb-3">📅 Event Date & Time Selection</label>
+      <!-- STEP 1: Date Selection -->
+      <div class="step-section">
+        <div class="card">
+          <div class="formgrid grid w-full">
+            <!-- Start Date Calendar -->
+            <div class="field col-12 md:col-6">
+              <label class="block font-medium mb-2 text-center">Start Date</label>
+              <div class="date-field-container" [ngStyle]="{'--event-bg-color': currentEvent.color.secondary}">
+                <p-datepicker [(ngModel)]="currentEvent.startDate" name="startDate" [inline]="true"
+                  dateFormat="dd/mm/yy" [minDate]="minSelectableDate" [maxDate]="maxSelectableDate" required
+                  #startDateInput="ngModel" [class.ng-invalid]="startDateInput.invalid && startDateInput.touched"
+                  (onSelect)="onStartDateSelected()" styleClass="compact-datepicker">
+                </p-datepicker>
+                <small *ngIf="startDateInput.invalid && startDateInput.touched"
+                  class="text-red-500 block mt-2 text-center">
+                  Start date is required.
+                </small>
+              </div>
+            </div>
+
+            <!-- End Date Calendar -->
+            <div class="field col-12 md:col-6">
+              <label class="block font-medium mb-2 text-center">End Date</label>
+              <div class="date-field-container" [ngStyle]="{'--event-bg-color': currentEvent.color.secondary}">
+                <p-datepicker [(ngModel)]="currentEvent.endDate" name="endDate" [inline]="true" dateFormat="dd/mm/yy"
+                  [minDate]="currentEvent.startDate || minSelectableDate" [maxDate]="maxSelectableDate" required
+                  #endDateInput="ngModel" [class.ng-invalid]="endDateInput.invalid && endDateInput.touched"
+                  (onSelect)="onEndDateSelected()" styleClass="compact-datepicker">
+                </p-datepicker>
+                <small *ngIf="endDateInput.invalid && endDateInput.touched" class="text-red-500 block mt-2 text-center">
+                  End date is required.
+                </small>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 2: Time Selection (only visible when dates are set and not all-day) -->
+      <div class="step-section" *ngIf="currentEvent.startDate && currentEvent.endDate && !isAllDayEvent">
+
+
+        <div class="card">
+          <div class="formgrid grid w-full">
+            <!-- Start Time Input -->
+            <div class="field col-12 md:col-6">
+              <label class="block font-medium mb-2 text-center">
+                Start Time for {{ currentEvent.startDate | date:'dd/MM/yyyy' }}
+              </label>
+              <div class="time-field-container">
+                <input type="time" [(ngModel)]="currentEvent.startTime" name="startTime"  class="w-full p-datepicker-time-picker"
+                  (change)="onStartTimeChanged()" required #startTimeInput="ngModel"
+                  [class.ng-invalid]="startTimeInput.invalid && startTimeInput.touched" step="300">
+                <small *ngIf="startTimeInput.invalid && startTimeInput.touched"
+                  class="text-red-500 block mt-2 text-center">
+                  Start time is required.
+                </small>
+              </div>
+            </div>
+
+            <!-- End Time Input -->
+            <div class="field col-12 md:col-6">
+              <label class="block font-medium mb-2 text-center">
+                End Time for {{ currentEvent.endDate | date:'dd/MM/yyyy' }}
+              </label>
+              <div class="time-field-container">
+                <input pDatepicker type="time" [(ngModel)]="currentEvent.endTime" name="endTime"
+                  class="w-full p-datepicker-time-picker" (change)="onEndTimeChanged()" required #endTimeInput="ngModel"
+                  [class.ng-invalid]="endTimeInput.invalid && endTimeInput.touched" step="300">
+                <small *ngIf="endTimeInput.invalid && endTimeInput.touched" class="text-red-500 block mt-2 text-center">
+                  End time is required.
+                </small>
+
+
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+    </div>
+
+
+
+    <!-- Event Color and All Day Toggle -->
+    <div class="field">
+      <div class="flex align-items-center justify-content-between w-full">
+        <!-- Color Picker (always visible) -->
+        <div class="flex align-items-center gap-1">
+          <label class="font-medium mr-2">Color:</label>
+          <p-colorPicker id="eventColor" [(ngModel)]="currentEvent.color.primary" name="eventColor" format="hex">
+          </p-colorPicker>
+          <span class="text-sm text-600 font-mono">{{ currentEvent.color.primary }}</span>
+        </div>
+
+        <!-- All Day Toggle (hidden when in recurring mode) -->
+        <div class="flex align-items-center" *ngIf="!isRecurringMode">
+          <p-checkbox [(ngModel)]="isAllDayEvent" name="isAllDay" binary="true" inputId="allDay"
+            (onChange)="onAllDayToggle()">
+          </p-checkbox>
+          <label for="allDay" class="ml-2 font-medium">All Day Event</label>
+        </div>
+      </div>
+    </div>
+
+    <!-- Enhanced Validation Messages -->
+    <div class="field" *ngIf="dateValidationErrors.length > 0 || dateValidationWarnings.length > 0">
+      <!-- Validation Errors -->
+      <div *ngFor="let error of dateValidationErrors" class="p-message p-message-error mb-2">
+        <div class="p-message-wrapper">
+          <span class="p-message-icon pi pi-exclamation-circle"></span>
+          <div class="p-message-text">{{ error }}</div>
+        </div>
+      </div>
+
+      <!-- Validation Warnings -->
+      <div *ngFor="let warning of dateValidationWarnings" class="p-message p-message-warn mb-2">
+        <div class="p-message-wrapper">
+          <span class="p-message-icon pi pi-exclamation-triangle"></span>
+          <div class="p-message-text">{{ warning }}</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step Completion Requirements (hidden in recurring mode) -->
+    <div class="field" *ngIf="!isRecurringMode && !hasCompleteDateTime() && (currentEvent.title)">
+      <div class="p-message p-message-info mb-2">
+        <div class="p-message-wrapper">
+          <span class="p-message-icon pi pi-info-circle"></span>
+          <div class="p-message-text">
+            <strong>Next Steps:</strong>
+            <span *ngIf="getCurrentSelectionStep() === 1">Please select both start and end dates above.</span>
+            <span *ngIf="getCurrentSelectionStep() === 2 && !isAllDayEvent">Please select both start and end times
+              above.</span>
+            <span *ngIf="getCurrentSelectionStep() === 2 && isAllDayEvent">All-day event is ready to save!</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </form>
+
+  <!-- Dialog Footer -->
+  <ng-template pTemplate="footer">
+    <div class="flex justify-content-between w-full">
+      <!-- Delete Button (for existing events) -->
+      <div>
+        <p-button *ngIf="isEditMode && currentEvent.id" type="button" icon="pi pi-trash" label="Delete"
+          severity="danger" variant="outlined" (click)="deleteEvent()"
+          [loading]="isDeleting"
+          [disabled]="isDeleting || isSaving"
+          class="delete-event-button">
+        </p-button>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="flex gap-2">
+        <p-button type="button" icon="pi pi-times" label="Cancel" severity="secondary" variant="outlined"
+          (click)="hideEventDialog()"
+          [disabled]="isSaving || isDeleting">
+        </p-button>
+
+        <p-button type="button" icon="pi pi-check" label="{{ isEditMode ? 'Update' : 'Create' }}" severity="success"
+          (click)="saveEvent()"
+          [disabled]="!isFormValid() || isSaving || isDeleting"
+          [loading]="isSaving">
+        </p-button>
+      </div>
+    </div>
+  </ng-template>
+</p-dialog>
+
+
+<!-- GLOBAL COMPONENTS -->
+<p-confirmDialog></p-confirmDialog>
+<p-toast position="top-right"></p-toast>
