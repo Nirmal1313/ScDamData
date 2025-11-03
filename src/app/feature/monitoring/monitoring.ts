@@ -270,11 +270,22 @@ export class Monitoring implements OnInit, OnDestroy {
     const item = this.errtsRawData.find((x) => x.commsId === commsId);
     if (item && item.commsId) {
       this.selectedCommsId = commsId;
-      // Get dynamic base URL from config service
-      const baseUrl = this.configService.getApiUrl('errts').replace('/WeatherForecast/ERRTSData', '');
-      // Use proxy endpoint to serve HTTP images over HTTPS
-      this.selectedImageUrl = `${baseUrl}/WeatherForecast/getProxiedImage?imageUrl=${(item.commsId)}`;
       this.showImageDialog = true;
+      this.selectedImageUrl = ''; // Reset URL
+
+      // Fetch image with authentication
+      this.errtsWeatherService.getImageAsDataUrl(item.commsId).subscribe({
+        next: (dataUrl: string) => {
+          this.selectedImageUrl = dataUrl;
+          this.cdr.detectChanges();
+        },
+        error: (error) => {
+          console.error('Error loading image:', error);
+          // Set fallback image
+          this.selectedImageUrl = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjMwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iNDAwIiBoZWlnaHQ9IjMwMCIgZmlsbD0iI2VlZSIvPjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBmb250LXNpemU9IjE4IiBmaWxsPSIjOTk5IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkeT0iLjNlbSI+SW1hZ2UgTm90IEF2YWlsYWJsZTwvdGV4dD48L3N2Zz4=';
+          this.cdr.detectChanges();
+        }
+      });
     }
   }
 
