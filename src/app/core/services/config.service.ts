@@ -6,7 +6,7 @@ import { Injectable } from '@angular/core';
 export class ConfigService {
   private config = {
     // API endpoints
-    apis: {
+   apis: {
       main: 'https://scdamdemo.runasp.net/api',
       weather: 'https://scdamdemo.runasp.net/WeatherForecast/bomWeather',
       errts: 'https://scdamdemo.runasp.net/WeatherForecast/ERRTSData',

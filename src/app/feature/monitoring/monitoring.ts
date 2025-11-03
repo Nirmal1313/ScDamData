@@ -8,6 +8,7 @@ import { ScrivenerCR1000Result } from '../../core/models/water-level.model';
 import { ErtsWeatherService } from '../../core/services/erts-weather.service';
 import { ErtsWeatherResult } from '../../core/models/erts-weather.model';
 import { AuthService } from '../../core/services/auth.service';
+import { ConfigService } from '../../core/services/config.service';
 import { interval, Subscription } from 'rxjs';
 import { filter } from 'rxjs/operators';
 import { SplitterModule } from 'primeng/splitter';
@@ -56,6 +57,7 @@ export class Monitoring implements OnInit, OnDestroy {
     private waterLevelService: WaterLevelService,
     private errtsWeatherService: ErtsWeatherService,
     private authService: AuthService,
+    private configService: ConfigService,
     private cdr: ChangeDetectorRef
   ) {}
 
@@ -266,9 +268,12 @@ export class Monitoring implements OnInit, OnDestroy {
    */
   openImagePopup(commsId: string) {
     const item = this.errtsRawData.find((x) => x.commsId === commsId);
-    if (item && item.hreflink) {
+    if (item && item.commsId) {
       this.selectedCommsId = commsId;
-      this.selectedImageUrl = `http://errts-web.s3-website-ap-southeast-2.amazonaws.com/${item.hreflink}`;
+      // Get dynamic base URL from config service
+      const baseUrl = this.configService.getApiUrl('errts').replace('/WeatherForecast/ERRTSData', '');
+      // Use proxy endpoint to serve HTTP images over HTTPS
+      this.selectedImageUrl = `${baseUrl}/WeatherForecast/image?imageUrl=${(item.commsId)}`;
       this.showImageDialog = true;
     }
   }
