@@ -273,7 +273,7 @@ export class Monitoring implements OnInit, OnDestroy {
       // Get dynamic base URL from config service
       const baseUrl = this.configService.getApiUrl('errts').replace('/WeatherForecast/ERRTSData', '');
       // Use proxy endpoint to serve HTTP images over HTTPS
-      this.selectedImageUrl = `${baseUrl}/WeatherForecast/image?imageUrl=${(item.commsId)}`;
+      this.selectedImageUrl = `${baseUrl}/WeatherForecast/getProxiedImage?imageUrl=${(item.commsId)}`;
       this.showImageDialog = true;
     }
   }
