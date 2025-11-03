@@ -7,10 +7,10 @@ export class ConfigService {
   private config = {
     // API endpoints
     apis: {
-      main: 'http://www.sdam.somee.com/api',
-      weather: 'http://www.sdam.somee.com/WeatherForecast/bomWeather',
-      errts: 'http://www.sdam.somee.com/WeatherForecast/ERRTSData',
-      waterLevel: 'http://www.sdam.somee.com/WeatherForecast/ScrivenerCR1000',
+      main: 'https://scdamdemo.runasp.net/api',
+      weather: 'https://scdamdemo.runasp.net/WeatherForecast/bomWeather',
+      errts: 'https://scdamdemo.runasp.net/WeatherForecast/ERRTSData',
+      waterLevel: 'https://scdamdemo.runasp.net/WeatherForecast/ScrivenerCR1000',
       login: 'account/login',
       register: 'account/register',
       calendarEvent: 'calendarTask',
