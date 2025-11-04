@@ -1,6 +1,22 @@
+.header-container {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.header-icon {
+  font-size: 1.5rem;
+}
+
+.header-title {
+  font-weight: 600;
+  font-size: 1.25rem;
+}
+
 .table-caption {
   font-weight: bold;
   font-size: 1.1rem;
+  text-align: center;
 }
 
 :host ::ng-deep .p-datatable .p-datatable-tbody > tr:hover {

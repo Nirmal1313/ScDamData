@@ -21,7 +21,7 @@ import { DividerModule } from 'primeng/divider';
 import { Scheduler } from '../feature/scheduler/scheduler';
 import { Monitoring } from '../feature/monitoring/monitoring';
 import { Notes } from '../feature/notes/notes';
-
+import { ERRTSData } from '../feature/errtsdata/errtsdata';
 @Component({
   selector: 'app-dashboard',
   imports: [
@@ -43,6 +43,7 @@ import { Notes } from '../feature/notes/notes';
     Scheduler,
     Monitoring,
     Notes,
+    ERRTSData,
   ],
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.scss',

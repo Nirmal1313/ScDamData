@@ -1,149 +1,115 @@
-<p-panel header="Monitoring System" toggleable="true" [collapsed]="false">
-  <!-- Water Level and Date Time Info -->
-  <div class="mb-3 p-3 bg-blue-50 border-l-4 border-blue-600 shadow-sm">
-    <div class="flex flex-col md:flex-row md:items-center md:gap-6">
-      <!-- Water Level - Most Important -->
-      <div *ngIf="waterLevelData.length > 0" class="flex-1">
-        <span class="text-xl font-bold text-blue-900" [innerHTML]="waterLevelData[0]"></span>
+<p-panel [toggleable]="true" [collapsed]="false" styleClass="monitoring-panel">
+  <ng-template #header>
+    <div class="monitoring-panel-header-content">
+      <div class="monitoring-header-left">
+        <span class="monitoring-panel-title">Monitoring System</span>
       </div>
-
-      <!-- Date/Time -->
-      <div class="mt-2 md:mt-0">
-        <span class="text-lg text-blue-700">{{ dateTime || 'Loading...' }}</span>
+      <div class="monitoring-header-center" *ngIf="waterLevelData.length > 0">
+        <span class="monitoring-water-level-header">
+          <i class="pi pi-chart-line"></i>
+          <span [innerHTML]="waterLevelData[0]"></span>
+          <span class="monitoring-panel-datetime">
+            <i class="pi pi-clock"></i>
+            {{ dateTime || 'Loading...' }}
+          </span>
+        </span>
       </div>
+      <div class="monitoring-header-spacer"></div>
     </div>
-  </div>
+  </ng-template>
 
   <!-- Error Message -->
-  <div *ngIf="error" class="mb-3 p-2 bg-red-50 border-l-4 border-red-500">
-    <p class="text-sm text-red-700">{{ error }}</p>
+  <div *ngIf="error" class="monitoring-error-message">
+    <i class="pi pi-exclamation-circle"></i>
+    <span>{{ error }}</span>
   </div>
 
   <!-- Loading Indicator -->
-  <div *ngIf="loading" class="text-center py-2">
-    <p class="text-sm">Loading water level data...</p>
+  <div *ngIf="loading && !sluiceStatusData.length && !gateStatusData.length" class="monitoring-loading-container">
+    <p-progressSpinner styleClass="monitoring-custom-spinner" strokeWidth="4"
+      animationDuration="1s"></p-progressSpinner>
+    <p class="monitoring-loading-text">Loading monitoring data...</p>
   </div>
 
   <!-- Tables Container with Splitter Layout -->
-  <p-splitter [panelSizes]="[43, 57]" [minSizes]="[20, 30]" styleClass="monitoring-splitter">
-    <!-- Left Panel: Sluice Status (top) and Gate Status (bottom) stacked vertically -->
-    <ng-template #panel>
-      <p-splitter layout="vertical" [panelSizes]="[45, 55]">
-        <!-- Sluice Status -->
-        <ng-template #panel>
-          <div class="flex items-center justify-center h-full p-2">
-            <p-table [value]="sluiceStatusData" [size]="'small'" [rowHover]="true" showGridlines stripedRows [loading]="loading">
-              <ng-template #caption>
-                <div class="text-sm font-semibold text-center">Sluice Status</div>
-              </ng-template>
-              <ng-template #header>
-                <tr>
-                  <th *ngFor="let column of sluiceStatusColumns">{{ column }}</th>
-                </tr>
-              </ng-template>
-              <ng-template #body let-row>
-                <tr>
-                  <td *ngFor="let column of sluiceStatusColumns" [ngClass]="getStatusClass(row[column])">
-                    {{ row[column] }}
-                  </td>
-                </tr>
-              </ng-template>
-              <ng-template #emptymessage>
-                <tr>
-                  <td [attr.colspan]="sluiceStatusColumns.length || 1" class="text-center">
-                    No sluice status data available
-                  </td>
-                </tr>
-              </ng-template>
-            </p-table>
-          </div>
-        </ng-template>
-
-        <!-- Gate Status -->
-        <ng-template #panel>
-          <div class="flex items-center justify-center h-full p-2">
-            <p-table [value]="gateStatusData" [rowHover]="true" [size]="'small'" showGridlines stripedRows [loading]="loading" [scrollable]="true" scrollHeight="flex">
-              <ng-template #caption>
-                <div class="text-sm font-semibold text-center">Gate Status</div>
-              </ng-template>
-              <ng-template #header>
-                <tr>
-                  <th *ngFor="let column of gateStatusColumns">{{ column }}</th>
-                </tr>
-              </ng-template>
-              <ng-template #body let-row>
-                <tr>
-                  <td *ngFor="let column of gateStatusColumns" [ngClass]="getStatusClass(row[column])">
-                    {{ row[column] }}
-                  </td>
-                </tr>
-              </ng-template>
-              <ng-template #emptymessage>
-                <tr>
-                  <td [attr.colspan]="gateStatusColumns.length || 1" class="text-center">
-                    No gate status data available
-                  </td>
-                </tr>
-              </ng-template>
-            </p-table>
-          </div>
-        </ng-template>
-      </p-splitter>
-    </ng-template>
-
-    <!-- Right Panel: ERRTS Water Level Status -->
+  <p-splitter layout="vertical" [panelSizes]="[45, 55]" styleClass="monitoring-splitter"
+    *ngIf="!loading || sluiceStatusData.length || gateStatusData.length">
+    <!-- Top Panel: Sluice Status -->
     <ng-template #panel>
       <div class="flex items-center justify-center h-full p-2">
-        <p-table [value]="errtsWaterLevelData" [rowHover]="true" [size]="'small'" showGridlines stripedRows [loading]="loading">
-          <ng-template #caption>
-            <div class="text-sm font-semibold text-center">
-              ERRTS Water Level Status
-              <span *ngIf="errtsDateTime" class="text-xs text-gray-600"> - {{ errtsDateTime }}</span>
-            </div>
-          </ng-template>
-          <ng-template #header>
-            <tr>
-              <th *ngFor="let column of errtsWaterLevelColumns">{{ column }}</th>
-            </tr>
-          </ng-template>
-          <ng-template #body let-row>
-            <tr>
-              <td *ngFor="let column of errtsWaterLevelColumns" [ngClass]="column === 'State' ? getStateClass(row[column]) : ''">
-                <a *ngIf="column === 'Comms ID'"
-                   (click)="openImagePopup(row[column])"
-                   class="text-blue-600 hover:text-blue-800 cursor-pointer underline">
+        <div class="monitoring-table-section">
+          <div class="monitoring-table-header-wrapper">
+            <h3 class="monitoring-table-title">
+              <i class="pi pi-sliders-h"></i>
+              Sluice Status
+            </h3>
+            <span class="monitoring-data-count">{{ sluiceStatusData.length }} record(s)</span>
+          </div>
+
+          <p-table [value]="sluiceStatusData" [rowHover]="true" [scrollable]="true" scrollHeight="flex"
+            styleClass="monitoring-data-table" [loading]="loading" showGridlines stripedRows>
+            <ng-template #header>
+              <tr>
+                <th *ngFor="let column of sluiceStatusColumns">{{ column }}</th>
+              </tr>
+            </ng-template>
+            <ng-template #body let-row>
+              <tr>
+                <td *ngFor="let column of sluiceStatusColumns" [ngClass]="getStatusClass(row[column])">
                   {{ row[column] }}
-                </a>
-                <span *ngIf="column !== 'Comms ID'">{{ row[column] }}</span>
-              </td>
-            </tr>
-          </ng-template>
-          <ng-template #emptymessage>
-            <tr>
-              <td [attr.colspan]="errtsWaterLevelColumns.length || 1" class="text-center">
-                No ERRTS water level data available
-              </td>
-            </tr>
-          </ng-template>
-        </p-table>
+                </td>
+              </tr>
+            </ng-template>
+            <ng-template #emptymessage>
+              <tr>
+                <td [attr.colspan]="sluiceStatusColumns.length || 1" class="monitoring-empty-message">
+                  <i class="pi pi-info-circle"></i>
+                  <span>No sluice status data available</span>
+                </td>
+              </tr>
+            </ng-template>
+          </p-table>
+        </div>
+      </div>
+    </ng-template>
+
+    <!-- Bottom Panel: Gate Status -->
+    <ng-template #panel>
+      <div class="flex items-center justify-center h-full p-2">
+        <div class="monitoring-table-section">
+          <div class="monitoring-table-header-wrapper">
+            <h3 class="monitoring-table-title">
+              <i class="pi pi-directions"></i>
+              Gate Status
+            </h3>
+            <span class="monitoring-data-count">{{ gateStatusData.length }} record(s)</span>
+          </div>
+
+          <p-table [value]="gateStatusData" [rowHover]="true" [scrollable]="true" scrollHeight="flex"
+            styleClass="monitoring-data-table" [loading]="loading" showGridlines stripedRows>
+            <ng-template #header>
+              <tr>
+                <th *ngFor="let column of gateStatusColumns">{{ column }}</th>
+              </tr>
+            </ng-template>
+            <ng-template #body let-row>
+              <tr>
+                <td *ngFor="let column of gateStatusColumns" [ngClass]="getStatusClass(row[column])">
+                  {{ row[column] }}
+                </td>
+              </tr>
+            </ng-template>
+            <ng-template #emptymessage>
+              <tr>
+                <td [attr.colspan]="gateStatusColumns.length || 1" class="monitoring-empty-message">
+                  <i class="pi pi-info-circle"></i>
+                  <span>No gate status data available</span>
+                </td>
+              </tr>
+            </ng-template>
+          </p-table>
+        </div>
       </div>
     </ng-template>
   </p-splitter>
 </p-panel>
-
-<!-- Image Popup Dialog -->
-<p-dialog
-  [(visible)]="showImageDialog"
-  [header]="'Station Image - Comms ID: ' + selectedCommsId"
-  [modal]="true"
-  [dismissableMask]="true"
-  [draggable]="false"
-  [resizable]="true"
-  styleClass="errts-image-dialog">
-  <div class="flex justify-center items-center p-4">
-    <img [src]="selectedImageUrl"
-         [alt]="'Station image for ' + selectedCommsId"
-         class="errts-station-image"
-         (error)="$event.target.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjMwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iNDAwIiBoZWlnaHQ9IjMwMCIgZmlsbD0iI2VlZSIvPjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBmb250LXNpemU9IjE4IiBmaWxsPSIjOTk5IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkeT0iLjNlbSI+SW1hZ2UgTm90IEF2YWlsYWJsZTwvdGV4dD48L3N2Zz4='" />
-  </div>
-</p-dialog>

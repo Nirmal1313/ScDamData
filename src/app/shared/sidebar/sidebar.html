@@ -1,8 +1,8 @@
 <p-drawer [(visible)]="sidebarVisible" [closable]="true" (visibleChange)="onVisibleChange($event)" [style]="{ width: '25rem' }">
   <ng-template #header>
-    <div class="flex items-center gap-2">
-      <i class="pi pi-cloud text-2xl"></i>
-      <span class="font-semibold text-xl">Weather Details</span>
+    <div class="header-container">
+      <i class="pi pi-cloud header-icon"></i>
+      <span class="header-title">Weather Details</span>
     </div>
   </ng-template>
 

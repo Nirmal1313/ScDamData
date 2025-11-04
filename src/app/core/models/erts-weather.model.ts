@@ -1,8 +1,5 @@
 export interface ErtsWaterLevelStatus {
-  commsId: string;
-  hreflink: string;
-  txtlink: string;
-  additionalData: { [key: string]: string };
+  data: { [key: string]: string };
 }
 
 export interface ErtsRainfallStatus {

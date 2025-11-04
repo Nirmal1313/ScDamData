@@ -1,0 +1,517 @@
+// =========================================
+// ERTS Weather Monitoring System Styles
+// =========================================
+
+@use 'sass:color';
+
+// Color Variables
+$primary-color: #3b82f6;
+$secondary-color: #1e40af;
+$light-bg: #f8fafc;
+$border-color: #e2e8f0;
+$text-primary: #1e293b;
+$text-secondary: #64748b;
+
+// =========================================
+// Panel Styles
+// =========================================
+.errts-panel {
+  box-shadow: 0 0.125rem 0.5rem rgba(0, 0, 0, 0.1);
+  border-radius: 0.5rem;
+  overflow: hidden;
+
+  ::ng-deep .p-panel-header {
+    background: $light-bg;
+    color: $text-primary;
+    font-weight: 600;
+    border: none;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    @media (max-width: 768px) {
+      padding: 0.875rem 1rem;
+    }
+
+    @media (max-width: 480px) {
+      padding: 0.75rem;
+      flex-direction: column;
+      align-items: flex-start;
+    }
+  }
+
+  ::ng-deep .p-panel-content {
+    padding: 1.5rem;
+    background: white;
+
+    @media (max-width: 768px) {
+      padding: 1rem;
+    }
+
+    @media (max-width: 480px) {
+      padding: 0.75rem;
+    }
+  }
+}
+
+// Panel Header Content
+.panel-header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+}
+
+.panel-title {
+  font-weight: 600;
+  @media (max-width: 768px) {
+    font-size: 1rem;
+  }
+
+  @media (max-width: 480px) {
+    font-size: 0.95rem;
+  }
+}
+
+.panel-datetime {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1rem;
+  font-weight: 500;
+  opacity: 0.95;
+
+  i {
+    font-size: 1rem;
+  }
+
+  @media (max-width: 768px) {
+    font-size: 0.9rem;
+  }
+
+  @media (max-width: 480px) {
+    font-size: 0.85rem;
+  }
+}
+
+// =========================================
+// Error Message
+// =========================================
+.error-message {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  background: #fee2e2;
+  border-left: 0.25rem solid #ef4444;
+  border-radius: 0.375rem;
+  color: #991b1b;
+  font-weight: 500;
+
+  i {
+    font-size: 1.25rem;
+  }
+
+  @media (max-width: 480px) {
+    padding: 0.75rem;
+    font-size: 0.875rem;
+  }
+}
+
+// =========================================
+// Loading Container
+// =========================================
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem;
+  gap: 1rem;
+
+  @media (max-width: 480px) {
+    padding: 2rem;
+  }
+}
+
+.loading-text {
+  font-size: 1rem;
+  color: $text-secondary;
+  margin: 0;
+
+  @media (max-width: 480px) {
+    font-size: 0.875rem;
+  }
+}
+
+.custom-spinner {
+  ::ng-deep .p-progress-spinner-circle {
+    stroke: $primary-color;
+  }
+}
+
+// =========================================
+// Splitter Styles
+// =========================================
+.errts-splitter {
+  ::ng-deep .p-splitter {
+    border: 0.0625rem solid $border-color;
+  }
+
+  ::ng-deep .p-splitter-gutter {
+    background: $light-bg;
+    transition: background-color 0.2s;
+
+    &:hover {
+      background: color.adjust($light-bg, $lightness: -5%);
+    }
+  }
+}
+
+// =========================================
+// Table Section
+// =========================================
+.table-section {
+  width: 100%;
+  background: white;
+  border-radius: 0.5rem;
+  overflow: hidden;
+  box-shadow: 0 0.0625rem 0.1875rem rgba(0, 0, 0, 0.1);
+}
+
+.table-header-wrapper {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 1.25rem;
+  background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+  border-bottom: 0.125rem solid $border-color;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+
+  @media (max-width: 480px) {
+    padding: 0.75rem 1rem;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+.table-title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: $text-primary;
+  margin: 0;
+
+  i {
+    color: $primary-color;
+    font-size: 1.25rem;
+  }
+
+  @media (max-width: 768px) {
+    font-size: 1rem;
+  }
+
+  @media (max-width: 480px) {
+    font-size: 0.95rem;
+  }
+}
+
+.data-count {
+  padding: 0.25rem 0.75rem;
+  background: $primary-color;
+  color: white;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: 600;
+
+  @media (max-width: 480px) {
+    font-size: 0.75rem;
+  }
+}
+
+// =========================================
+// Data Table Styles
+// =========================================
+.errts-data-table {
+  width: 100%;
+
+  ::ng-deep {
+    .p-datatable-wrapper {
+      overflow-x: auto;
+    }
+
+    .p-datatable-thead > tr > th {
+      background: $light-bg;
+      color: $text-primary;
+      font-weight: 600;
+      font-size: 1rem;
+      padding: 0.4rem 0.5rem;
+      border: 0.0625rem solid $border-color;
+      white-space: nowrap;
+      letter-spacing: 0;
+      min-width: auto;
+
+      @media (max-width: 768px) {
+        padding: 0.4rem 0.3rem;
+        font-size: 0.65rem;
+      }
+
+      @media (max-width: 480px) {
+        padding: 0.3rem 0.25rem;
+        font-size: 0.6rem;
+      }
+    }
+
+    .p-datatable-tbody > tr {
+      transition: background-color 0.2s ease;
+
+      // Alternating row colors for better readability
+      &:nth-child(odd) {
+        background: #ffffff;
+      }
+
+      &:nth-child(even) {
+        background: #f8fafb;
+      }
+
+      &:hover {
+        background: #e1e8f0 !important;
+      }
+
+      > td {
+        padding: 0.4rem 0.5rem;
+        border: 0.0625rem solid $border-color;
+        color: $text-primary;
+        font-size: 1rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        min-width: auto;
+        max-width: 9.375rem;
+
+        @media (max-width: 768px) {
+          padding: 0.4rem 0.3rem;
+          font-size: 0.65rem;
+          max-width: 7.5rem;
+        }
+
+        @media (max-width: 480px) {
+          padding: 0.3rem 0.25rem;
+          font-size: 0.6rem;
+          max-width: 6.25rem;
+        }
+      }
+    }
+  }
+}
+
+// =========================================
+// Rainfall Table Specific Styles
+// =========================================
+// Target only Rainfall Status table - highlight columns 4 to 17 (5m to 96h)
+// Exclude last 4 columns (9-9 E, 9-9 Y, 9-9 T, A9 T)
+.rainfall-table {
+  ::ng-deep {
+    .p-datatable-thead > tr > th {
+      // Highlight time-based columns for Rainfall table only (columns 4-17)
+      &:nth-child(n+4):nth-child(-n+17) {
+        background: #d1e7f0;
+      }
+    }
+
+    .p-datatable-tbody > tr > td {
+      // Highlight time-based columns for Rainfall table only (columns 4-17)
+      &:nth-child(n+4):nth-child(-n+17) {
+        background: #e8f4f8;
+      }
+    }
+  }
+}
+
+.empty-message {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  color: $text-secondary;
+  font-style: italic;
+
+  i {
+    font-size: 1.25rem;
+  }
+
+  @media (max-width: 480px) {
+    font-size: 0.875rem;
+    padding: 1.5rem !important;
+  }
+}
+
+// =========================================
+// Status Highlighting Classes
+// =========================================
+.status-critical {
+  background: #ffd4d4 !important;
+  color: #b91c1c !important;
+  font-weight: 600 !important;
+
+  &:hover {
+    background: #ffc2c2 !important;
+  }
+}
+
+.status-warning {
+  background: #fff4d1 !important;
+  color: #b45309 !important;
+  font-weight: 600 !important;
+
+  &:hover {
+    background: #ffe9b3 !important;
+  }
+}
+
+.status-normal {
+  background: #d4f4e0 !important;
+  color: #047857 !important;
+  font-weight: 500 !important;
+
+  &:hover {
+    background: #bbf0d0 !important;
+  }
+}
+
+.status-offline {
+  background: #e5e7eb !important;
+  color: #374151 !important;
+  font-style: italic !important;
+
+  &:hover {
+    background: #d1d5db !important;
+  }
+}
+
+// =========================================
+// Responsive Adjustments
+// =========================================
+
+// Tablet
+@media (max-width: 992px) {
+  .tables-container {
+    grid-template-columns: 1fr;
+  }
+}
+
+// Mobile
+@media (max-width: 768px) {
+  .errts-data-table {
+    ::ng-deep {
+      .p-datatable-wrapper {
+        font-size: 0.8rem;
+      }
+    }
+  }
+}
+
+// Small Mobile
+@media (max-width: 480px) {
+  .table-section {
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  }
+}
+
+// =========================================
+// CommsId Link
+// =========================================
+.comms-link {
+  color: $primary-color;
+  text-decoration: none;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover {
+    color: $secondary-color;
+    text-decoration: underline;
+  }
+
+  &:active {
+    color: color.adjust($secondary-color, $lightness: -10%);
+  }
+}
+
+// =========================================
+// Image Dialog
+// =========================================
+.image-dialog {
+  ::ng-deep .p-dialog-header {
+    background: linear-gradient(135deg, $primary-color 0%, $secondary-color 100%);
+    color: white;
+    padding: 1rem 1.5rem;
+  }
+
+  ::ng-deep .p-dialog-content {
+    padding: 0;
+    overflow: hidden;
+  }
+}
+
+.image-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: #ffffff;
+  min-height: 25rem;
+  max-height: 70vh;
+  overflow: auto;
+
+  @media (max-width: 768px) {
+    min-height: 18.75rem;
+  }
+}
+
+.station-image {
+  max-width: 100%;
+  max-height: 70vh;
+  height: auto;
+  width: auto;
+  object-fit: contain;
+  display: block;
+
+  @media (max-width: 768px) {
+    max-height: 60vh;
+  }
+}
+
+// =========================================
+// Accessibility
+// =========================================
+.errts-data-table {
+  ::ng-deep {
+    .p-datatable-thead > tr > th,
+    .p-datatable-tbody > tr > td {
+      &:focus {
+        outline: 2px solid $primary-color;
+        outline-offset: -2px;
+      }
+    }
+  }
+}
+
+// High Contrast Mode
+@media (prefers-contrast: high) {
+  .status-critical,
+  .status-warning,
+  .status-normal,
+  .status-offline {
+    border: 2px solid currentColor !important;
+  }
+}
+
+

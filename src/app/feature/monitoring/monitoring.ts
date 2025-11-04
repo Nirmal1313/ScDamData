@@ -5,18 +5,17 @@ import { TableModule } from 'primeng/table';
 import { CommonModule } from '@angular/common';
 import { WaterLevelService } from '../../core/services/water-level.service';
 import { ScrivenerCR1000Result } from '../../core/models/water-level.model';
-import { ErtsWeatherService } from '../../core/services/erts-weather.service';
-import { ErtsWeatherResult } from '../../core/models/erts-weather.model';
 import { AuthService } from '../../core/services/auth.service';
 import { ConfigService } from '../../core/services/config.service';
 import { interval, Subscription } from 'rxjs';
 import { filter } from 'rxjs/operators';
 import { SplitterModule } from 'primeng/splitter';
 import { DialogModule } from 'primeng/dialog';
+import { ProgressSpinnerModule } from 'primeng/progressspinner';
 
 @Component({
   selector: 'app-monitoring',
-  imports: [PanelModule, DividerModule, TableModule, CommonModule, SplitterModule, DialogModule],
+  imports: [PanelModule, DividerModule, TableModule, CommonModule, SplitterModule, DialogModule, ProgressSpinnerModule],
   templateUrl: './monitoring.html',
   styleUrl: './monitoring.scss',
 })
@@ -55,7 +54,6 @@ export class Monitoring implements OnInit, OnDestroy {
 
   constructor(
     private waterLevelService: WaterLevelService,
-    private errtsWeatherService: ErtsWeatherService,
     private authService: AuthService,
     private configService: ConfigService,
     private cdr: ChangeDetectorRef
@@ -69,7 +67,6 @@ export class Monitoring implements OnInit, OnDestroy {
         // Use Promise.resolve to defer execution to next microtask
         Promise.resolve().then(() => {
           this.loadWaterLevelData();
-          this.loadErrtsWaterLevelData();
           this.startAutoRefresh();
         });
       });
@@ -93,7 +90,6 @@ export class Monitoring implements OnInit, OnDestroy {
       .pipe(filter(() => this.authService.isLoggedIn()))
       .subscribe(() => {
         this.loadWaterLevelData();
-        this.loadErrtsWaterLevelData();
       });
   }
 
@@ -181,111 +177,6 @@ export class Monitoring implements OnInit, OnDestroy {
 
       this.gateStatusColumns = Array.from(allKeys);
       this.gateStatusData = gateStatus.map((item) => item.data || {});
-    }
-  }
-
-  /**
-   * Load ERRTS water level data (every 5 minutes)
-   */
-  private loadErrtsWaterLevelData() {
-    this.loading = true;
-    this.error = '';
-    this.cdr.detectChanges();
-
-    this.errtsWeatherService.getErrtsData().subscribe({
-      next: (data: ErtsWeatherResult) => {
-        if (!data) {
-          this.error = 'No ERRTS data received from server';
-          this.loading = false;
-          this.cdr.detectChanges();
-          return;
-        }
-
-        this.errtsDateTime = data.datetime || 'Unknown';
-
-        if (data.waterLevelStatus && data.waterLevelStatus.length > 0) {
-          // Extract columns from additionalData keys
-          const allKeys = new Set<string>();
-          data.waterLevelStatus.forEach((item) => {
-            if (item.additionalData) {
-              Object.keys(item.additionalData).forEach((key) => allKeys.add(key));
-            }
-          });
-
-          // Build columns: start with 'StationNo' (from additionalData), then 'Comms ID', then remaining fields
-          const additionalDataKeys = Array.from(allKeys);
-          const stationIndex = additionalDataKeys.indexOf('StationNo');
-
-          if (stationIndex !== -1) {
-            // Remove 'StationNo ' and place it first
-            additionalDataKeys.splice(stationIndex, 1);
-            this.errtsWaterLevelColumns = ['StationNo', 'Comms ID', ...additionalDataKeys];
-          } else {
-            this.errtsWaterLevelColumns = ['StationNo', 'Comms ID', ...additionalDataKeys];
-          }
-
-          // Store raw data for hreflink access
-          this.errtsRawData = data.waterLevelStatus;
-
-          // Map to flat objects for table display, ensuring StationNo comes first, then Comms ID
-          this.errtsWaterLevelData = data.waterLevelStatus.map((item) => {
-            const rowData: any = {};
-            const additionalData = item.additionalData || {};
-
-            // Add Station Number first if it exists (mapped to StationNo key)
-            if (additionalData['Station Number']) {
-              rowData['StationNo'] = additionalData['Station Number'];
-            }
-
-            // Add Comms ID second
-            rowData['Comms ID'] = item.commsId;
-
-            // Add remaining fields from additionalData (excluding Station Number)
-            Object.keys(additionalData).forEach((key) => {
-              if (key !== 'Station Number') {
-                rowData[key] = additionalData[key];
-              }
-            });
-
-            return rowData;
-          });
-        }
-
-        this.loading = false;
-        this.cdr.detectChanges();
-      },
-      error: (err) => {
-        console.error('Error fetching ERRTS data:', err);
-        this.error = err.message || 'Failed to load ERRTS water level data';
-        this.loading = false;
-        this.cdr.detectChanges();
-      },
-    });
-  }
-
-  /**
-   * Open image popup for ERRTS water level station
-   */
-  openImagePopup(commsId: string) {
-    const item = this.errtsRawData.find((x) => x.commsId === commsId);
-    if (item && item.commsId) {
-      this.selectedCommsId = commsId;
-      this.showImageDialog = true;
-      this.selectedImageUrl = ''; // Reset URL
-
-      // Fetch image with authentication
-      this.errtsWeatherService.getImageAsDataUrl(item.commsId).subscribe({
-        next: (dataUrl: string) => {
-          this.selectedImageUrl = dataUrl;
-          this.cdr.detectChanges();
-        },
-        error: (error) => {
-          console.error('Error loading image:', error);
-          // Set fallback image
-          this.selectedImageUrl = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjMwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iNDAwIiBoZWlnaHQ9IjMwMCIgZmlsbD0iI2VlZSIvPjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBmb250LXNpemU9IjE4IiBmaWxsPSIjOTk5IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkeT0iLjNlbSI+SW1hZ2UgTm90IEF2YWlsYWJsZTwvdGV4dD48L3N2Zz4=';
-          this.cdr.detectChanges();
-        }
-      });
     }
   }
 
