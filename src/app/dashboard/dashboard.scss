@@ -24,6 +24,16 @@
   flex-direction: column;
   width: 100%;
   min-width: 0; // Prevent flex item from overflowing
+  padding: 0;
+  margin: 0;
+
+  // Ensure header is at the very top with no space
+  app-header {
+    display: block;
+    margin: 0;
+    padding: 0;
+    width: 100%;
+  }
 
   @media (max-width: 768px) {
     width: 100%;
@@ -33,18 +43,24 @@
 .dashboard-content {
   flex: 1;
   padding: 0.5rem;
+  padding-top: 0.25rem;
   overflow-x: hidden;
 
   @media (max-width: 768px) {
     padding: 0.75rem;
+    padding-top: 0.5rem;
   }
 
   @media (max-width: 480px) {
     padding: 0.5rem;
+    padding-top: 0.25rem;
   }
 }
 
-.status-overview,
+.status-overview {
+  margin-top: 0;
+}
+
 .monitoring-section,
 .alerts-section {
   margin-top: 1rem;

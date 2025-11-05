@@ -71,13 +71,20 @@
 
 .header-container {
   margin: 0;
+  padding: 0;
   width: 100%;
   overflow-x: hidden;
   max-width: 100vw;
+  position: relative;
+
+  // Remove any space above the header
+  &::before {
+    display: none;
+  }
 }
 
-:host ::ng-deep .p-button {
-  background: none !important;
+.header-left .p-button {
+  background: transparent !important;
   border: none !important;
   display: flex !important;
   align-items: center !important;
@@ -85,44 +92,55 @@
   padding: 0 !important;
   min-width: auto !important;
   height: auto !important;
+  box-shadow: none !important;
 
   // Target the icon specifically within the button
   .pi {
-    color: #000000 !important;
+    color: #ffffff !important;
     font-size: 1.2rem !important;
     font-weight: bold !important;
   }
 
   // Hover effect for the icon
-  &:hover .pi {
-    color: #333333 !important;
+  &:hover {
+    background: rgba(255, 255, 255, 0.1) !important;
+
+    .pi {
+      color: #ffffff !important;
+    }
   }
 }
 
-:host ::ng-deep .eye-friendly-header {
-  background: var(--p-sky-600); // Light gray background that's easy on the eyes
-  border: none;
-  padding: none;
+.eye-friendly-header {
+  background: #000000 !important; // Black background
+  border: none !important;
+  border-top: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  position: relative;
+  top: 0;
+
   // Style for text in the header
   .p-menuitem-text,
   h3 {
-    color: #d1d5d9; // Dark gray text that contrasts well with the background
+    color: #ffffff !important; // White text for better contrast on black background
   }
 
   // Style for icons
   .pi {
-    color: #6c757d;
+    color: #ffffff !important;
   }
 
   // Hover effects for menu items
   .p-menuitem-link:hover {
-    background-color: #e9ecef;
+    background-color: rgba(255, 255, 255, 0.15) !important;
     transition: background-color 0.2s;
   }
 }
 .p-menubar {
-  border: none;
-  box-shadow: none;
+  border: none !important;
+  border-top: none !important;
+  box-shadow: none !important;
   height: 3.5rem;
   border-radius: 0;
   width: 100%;
@@ -131,6 +149,7 @@
   display: flex;
   align-items: center;
   padding: 0 1rem;
+  margin: 0 !important;
 
   @media (max-width: 768px) {
     height: auto;
@@ -144,11 +163,12 @@
   }
 }
 
-:host ::ng-deep .p-menubar {
+.p-menubar {
   align-items: center !important;
   padding: 0 1rem !important;
   flex-wrap: nowrap !important;
   gap: 1rem !important;
+  background: #0284c7 !important;
 
   // Hide PrimeNG's built-in mobile menu button
   .p-menubar-button {
@@ -170,6 +190,7 @@
       margin: 0;
       padding: 0;
       line-height: 1;
+      color: #ffffff !important;
     }
   }
 
@@ -211,9 +232,7 @@
 }
 
 // Center the menu items or add spacing
-:host ::ng-deep .p-menubar-root-list {
-
-
+.p-menubar-root-list {
   @media (max-width: 1200px) {
     margin: 0 0.5rem;
     gap: 0.25rem;
@@ -225,13 +244,13 @@
 }
 
 // Make menu item content background transparent
-:host ::ng-deep .p-menubar-item-content {
+.p-menubar-item-content {
   background: transparent !important;
 }
 
 // Menu link styling
-:host ::ng-deep .menu-link {
-  color: #1a1a1a !important;
+.menu-link {
+  color: black !important;
   text-decoration: underline;
   text-decoration-thickness: 2px;
   text-underline-offset: 3px;
@@ -242,92 +261,89 @@
   border-radius: 6px;
   font-weight: 600;
   font-size: 1rem;
-  transition: none;
+  transition: all 0.2s ease;
   position: relative;
 
   .menu-label {
     font-weight: 700;
-    color: #1a1a1a !important;
+    color: black !important;
   }
 
   i {
-    color: #1a1a1a !important;
+    color: black !important;
     font-size: 1rem;
   }
 
   .external-icon {
     font-size: 0.85rem;
     opacity: 0.8;
-    color: #1a1a1a !important;
+    color: black !important;
   }
 
   // Keep the same color when visited
   &:visited {
-    color: #1a1a1a !important;
+    color: black !important;
     text-decoration: underline;
     text-decoration-thickness: 2px;
-    background: rgba(255, 255, 255, 0.15) !important;
 
     .menu-label {
-      color: #1a1a1a !important;
+      color: black !important;
     }
 
     i {
-      color: #1a1a1a !important;
+      color: black !important;
     }
 
     .external-icon {
-      color: #1a1a1a !important;
+      color: black !important;
     }
   }
 
   &:hover {
-    color: #1a1a1a !important;
+    color: black !important;
     text-decoration: underline;
     text-decoration-thickness: 2px;
-    background: rgba(255, 255, 255, 0.25) !important;
 
     .menu-label {
-      color: #1a1a1a !important;
+      color: black !important;
     }
 
     i {
-      color: #1a1a1a !important;
+      color: black !important;
     }
 
     .external-icon {
-      color: #1a1a1a !important;
+      color: black !important;
     }
   }
 
   &:active {
-    color: #1a1a1a !important;
+    color: black !important;
     text-decoration: underline;
     text-decoration-thickness: 2px;
-    background: rgba(255, 255, 255, 0.2) !important;
 
     .menu-label {
-      color: #1a1a1a !important;
+      color: black !important;
     }
 
     i {
-      color: #1a1a1a !important;
+      color: black !important;
     }
   }
 
   &:focus {
-    outline: 2px solid rgba(0, 0, 0, 0.5);
+    outline: 2px solid rgba(255, 255, 255, 0);
     outline-offset: 2px;
-    color: #1a1a1a !important;
+    color: black !important;
     text-decoration: underline;
     text-decoration-thickness: 2px;
 
     .menu-label {
-      color: #1a1a1a !important;
+      color: black !important;
     }
 
     i {
-      color: #1a1a1a !important;
+      color: black !important;
     }
   }
 }
@@ -578,8 +594,8 @@
   }
 
   // Logout button styling
-  ::ng-deep p-button .p-button {
-    background: var(--p-sky-600) !important;
+  p-button .p-button {
+    background: rgba(255, 255, 255, 0.2) !important;
     border: 2px solid rgba(255, 255, 255, 0.3) !important;
     color: #ffffff !important;
     padding: 0.5rem 0.75rem !important;
@@ -616,7 +632,7 @@
 }
 
 // Ensure the end template content is clickable
-:host ::ng-deep .p-menubar-end {
+.p-menubar-end {
   pointer-events: auto !important;
   z-index: 1000;
 
@@ -626,8 +642,8 @@
   }
 }
 
-// Ensure proper layout of menubar
-:host ::ng-deep .p-menubar {
+// Ensure proper layout of menubar - additional specific rules
+.header-container .p-menubar {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
@@ -667,28 +683,26 @@
 }
 
 // Weather icons responsive sizing
-:host ::ng-deep {
-  @media (max-width: 992px) {
-    .weather-icon {
-      width: 1rem !important;
-      height: 1.2rem !important;
-    }
-
-    span:has(.weather-icon) {
-      font-size: 1rem !important;
-      padding: 0.2rem 0.4rem !important;
-    }
+@media (max-width: 992px) {
+  .weather-icon {
+    width: 1rem !important;
+    height: 1.2rem !important;
   }
 
-  @media (max-width: 768px) {
-    .weather-icon {
-      width: 0.9rem !important;
-      height: 1rem !important;
-    }
+  span:has(.weather-icon) {
+    font-size: 1rem !important;
+    padding: 0.2rem 0.4rem !important;
+  }
+}
 
-    span:has(.weather-icon) {
-      font-size: 0.9rem !important;
-      padding: 0.15rem 0.3rem !important;
-    }
+@media (max-width: 768px) {
+  .weather-icon {
+    width: 0.9rem !important;
+    height: 1rem !important;
+  }
+
+  span:has(.weather-icon) {
+    font-size: 0.9rem !important;
+    padding: 0.15rem 0.3rem !important;
   }
 }

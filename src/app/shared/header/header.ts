@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Output, OnInit, OnDestroy } from '@angular/core';
+import { Component, EventEmitter, Output, OnInit, OnDestroy, ViewEncapsulation } from '@angular/core';
 import { MenuItem } from 'primeng/api';
 import { BadgeModule } from 'primeng/badge';
 import { AvatarModule } from 'primeng/avatar';
@@ -26,6 +26,7 @@ import { WeatherConsumerBase } from '../../core/base/weather-consumer.base';
   ],
   templateUrl: './header.html',
   styleUrl: './header.scss',
+  encapsulation: ViewEncapsulation.None,
 })
 export class Header extends WeatherConsumerBase implements OnInit, OnDestroy {
   items: MenuItem[] = [];
