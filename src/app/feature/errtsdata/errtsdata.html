@@ -1,9 +1,13 @@
 <p-panel [toggleable]="true" [collapsed]="false">
   <ng-template #header>
-    <span class="panel-title">ERTS Weather Data</span>
+    <span class="panel-title">ERRTS Weather Data</span>
     <span class="panel-datetime">
       <i class="pi pi-clock"></i>
       {{ dateTime || 'Loading...' }}
+    </span>
+    <span class="panel-discharge-sum" *ngIf="totalDischargeForHighlighted > 0">
+      <i class="pi pi-chart-bar"></i>
+      Combined Discharge (Highlighted): {{ totalDischargeForHighlighted }}
     </span>
   </ng-template>
 
@@ -44,7 +48,7 @@
               </tr>
             </ng-template>
             <ng-template #body let-row>
-              <tr>
+              <tr [ngClass]="{'highlighted-row': isRowHighlighted(row)}">
                 <td *ngFor="let column of waterLevelColumns" [ngClass]="getStatusClass(row[column])">
                   <a *ngIf="column.toLowerCase() === 'commsid'"
                      href="javascript:void(0)"
@@ -52,7 +56,17 @@
                      (click)="openImagePopup(row[column])">
                     {{ row[column] }}
                   </a>
-                  <span *ngIf="column.toLowerCase() !== 'commsid' && column.toLowerCase() !== 'name'">{{ row[column] }}</span>
+
+                  <!-- Discharge column with trend indicator for highlighted rows -->
+                  <span *ngIf="column.toLowerCase() === 'discharge' && isRowHighlighted(row)"
+                        class="discharge-with-trend"
+                        [ngClass]="getTrendColorClass(row)">
+                    {{ row[column] }}
+                    <i *ngIf="getTrendIcon(row)" [class]="getTrendIcon(row)" class="trend-icon"></i>
+                  </span>
+
+                  <span *ngIf="column.toLowerCase() !== 'commsid' && column.toLowerCase() !== 'name' && column.toLowerCase() !== 'discharge'">{{ row[column] }}</span>
+                  <span *ngIf="column.toLowerCase() !== 'commsid' && column.toLowerCase() !== 'name' && column.toLowerCase() === 'discharge' && !isRowHighlighted(row)">{{ row[column] }}</span>
                   <span *ngIf="column.toLowerCase() === 'name'"
                         [pTooltip]="row[column]"
                         tooltipPosition="top"

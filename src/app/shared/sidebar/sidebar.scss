@@ -2,21 +2,49 @@
   display: flex;
   align-items: center;
   gap: 0.5rem;
+
+  @media (max-width: 480px) {
+    gap: 0.3rem;
+  }
 }
 
 .header-icon {
   font-size: 1.5rem;
+
+  @media (max-width: 768px) {
+    font-size: 1.3rem;
+  }
+
+  @media (max-width: 480px) {
+    font-size: 1.1rem;
+  }
 }
 
 .header-title {
   font-weight: 600;
   font-size: 1.25rem;
+
+  @media (max-width: 768px) {
+    font-size: 1.1rem;
+  }
+
+  @media (max-width: 480px) {
+    font-size: 1rem;
+  }
 }
 
 .table-caption {
   font-weight: bold;
   font-size: 1.1rem;
   text-align: center;
+
+  @media (max-width: 768px) {
+    font-size: 1rem;
+  }
+
+  @media (max-width: 480px) {
+    font-size: 0.9rem;
+  }
 }
 
 :host ::ng-deep .p-datatable .p-datatable-tbody > tr:hover {
@@ -25,14 +53,54 @@
 
 :host ::ng-deep .weather-drawer .p-drawer {
   width: 25rem !important;
+
+  @media (max-width: 768px) {
+    width: 90vw !important;
+    max-width: 25rem !important;
+  }
+
+  @media (max-width: 480px) {
+    width: 95vw !important;
+  }
 }
 
 :host ::ng-deep .weather-drawer .p-drawer-content {
   width: 25rem !important;
+
+  @media (max-width: 768px) {
+    width: 90vw !important;
+    max-width: 25rem !important;
+  }
+
+  @media (max-width: 480px) {
+    width: 95vw !important;
+  }
 }
 
 .weather-table-section {
   margin-bottom: 1rem;
+
+  @media (max-width: 768px) {
+    margin-bottom: 0.75rem;
+  }
+
+  // Make tables responsive
+  ::ng-deep .p-datatable {
+    font-size: 0.9rem;
+
+    @media (max-width: 480px) {
+      font-size: 0.8rem;
+    }
+
+    .p-datatable-thead > tr > th,
+    .p-datatable-tbody > tr > td {
+      padding: 0.5rem;
+
+      @media (max-width: 480px) {
+        padding: 0.3rem;
+      }
+    }
+  }
 }
 
 .table-divider {

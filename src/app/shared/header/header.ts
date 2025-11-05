@@ -59,7 +59,7 @@ export class Header extends WeatherConsumerBase implements OnInit, OnDestroy {
     // Initialize menu items
     this.items = [
       {
-        label: 'ACT',
+        label: 'ACT - Canberra Weather',
         url: 'https://reg.bom.gov.au/places/act/canberra/',
         target: '_blank',
         icon: 'pi pi-map-marker',

@@ -37,7 +37,15 @@ export class Monitoring implements OnInit, OnDestroy {
   errtsDateTime: string = '';
   errtsWaterLevelData: any[] = [];
   errtsWaterLevelColumns: string[] = [];
-  errtsRawData: any[] = []; // Store raw data with hreflink
+  outflowData: string = '';
+  totalDischargeData: string = '';
+
+  // Previous values for change detection
+  private previousLakeLevel: number | null = null;
+  private previousLakeStorage: number | null = null;
+  private previousOutflow: number | null = null;
+  private previousTotalDischarge: number | null = null;
+
 
   // Image popup
   showImageDialog: boolean = false;
@@ -50,7 +58,7 @@ export class Monitoring implements OnInit, OnDestroy {
   // Auto-refresh subscription
   private refreshSubscription?: Subscription;
   private authSubscription?: Subscription;
-  private readonly REFRESH_INTERVAL = 5 * 60 * 1000; // 5 minutes in milliseconds
+  private readonly REFRESH_INTERVAL = 7 * 60 * 1000; // 7 minutes in milliseconds
 
   constructor(
     private waterLevelService: WaterLevelService,
@@ -147,6 +155,46 @@ export class Monitoring implements OnInit, OnDestroy {
     if (waterLevel && waterLevel.length > 0) {
       // Store the raw water level data for display at the top
       this.waterLevelData = waterLevel;
+
+      // Update previous values for change tracking
+      this.updateChangeTracking();
+    }
+  }
+
+  /**
+   * Update change tracking for monitoring values
+   */
+  private updateChangeTracking() {
+    // Extract lake level from waterLevelData[0] (e.g., "Lake Level is 555.633m AHD")
+    if (this.waterLevelData.length > 0) {
+      const lakeLevelMatch = this.waterLevelData[0].match(/(\d+\.\d+)m\s+AHD/);
+      if (lakeLevelMatch) {
+        const currentLakeLevel = parseFloat(lakeLevelMatch[1]);
+        if (!isNaN(currentLakeLevel)) {
+          this.previousLakeLevel = currentLakeLevel;
+        }
+      }
+
+      // Extract lake storage from waterLevelData[0] (e.g., "Lake Storage is 30980 ML")
+      const lakeStorageMatch = this.waterLevelData[0].match(/Lake Storage is (\d+)\s+ML/);
+      if (lakeStorageMatch) {
+        const currentLakeStorage = parseFloat(lakeStorageMatch[1]);
+        if (!isNaN(currentLakeStorage)) {
+          this.previousLakeStorage = currentLakeStorage;
+        }
+      }
+    }
+
+    // Track outflow
+    const outflowValue = parseFloat(this.outflowData);
+    if (!isNaN(outflowValue)) {
+      this.previousOutflow = outflowValue;
+    }
+
+    // Track total discharge
+    const totalDischargeValue = parseFloat(this.totalDischargeData);
+    if (!isNaN(totalDischargeValue)) {
+      this.previousTotalDischarge = totalDischargeValue;
     }
   }
 
@@ -162,6 +210,26 @@ export class Monitoring implements OnInit, OnDestroy {
 
       this.sluiceStatusColumns = Array.from(allKeys);
       this.sluiceStatusData = sluiceStatus.map((item) => item.data || {});
+
+      // Get the first column key (the row label column)
+      const firstColumnKey = this.sluiceStatusColumns[0];
+
+      // Find the row where the first column contains "Discharge (cumecs)"
+      const dischargeCumecsRow = this.sluiceStatusData.find(row =>
+        row[firstColumnKey] === 'Discharge (cumecs)'
+      );
+
+      // Find the row where the first column contains "Discharge (ML/Day)"
+      const dischargeMLDayRow = this.sluiceStatusData.find(row =>
+        row[firstColumnKey] === 'Discharge (ML/Day)'
+      );
+
+      // Get the last column (excluding the first label column)
+      const lastColumnKey = this.sluiceStatusColumns[this.sluiceStatusColumns.length - 1];
+
+      // Extract the last column value from each row
+      this.outflowData = dischargeCumecsRow ? (dischargeCumecsRow[lastColumnKey] || '0.0') : '0.0';
+      this.totalDischargeData = dischargeMLDayRow ? (dischargeMLDayRow[lastColumnKey] || '0.0') : '0.0';
     }
   }
 
@@ -230,5 +298,117 @@ export class Monitoring implements OnInit, OnDestroy {
     }
 
     return '';
+  }
+
+  /**
+   * Get change status for a metric value
+   */
+  getChangeStatus(currentValue: number, previousValue: number | null, isHigherBetter: boolean = false): 'rising' | 'falling' | 'steady' | 'none' {
+    if (previousValue === null || isNaN(currentValue)) {
+      return 'none';
+    }
+
+    const threshold = 0.01; // Minimum change to consider
+    const difference = currentValue - previousValue;
+
+    if (Math.abs(difference) < threshold) {
+      return 'steady';
+    } else if (difference > 0) {
+      return 'rising';
+    } else {
+      return 'falling';
+    }
+  }
+
+  /**
+   * Get lake level with current value
+   */
+  get lakeLevelValue(): number | null {
+    if (this.waterLevelData.length > 0) {
+      const match = this.waterLevelData[0].match(/(\d+\.\d+)m\s+AHD/);
+      if (match) {
+        return parseFloat(match[1]);
+      }
+    }
+    return null;
+  }
+
+  /**
+   * Get lake storage with current value
+   */
+  get lakeStorageValue(): number | null {
+    if (this.waterLevelData.length > 0) {
+      const match = this.waterLevelData[0].match(/Lake Storage is (\d+)\s+ML/);
+      if (match) {
+        return parseFloat(match[1]);
+      }
+    }
+    return null;
+  }
+
+  /**
+   * Get change status for lake level
+   */
+  get lakeLevelChangeStatus(): 'rising' | 'falling' | 'steady' | 'none' {
+    if (this.lakeLevelValue === null) return 'none';
+    return this.getChangeStatus(this.lakeLevelValue, this.previousLakeLevel);
+  }
+
+  /**
+   * Get change status for lake storage
+   */
+  get lakeStorageChangeStatus(): 'rising' | 'falling' | 'steady' | 'none' {
+    if (this.lakeStorageValue === null) return 'none';
+    return this.getChangeStatus(this.lakeStorageValue, this.previousLakeStorage);
+  }
+
+  /**
+   * Get change status for outflow
+   */
+  get outflowChangeStatus(): 'rising' | 'falling' | 'steady' | 'none' {
+    const outflowValue = parseFloat(this.outflowData);
+    if (isNaN(outflowValue)) return 'none';
+    return this.getChangeStatus(outflowValue, this.previousOutflow);
+  }
+
+  /**
+   * Get change status for total discharge
+   */
+  get totalDischargeChangeStatus(): 'rising' | 'falling' | 'steady' | 'none' {
+    const totalDischargeValue = parseFloat(this.totalDischargeData);
+    if (isNaN(totalDischargeValue)) return 'none';
+    return this.getChangeStatus(totalDischargeValue, this.previousTotalDischarge);
+  }
+
+  /**
+   * Get trend icon based on change status
+   */
+  getTrendIcon(status: 'rising' | 'falling' | 'steady' | 'none'): string {
+    switch (status) {
+      case 'rising':
+        return 'pi pi-arrow-up';
+      case 'falling':
+        return 'pi pi-arrow-down';
+      case 'steady':
+        return 'pi pi-minus';
+      default:
+        return '';
+    }
+  }
+
+  /**
+   * Get trend color class
+   */
+  getTrendColorClass(status: 'rising' | 'falling' | 'steady' | 'none'): string {
+    switch (status) {
+      case 'rising':
+        return 'trend-rising';
+      case 'falling':
+        return 'trend-falling';
+      case 'steady':
+        return 'trend-steady';
+      default:
+        return '';
+    }
   }
 }

@@ -98,6 +98,35 @@ $text-secondary: #64748b;
   }
 }
 
+.panel-discharge-sum {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #059669; // Green color for discharge sum
+  background: #d1fae5;
+  padding: 0.375rem 0.75rem;
+  border-radius: 0.375rem;
+  margin-left: 1rem;
+
+  i {
+    font-size: 1rem;
+    color: #047857;
+  }
+
+  @media (max-width: 768px) {
+    font-size: 0.9rem;
+    margin-left: 0;
+    margin-top: 0.5rem;
+  }
+
+  @media (max-width: 480px) {
+    font-size: 0.85rem;
+    padding: 0.3rem 0.6rem;
+  }
+}
+
 // =========================================
 // Error Message
 // =========================================
@@ -286,6 +315,22 @@ $text-secondary: #64748b;
         background: #e1e8f0 !important;
       }
 
+      // Highlighted row style for selected CommsIds
+      &.highlighted-row {
+        background: #e0f2fe !important; // Soft light blue background
+        border-left: 4px solid #0ea5e9 !important; // Sky blue border
+        font-weight: 600;
+
+        > td {
+          background: transparent;
+          color: #075985; // Deep blue text
+        }
+
+        &:hover {
+          background: #bae6fd !important; // Slightly darker blue on hover
+        }
+      }
+
       > td {
         padding: 0.4rem 0.5rem;
         border: 0.0625rem solid $border-color;
@@ -394,6 +439,58 @@ $text-secondary: #64748b;
 
   &:hover {
     background: #d1d5db !important;
+  }
+}
+
+// =========================================
+// Discharge Trend Indicators
+// =========================================
+.discharge-with-trend {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-weight: 600;
+}
+
+.trend-icon {
+  font-size: 0.9rem;
+  font-weight: bold;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+.trend-rising {
+  color: #dc2626 !important; // Red for rising (alert)
+
+  .trend-icon {
+    color: #dc2626;
+  }
+}
+
+.trend-falling {
+  color: #16a34a !important; // Green for falling (good)
+
+  .trend-icon {
+    color: #16a34a;
+  }
+}
+
+.trend-steady {
+  color: #2563eb !important; // Blue for steady
+
+  .trend-icon {
+    color: #2563eb;
+  }
+}
+
+// Pulse animation for trend icons
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.7;
+    transform: scale(1.1);
   }
 }
 

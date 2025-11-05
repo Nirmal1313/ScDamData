@@ -5,14 +5,42 @@
         <span class="monitoring-panel-title">Monitoring System</span>
       </div>
       <div class="monitoring-header-center" *ngIf="waterLevelData.length > 0">
-        <span class="monitoring-water-level-header">
-          <i class="pi pi-chart-line"></i>
-          <span [innerHTML]="waterLevelData[0]"></span>
-          <span class="monitoring-panel-datetime">
-            <i class="pi pi-clock"></i>
-            {{ dateTime || 'Loading...' }}
+        <div class="monitoring-water-level-header">
+          <span class="monitoring-info-item monitoring-metric-with-trend" [ngClass]="getTrendColorClass(lakeLevelChangeStatus)">
+            <i class="pi pi-chart-line monitoring-metric-icon"></i>
+            <span [innerHTML]="waterLevelData[0]"></span>
+            <i *ngIf="getTrendIcon(lakeLevelChangeStatus)"
+               [class]="getTrendIcon(lakeLevelChangeStatus)"
+               class="monitoring-trend-icon"></i>
           </span>
-        </span>
+
+          <span class="monitoring-info-item monitoring-discharge-info monitoring-metric-with-trend"
+                *ngIf="outflowData"
+                [ngClass]="getTrendColorClass(outflowChangeStatus)">
+            <i class="pi pi-arrow-circle-down monitoring-metric-icon"></i>
+            <span>Outflow:</span>
+            <strong>{{ outflowData }}</strong>
+            <i *ngIf="getTrendIcon(outflowChangeStatus)"
+               [class]="getTrendIcon(outflowChangeStatus)"
+               class="monitoring-trend-icon"></i>
+          </span>
+
+          <span class="monitoring-info-item monitoring-discharge-info monitoring-metric-with-trend"
+                *ngIf="totalDischargeData"
+                [ngClass]="getTrendColorClass(totalDischargeChangeStatus)">
+            <i class="pi pi-database monitoring-metric-icon"></i>
+            <span>Total Discharge (ML/D):</span>
+            <strong>{{ totalDischargeData }}</strong>
+            <i *ngIf="getTrendIcon(totalDischargeChangeStatus)"
+               [class]="getTrendIcon(totalDischargeChangeStatus)"
+               class="monitoring-trend-icon"></i>
+          </span>
+
+          <span class="monitoring-info-item monitoring-panel-datetime">
+            <i class="pi pi-clock"></i>
+            <span>{{ dateTime || 'Loading...' }}</span>
+          </span>
+        </div>
       </div>
       <div class="monitoring-header-spacer"></div>
     </div>

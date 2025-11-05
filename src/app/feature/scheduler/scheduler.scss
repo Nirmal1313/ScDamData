@@ -10,6 +10,20 @@
   z-index: 1000;
   width: 60px;
   height: 60px;
+
+  @media (max-width: 768px) {
+    bottom: 1.5rem;
+    right: 1.5rem;
+    width: 56px;
+    height: 56px;
+  }
+
+  @media (max-width: 480px) {
+    bottom: 1rem;
+    right: 1rem;
+    width: 50px;
+    height: 50px;
+  }
 }
 
 // Event Occurs Button Active State
@@ -32,6 +46,18 @@
       transform: translateY(-2px);
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
     }
+  }
+
+  @media (max-width: 768px) {
+    padding: 0.75rem;
+    border-radius: 8px;
+    margin-bottom: 0.75rem;
+  }
+
+  @media (max-width: 480px) {
+    padding: 0.5rem;
+    border-radius: 6px;
+    margin-bottom: 0.5rem;
   }
 }
 
@@ -75,6 +101,18 @@
   margin-bottom: 1rem;
   box-shadow: 0 2px 8px rgba(59, 130, 246, 0.1);
   transition: background-color 0.3s ease;
+
+  @media (max-width: 768px) {
+    padding: 1rem;
+    border-radius: 8px;
+    margin-bottom: 0.75rem;
+  }
+
+  @media (max-width: 480px) {
+    padding: 0.75rem;
+    border-radius: 6px;
+    margin-bottom: 0.5rem;
+  }
 
   label.block {
     color: var(--text-color);
@@ -408,10 +446,108 @@
   text-align: center;
 }
 
+// ===================================
+// CALENDAR PANEL STYLES
+// ===================================
 .p-panel {
-  box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.1); // 0 2px 4px
-  border-radius: 0.5rem; // 8px
-  border: none;
+  box-shadow: 0 0.125rem 0.5rem rgba(0, 0, 0, 0.1);
+  border-radius: 0.5rem;
+  overflow: hidden;
+
+  ::ng-deep .p-panel-header {
+    background: #f8fafc;
+    color: #1e293b;
+    font-weight: 600;
+    border: none;
+    padding: 1rem 1.5rem;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    @media (max-width: 768px) {
+      padding: 0.875rem 1rem;
+    }
+
+    @media (max-width: 480px) {
+      padding: 0.75rem;
+    }
+  }
+
+  // Ensure toggle icon is visible and properly styled
+  ::ng-deep .p-panel-header-icon {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 2rem !important;
+    height: 2rem !important;
+    color: #1e293b !important;
+    border-radius: 0.25rem !important;
+    transition: all 0.2s !important;
+    background-color: transparent !important;
+    border: none !important;
+    margin-left: auto !important;
+    cursor: pointer !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+
+    &:hover {
+      background-color: rgba(0, 0, 0, 0.05) !important;
+    }
+
+    .p-icon {
+      font-size: 1rem !important;
+      color: #1e293b !important;
+    }
+
+    svg {
+      width: 1rem !important;
+      height: 1rem !important;
+      fill: #1e293b !important;
+    }
+  }
+
+  ::ng-deep .p-panel-toggler {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+  }
+
+  ::ng-deep .p-panel-icons {
+    display: flex !important;
+    align-items: center !important;
+    margin-left: auto !important;
+  }
+
+  ::ng-deep .p-panel-content {
+    padding: 1.5rem;
+    background: white;
+
+    @media (max-width: 768px) {
+      padding: 1rem;
+    }
+
+    @media (max-width: 480px) {
+      padding: 0.75rem;
+    }
+  }
+
+  ::ng-deep .p-panel-title {
+    font-weight: 600;
+    font-size: 1.125rem;
+    color: #1e293b;
+    flex-grow: 1;
+
+    @media (max-width: 768px) {
+      font-size: 1.1rem;
+    }
+
+    @media (max-width: 480px) {
+      font-size: 1rem;
+    }
+  }
 }
 
 .calendar-container {
