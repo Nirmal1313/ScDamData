@@ -1,59 +1,4 @@
 // ===================================
-// SCHEDULER PANEL STYLES
-// ===================================
-
-// Panel Header Container
-.scheduler-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  width: 100%;
-  gap: 1.5rem;
-  padding: 0.25rem 0;
-}
-
-// Panel Title Styling
-.scheduler-panel-title {
-  font-weight: 600;
-  color: #1e293b;
-  font-size: 1.1rem;
-
-  @media (max-width: 768px) {
-    font-size: 1.1rem;
-  }
-
-  @media (max-width: 480px) {
-    font-size: 1rem;
-  }
-}
-
-// Create Event Button in Header
-::ng-deep .scheduler-create-button {
-  width: 2.5rem !important;
-  height: 2.5rem !important;
-  border-radius: 50% !important;
-  box-shadow: 0 0.125rem 0.5rem rgba(59, 130, 246, 0.3) !important;
-  transition: all 0.3s ease !important;
-  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%) !important;
-  border: none !important;
-
-  &:hover {
-    transform: scale(1.1) !important;
-    box-shadow: 0 0.25rem 0.75rem rgba(59, 130, 246, 0.5) !important;
-    background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%) !important;
-  }
-
-  &:active {
-    transform: scale(0.95) !important;
-  }
-
-  .p-button-icon {
-    font-size: 1rem !important;
-    font-weight: bold !important;
-  }
-}
-
-// ===================================
 // QUICK BOOKING STYLES
 // ===================================
 
@@ -65,6 +10,20 @@
   z-index: 1000;
   width: 3.75rem;
   height: 3.75rem;
+
+  @media (max-width: 48rem) {
+    bottom: 1.5rem;
+    right: 1.5rem;
+    width: 3.5rem;
+    height: 3.5rem;
+  }
+
+  @media (max-width: 30rem) {
+    bottom: 1rem;
+    right: 1rem;
+    width: 3.125rem;
+    height: 3.125rem;
+  }
 }
 
 // Event Occurs Button Active State
@@ -87,6 +46,18 @@
       transform: translateY(-0.125rem);
       box-shadow: 0 0.25rem 0.75rem rgba(0, 0, 0, 0.15);
     }
+  }
+
+  @media (max-width: 48rem) {
+    padding: 0.75rem;
+    border-radius: 0.5rem;
+    margin-bottom: 0.75rem;
+  }
+
+  @media (max-width: 30rem) {
+    padding: 0.5rem;
+    border-radius: 0.375rem;
+    margin-bottom: 0.5rem;
   }
 }
 
@@ -130,6 +101,18 @@
   margin-bottom: 1rem;
   box-shadow: 0 0.125rem 0.5rem rgba(59, 130, 246, 0.1);
   transition: background-color 0.3s ease;
+
+  @media (max-width: 48rem) {
+    padding: 1rem;
+    border-radius: 0.5rem;
+    margin-bottom: 0.75rem;
+  }
+
+  @media (max-width: 30rem) {
+    padding: 0.75rem;
+    border-radius: 0.375rem;
+    margin-bottom: 0.5rem;
+  }
 
   label.block {
     color: var(--text-color);
@@ -210,7 +193,7 @@
       justify-content: center;
       width: 2rem;
       height: 2rem;
-      border: 2px solid currentColor;
+      border: 0.125rem solid currentColor;
       border-radius: 50%;
       font-weight: bold;
       margin-bottom: 0.5rem;
@@ -397,7 +380,7 @@
   .p-datepicker-header {
     background: var(--primary-color);
     color: var(--primary-color-text);
-    border-radius: 0.5rem 0.5rem 0 0;
+    border-radius: 8px 8px 0 0;
   }
 
   .p-datepicker-title {
@@ -414,7 +397,7 @@
     background: var(--surface-ground);
 
     &:hover {
-      box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.05);
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
       border-color: var(--primary-200);
     }
   }
@@ -463,10 +446,107 @@
   text-align: center;
 }
 
+// ===================================
+// CALENDAR PANEL STYLES
+// ===================================
 .p-panel {
-  box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.1); // 0 2px 4px
-  border-radius: 0.5rem; // 8px
-  border: none;
+  box-shadow: 0 0.125rem 0.5rem rgba(0, 0, 0, 0.1);
+  border-radius: 0.5rem;
+  overflow: hidden;
+
+  ::ng-deep .p-panel-header {
+    background: #f8fafc;
+    color: #1e293b;
+    font-weight: 600;
+    border: none;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    @media (max-width: 48rem) {
+      padding: 0.875rem 1rem;
+    }
+
+    @media (max-width: 30rem) {
+      padding: 0.75rem;
+    }
+  }
+
+  // Ensure toggle icon is visible and properly styled
+  ::ng-deep .p-panel-header-icon {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 2rem !important;
+    height: 2rem !important;
+    color: #1e293b !important;
+    border-radius: 0.25rem !important;
+    transition: all 0.2s !important;
+    background-color: transparent !important;
+    border: none !important;
+    margin-left: auto !important;
+    cursor: pointer !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+
+    &:hover {
+      background-color: rgba(0, 0, 0, 0.05) !important;
+    }
+
+    .p-icon {
+      font-size: 1rem !important;
+      color: #1e293b !important;
+    }
+
+    svg {
+      width: 1rem !important;
+      height: 1rem !important;
+      fill: #1e293b !important;
+    }
+  }
+
+  ::ng-deep .p-panel-toggler {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+  }
+
+  ::ng-deep .p-panel-icons {
+    display: flex !important;
+    align-items: center !important;
+    margin-left: auto !important;
+  }
+
+  ::ng-deep .p-panel-content {
+    padding: 1.5rem;
+    background: white;
+
+    @media (max-width: 48rem) {
+      padding: 1rem;
+    }
+
+    @media (max-width: 30rem) {
+      padding: 0.75rem;
+    }
+  }
+
+  ::ng-deep .p-panel-title {
+    font-weight: 600;
+    font-size: 1.125rem;
+    color: #1e293b;
+    flex-grow: 1;
+
+    @media (max-width: 48rem) {
+      font-size: 1.1rem;
+    }
+
+    @media (max-width: 30rem) {
+      font-size: 1rem;
+    }
+  }
 }
 
 .calendar-container {
@@ -477,13 +557,13 @@
 // /* Dialog Container Styling */
 
 ::ng-deep .event-dialog .p-dialog {
-  border-radius: 1rem;
-  box-shadow: 0 1.5625rem 3.125rem -0.75rem rgba(0, 0, 0, 0.25);
+  border-radius: 1rem; // 16px
+  box-shadow: 0 1.5625rem 3.125rem -0.75rem rgba(0, 0, 0, 0.25); // 0 25px 50px -12px
   border: none;
   overflow: hidden;
   transform: none;
   width: 90vw;
-  max-width: 37.5rem;
+  max-width: 600px;
 }
 
 ::ng-deep .p-dialog {
@@ -494,7 +574,7 @@
 ::ng-deep .event-dialog .p-dialog-header {
   background: linear-gradient(135deg, var(--p-gray-200) 0%, var(--p-sky-500) 100%);
   color: black;
-  height: 4rem;
+  height: 3rem; // 64px
   display: flex;
 }
 
@@ -518,17 +598,237 @@
   transition: all 0.3s ease;
 }
 
+// /* Form Styling */
+
+// .event-form .field {
+//   position: relative;
+// }
+
+// .event-form .field label {
+//   color: #374151;
+//   font-weight: 600;
+//   font-size: 0.875rem;
+//   text-transform: uppercase;
+//   display: block;
+// }
+
+// /* Input Field Enhancements */
+// ::ng-deep .event-form .p-inputtext,
+// ::ng-deep .event-form .p-datepicker input,
+// ::ng-deep .event-form .p-inputtextarea {
+//   border: 0.125rem solid #e5e7eb; // 2px
+//   border-radius: 0.75rem; // 12px
+//   padding: 0.875rem 1rem;
+//   font-size: 1rem;
+//   transition: all 0.3s ease;
+//   background: white;
+// }
+
+// ::ng-deep .event-form .p-inputtext:focus,
+// ::ng-deep .event-form .p-datepicker input:focus,
+// ::ng-deep .event-form .p-inputtextarea:focus {
+//   border-color: #667eea;
+//   box-shadow: 0 0 0 0.1875rem rgba(102, 126, 234, 0.1); // 0 0 0 3px
+//   outline: none;
+// }
+
+// ::ng-deep .event-form .p-inputtext:hover,
+// ::ng-deep .event-form .p-datepicker input:hover,
+// ::ng-deep .event-form .p-inputtextarea:hover {
+//   border-color: #9ca3af;
+// }
+
+// /* Color Picker Styling */
+// ::ng-deep .event-form .p-colorpicker-preview {
+//   width: 3rem;
+//   height: 3rem;
+//   border-radius: 50%;
+//   border: 0.1875rem solid white; // 3px
+//   box-shadow: 0 0.25rem 0.75rem rgba(0, 0, 0, 0.15); // 0 0.25rem 0.75rem
+//   cursor: pointer;
+//   transition: transform 0.2s ease;
+// }
+
+// ::ng-deep .event-form .p-colorpicker-preview:hover {
+//   transform: scale(1.1);
+// }
+
+// /* Checkbox Styling */
+// ::ng-deep .event-form .p-checkbox .p-checkbox-box {
+//   border: 0.125rem solid #d1d5db; // 2px
+//   border-radius: 0.375rem; // 6px
+//   width: 1.25rem;
+//   height: 1.25rem;
+//   transition: all 0.3s ease;
+// }
+
+// ::ng-deep .event-form .p-checkbox .p-checkbox-box.p-highlight {
+//   background: #667eea;
+//   border-color: #667eea;
+// }
+
+// ::ng-deep .event-form .p-checkbox .p-checkbox-box:hover {
+//   border-color: #667eea;
+// }
+
+// /* Validation Error Styling */
+// .event-form .ng-invalid.ng-touched {
+//   border-color: #ef4444 !important;
+//   box-shadow: 0 0 0 0.1875rem rgba(239, 68, 68, 0.1) !important; // 0 0 0 3px
+// }
+
+// .event-form small.text-red-500 {
+//   color: #ef4444;
+//   font-size: 0.875rem;
+//   margin-top: 0.25rem;
+//   display: flex;
+//   align-items: center;
+//   gap: 0.25rem;
+// }
+
+// .event-form small.text-red-500::before {
+//   content: '⚠️';
+//   font-size: 0.75rem;
+// }
+
+// /* Dialog Footer */
+// ::ng-deep .event-dialog .p-dialog-footer {
+//   background: white;
+//   padding: 1.5rem 2rem;
+//   border-top: 0.0625rem solid #e5e7eb; // 1px
+// }
+
+// /* Button Styling */
+// ::ng-deep .event-dialog .p-button {
+//   border-radius: 0.625rem; // 10px
+//   padding: 0.75rem 1.5rem;
+//   font-weight: 600;
+//   font-size: 0.875rem;
+//   text-transform: uppercase;
+//   letter-spacing: 0.05em;
+//   transition: all 0.3s ease;
+//   border: none;
+//   position: relative;
+//   overflow: hidden;
+// }
+
+// ::ng-deep .event-dialog .p-button::before {
+//   content: '';
+//   position: absolute;
+//   top: 0;
+//   left: -100%;
+//   width: 100%;
+//   height: 100%;
+//   background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+//   transition: left 0.5s;
+// }
+
+// ::ng-deep .event-dialog .p-button:hover::before {
+//   left: 100%;
+// }
+
+// ::ng-deep .event-dialog .p-button-success {
+//   background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+//   color: white;
+// }
+
+// ::ng-deep .event-dialog .p-button-success:hover {
+//   transform: translateY(-0.125rem); // -2px
+//   box-shadow: 0 0.625rem 1.5625rem rgba(16, 185, 129, 0.4); // 0 10px 25px
+// }
+
+// ::ng-deep .event-dialog .p-button-secondary {
+//   color: black;
+// }
+
+// ::ng-deep .event-dialog .p-button-secondary:hover {
+//  // background: #4b5563;
+//   transform: translateY(-0.125rem); // -2px
+//  // box-shadow: 0 0.625rem 1.5625rem rgba(107, 114, 128, 0.4); // 0 10px 25px
+// }
+
+// ::ng-deep .event-dialog .p-button-danger {
+//   background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+//   color: white;
+// }
+
+// ::ng-deep .event-dialog .p-button-danger:hover {
+//   transform: translateY(-0.125rem); // -2px
+//   box-shadow: 0 0.625rem 1.5625rem rgba(239, 68, 68, 0.4); // 0 10px 25px
+// }
+
+// ::ng-deep .event-dialog .p-button:disabled {
+//   opacity: 0.6;
+//   cursor: not-allowed;
+//   transform: none !important;
+//   box-shadow: none !important;
+// }
+
+// /* Responsive Design */
+// @media (max-width: 48rem) {
+//   // 768px
+//   ::ng-deep .event-dialog .p-dialog {
+//     width: 95vw !important;
+//     margin: 1rem;
+//   }
+
+//   ::ng-deep .event-dialog .p-dialog-content {
+//     padding: 1.5rem;
+//   }
+
+//   ::ng-deep .event-dialog .p-dialog-footer {
+//     padding: 1rem 1.5rem;
+//   }
+
 .event-form .formgrid .field {
   margin-top: 1rem;
 }
+//}
 
+// /* Animation for dialog appearance */
+// ::ng-deep .event-dialog .p-dialog {
+//   animation: slideInUp 0.4s ease-out;
+// }
+
+// @keyframes slideInUp {
+//   from {
+//     opacity: 0;
+//     transform: translateY(1.875rem) scale(0.95); // 30px
+//   }
+//   to {
+//     opacity: 1;
+//     transform: translateY(0) scale(1);
+//   }
+// }
+
+// /* Loading state for save button */
+// ::ng-deep .event-dialog .p-button-loading .p-button-icon {
+//   animation: spin 1s linear infinite;
+// }
+
+// @keyframes spin {
+//   from {
+//     transform: rotate(0deg);
+//   }
+//   to {
+//     transform: rotate(360deg);
+//   }
+// }
+
+// /* Focus trap styling */
+// ::ng-deep .event-dialog .p-dialog:focus {
+//   outline: none;
+//   box-shadow: 0 1.5625rem 3.125rem -0.75rem rgba(0, 0, 0, 0.25),
+//     0 0 0 0.1875rem rgba(102, 126, 234, 0.3); // 0 25px 50px -12px, 0 0 0 3px
+// }
 
 // /* Custom field groups */
 .field-group {
   background: white;
-  border-radius: 0.75rem;
-  border: 0.0625rem solid #e5e7eb;
-  box-shadow: 0 0.0625rem 0.1875rem rgba(0, 0, 0, 0.1);
+  border-radius: 0.75rem; // 12px
+
+  border: 0.0625rem solid #e5e7eb; // 1px
+  box-shadow: 0 0.0625rem 0.1875rem rgba(0, 0, 0, 0.1); // 0 1px 3px
   margin-bottom: 1rem;
 }
 :host ::ng-deep .compact-dialog {
@@ -562,7 +862,7 @@
 :host ::ng-deep .compact-datepicker {
   .p-datepicker {
     width: 100%;
-    max-width: 20rem;
+    max-width: 320px;
 
     .p-datepicker-calendar {
       font-size: 0.875rem;
@@ -602,7 +902,7 @@
 
     .p-timepicker {
       padding: 0.5rem;
-      border-top: 0.0625rem solid var(--surface-border);
+      border-top: 1px solid var(--surface-border);
 
       .p-hour-picker,
       .p-minute-picker,
@@ -640,14 +940,14 @@
   }
 
   :host ::ng-deep .compact-datepicker .p-datepicker {
-    max-width: 17.5rem;
+    max-width: 280px;
     font-size: 0.8rem;
   }
 }
 
-@media (max-width: 480px) {
+@media (max-width: 30rem) {
   :host ::ng-deep .compact-datepicker .p-datepicker {
-    max-width: 16.25rem;
+    max-width: 260px;
 
     .p-datepicker-calendar table th,
     .p-datepicker-calendar table td {
@@ -684,10 +984,10 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  min-height: 21.875rem;
+  min-height: 350px;
 
   &:hover {
-    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.1);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   }
 
   .p-datepicker {
@@ -716,8 +1016,8 @@
     transition: all 0.2s ease;
 
     &:hover {
-      transform: translateY(-0.0625rem);
-      box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.15);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
     }
   }
 }
@@ -740,5 +1040,6 @@
 
 // Delete Event Button
 .delete-event-button {
-  border-radius: 0.625rem;
+  border-radius: 10px;
 }
+

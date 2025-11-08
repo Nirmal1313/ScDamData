@@ -1,4 +1,4 @@
-import { Component, ViewChild, EventEmitter, Input, Output, OnInit, OnDestroy } from '@angular/core';
+import { Component, ViewChild, EventEmitter, Input, Output, OnInit, OnDestroy, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { DrawerModule } from 'primeng/drawer';
 import { ButtonModule } from 'primeng/button';
@@ -29,6 +29,48 @@ export class Sidebar extends WeatherConsumerBase implements OnInit, OnDestroy {
   // Today's forecast data for the first table
   todayForecastIcon: string = '';
   todayForecastIconAlt: string = '';
+
+  // Responsive breakpoints
+  private readonly BREAKPOINT_MOBILE = 576;
+  private readonly BREAKPOINT_TABLET = 768;
+  private readonly BREAKPOINT_DESKTOP = 1024;
+
+  // Window width tracking
+  private windowWidth: number = typeof window !== 'undefined' ? window.innerWidth : 1024;
+
+  /**
+   * Listen to window resize events for responsive behavior
+   */
+  @HostListener('window:resize', ['$event'])
+  onResize(event: any): void {
+    this.windowWidth = event.target.innerWidth;
+  }
+
+  /**
+   * Get responsive drawer width based on screen size
+   */
+  get drawerWidth(): { width: string } {
+    if (this.windowWidth < this.BREAKPOINT_MOBILE) {
+      // Mobile: Full width
+      return { width: '100vw' };
+    } else if (this.windowWidth < this.BREAKPOINT_TABLET) {
+      // Small tablets: 85% width
+      return { width: '85vw' };
+    } else if (this.windowWidth < this.BREAKPOINT_DESKTOP) {
+      // Tablets: 60% width
+      return { width: '60vw' };
+    } else {
+      // Desktop: Fixed 26rem
+      return { width: '26rem' };
+    }
+  }
+
+  /**
+   * Check if current view is mobile
+   */
+  get isMobileView(): boolean {
+    return this.windowWidth < this.BREAKPOINT_TABLET;
+  }
 
 
   constructor(weatherService: WeatherService) {

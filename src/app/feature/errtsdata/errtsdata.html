@@ -3,20 +3,20 @@
     <div class="errts-panel-header-content">
       <div class="errts-header-left">
         <span class="errts-panel-title">ERRTS Weather Data</span>
-        <p-button type="button" icon="pi pi-refresh"
-          styleClass="p-button-rounded p-button-text p-button-lg errts-refresh-button" (click)="refreshData()"
-          [loading]="loading" pTooltip="Refresh data" tooltipPosition="bottom">
+        <p-button type="button" icon="pi pi-refresh" [rounded]="true" severity="success" [outlined]="true"
+          styleClass="p-button-sm" (click)="refreshData()" [loading]="loading" pTooltip="Refresh data"
+          tooltipPosition="bottom">
         </p-button>
       </div>
       <div class="errts-header-center" *ngIf="totalDischargeForHighlighted > 0">
         <div class="errts-metrics-header">
-          <span class="errts-info-item errts-metric-with-trend" [ngClass]="getTrendColorClassForStatus(totalDischargeChangeStatus)">
+          <span class="errts-info-item errts-metric-with-trend"
+            [ngClass]="getTrendColorClassForStatus(totalDischargeChangeStatus)">
             <i class="pi pi-chart-bar errts-metric-icon"></i>
             <span>Combined Inflows (Cumecs):</span>
             <strong>{{ totalDischargeForHighlighted }}</strong>
             <i *ngIf="getTrendIconForStatus(totalDischargeChangeStatus)"
-               [class]="getTrendIconForStatus(totalDischargeChangeStatus)"
-               class="errts-trend-icon"></i>
+              [class]="getTrendIconForStatus(totalDischargeChangeStatus)" class="errts-trend-icon"></i>
           </span>
 
           <span class="errts-info-item errts-panel-datetime">

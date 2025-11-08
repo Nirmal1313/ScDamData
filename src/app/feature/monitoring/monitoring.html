@@ -4,7 +4,7 @@
       <div class="monitoring-header-left">
         <span class="monitoring-panel-title">Monitoring System</span>
         <p-button type="button" icon="pi pi-refresh"
-          styleClass="p-button-rounded p-button-text p-button-lg" (click)="refreshData()"
+          [rounded]="true" severity="success" [outlined]="true" styleClass="p-button-sm" (click)="refreshData()"
           [loading]="loading" pTooltip="Refresh data" tooltipPosition="bottom">
         </p-button>
       </div>

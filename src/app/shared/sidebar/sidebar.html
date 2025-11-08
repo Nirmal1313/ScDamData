@@ -1,5 +1,5 @@
 <p-drawer [(visible)]="sidebarVisible" [closable]="true" (visibleChange)="onVisibleChange($event)"
-  [style]="{ width: '26rem' }">
+  [style]="drawerWidth" [modal]="isMobileView" [dismissible]="true">
   <ng-template #header>
     <div class="header-container">
       <i class="pi pi-cloud header-icon"></i>
@@ -8,7 +8,8 @@
   </ng-template>
 
   <div class="weather-table-section">
-    <p-table [value]="rowsWeather" size="small" [rowHover]="true" showGridlines stripedRows>
+    <p-table [value]="rowsWeather" size="small" [rowHover]="true" showGridlines stripedRows
+             responsiveLayout="scroll" [breakpoint]="'768px'">
       <ng-template #caption>
         <div class="table-caption">Weather Report ACT - Canberra</div>
       </ng-template>
@@ -32,7 +33,8 @@
   <div class="table-divider"></div>
 
   <div class="weather-table-section">
-    <p-table [value]="forecastWeather" size="small" [rowHover]="true" showGridlines stripedRows>
+    <p-table [value]="forecastWeather" size="small" [rowHover]="true" showGridlines stripedRows
+             responsiveLayout="scroll" [breakpoint]="'768px'">
       <ng-template #caption>
         <div class="table-caption">Forecast Report ACT - Canberra</div>
       </ng-template>
@@ -56,7 +58,8 @@
   <div class="table-divider"></div>
 
   <div class="weather-table-section">
-    <p-table [value]="weekdaysWeather" size="small" [rowHover]="true" showGridlines stripedRows>
+    <p-table [value]="weekdaysWeather" size="small" [rowHover]="true" showGridlines stripedRows
+             responsiveLayout="scroll" [breakpoint]="'768px'">
       <ng-template #caption>
         <div class="table-caption">Week Days Report ACT - Canberra</div>
       </ng-template>

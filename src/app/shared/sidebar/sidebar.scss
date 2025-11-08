@@ -36,10 +36,10 @@
 }
 
 .table-divider {
-  height: 2px;
+  height: 0.125rem;
   background: linear-gradient(to right, transparent, #e0e0e0, transparent);
   margin: 1.5rem 0;
-  border-radius: 2px;
+  border-radius: 0.125rem;
 }
 
 .weather-footer {
@@ -47,7 +47,7 @@
   flex-direction: column;
   gap: 0.5rem;
   padding: 0.5rem 0;
-  border-top: 1px solid #e0e0e0;
+  border-top: 0.0625rem solid #e0e0e0;
 
   .footer-info {
     display: flex;
@@ -63,5 +63,99 @@
   .footer-timestamp {
     padding-left: 1.375rem; // Align with text after icon
     font-style: italic;
+  }
+}
+
+// ========================================
+// RESPONSIVE STYLES
+// ========================================
+
+// Breakpoints
+$breakpoint-mobile: 36rem;
+$breakpoint-tablet: 48rem;
+$breakpoint-desktop: 64rem;
+
+// Mobile optimizations (< 576px)
+@media (max-width: $breakpoint-mobile) {
+  .header-container {
+    gap: 0.75rem;
+
+    .header-icon {
+      font-size: 1.25rem;
+    }
+
+    .header-title {
+      font-size: 1.1rem;
+    }
+  }
+
+  .table-caption {
+    font-size: 1rem;
+    padding: 0.5rem;
+  }
+
+  // Make tables more compact on mobile
+  :host ::ng-deep .p-datatable {
+    font-size: 0.875rem;
+
+    .p-datatable-thead > tr > th {
+      padding: 0.5rem;
+      font-size: 0.875rem;
+    }
+
+    .p-datatable-tbody > tr > td {
+      padding: 0.5rem;
+      word-break: break-word;
+    }
+  }
+
+  .weather-table-section {
+    margin-bottom: 0.75rem;
+  }
+
+  .table-divider {
+    margin: 1rem 0;
+  }
+
+  .weather-footer {
+    padding: 0.75rem 0;
+    font-size: 0.875rem;
+
+    .footer-info {
+      gap: 0.375rem;
+    }
+  }
+}
+
+// Tablet optimizations (576px - 768px)
+@media (min-width: $breakpoint-mobile) and (max-width: $breakpoint-tablet) {
+  .header-title {
+    font-size: 1.15rem;
+  }
+
+  .table-caption {
+    font-size: 1.05rem;
+  }
+
+  :host ::ng-deep .p-datatable {
+    font-size: 0.9375rem;
+  }
+}
+
+// Ensure drawer content is scrollable on mobile
+:host ::ng-deep .p-drawer-content {
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+// Prevent horizontal scrolling on small screens
+@media (max-width: $breakpoint-tablet) {
+  :host ::ng-deep .p-datatable-wrapper {
+    overflow-x: auto;
+  }
+
+  // Make tables stack better on mobile
+  :host ::ng-deep .p-datatable table {
+    min-width: 100%;
   }
 }

@@ -2,35 +2,82 @@
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  flex-wrap: wrap; // Allow wrapping on very small screens
+  flex-wrap: nowrap; // Prevent wrapping
+  flex-shrink: 0; // Don't shrink this section
+  margin-right: 1rem;
 
   .logo {
-    width: 3rem;
-    height: 3rem;
+    width: 2.75rem;
+    height: 2.75rem;
     border-radius: 50%;
     object-fit: cover;
     background-color: inherit;
     border: none;
     cursor: pointer;
+    flex-shrink: 0;
   }
   .menu-toggle {
+    background: transparent !important;
+    border: none !important;
+
     .pi-bars {
-      color: #000000; // Black color for better visibility
-      font-size: 1.2rem; // Slightly larger size
-      font-weight: bold; // Make it bolder
+      color: #ffffff !important; // White color for blue background
+      font-size: 1.5rem !important; // Larger hamburger icon
+      font-weight: normal !important;
+    }
+
+    .p-button-icon {
+      color: #ffffff !important;
     }
   }
-  // If you want it to stand out more against the background, you could add:
+
   .menu-toggle:hover .pi-bars {
-    color: #333333; // Slightly lighter on hover for interaction feedback
+    color: #e0e0e0 !important; // Slightly dimmed on hover
   }
+
+  .menu-toggle:hover .p-button-icon {
+    color: #e0e0e0 !important;
+  }
+
+  .location-icon {
+    color: #ffffff !important;
+    font-size: 1.5rem;
+    flex-shrink: 0;
+  }
+
   .title {
-    padding-bottom: 0.5rem;
+    padding-bottom: 0;
+    font-size: 1.25rem;
+    font-weight: 700;
+    white-space: nowrap;
+    color: #ffffff !important; // White text
+    letter-spacing: 0.02em;
   }
 }
 
 .header-container {
   margin: -0.5rem;
+}
+
+// Specific override for header-left menu toggle
+.header-left {
+  :host ::ng-deep .p-button,
+  ::ng-deep .p-button {
+    background: transparent !important;
+    border: none !important;
+
+    .pi,
+    .p-button-icon {
+      color: #ffffff !important; // White icons for blue background
+      font-size: 1.5rem !important;
+      font-weight: normal !important;
+    }
+
+    &:hover .pi,
+    &:hover .p-button-icon {
+      color: #e0e0e0 !important;
+    }
+  }
 }
 
 :host ::ng-deep .p-button {
@@ -39,14 +86,14 @@
 
   // Target the icon specifically within the button
   .pi {
-    color: #000000 !important; // Dark color for the icon
-    font-size: 1.2rem !important;
-    font-weight: bold !important;
+    color: #ffffff !important; // White icons
+    font-size: 1.5rem !important;
+    font-weight: normal !important;
   }
 
   // Hover effect for the icon
   &:hover .pi {
-    color: #333333 !important; // Slightly lighter on hover
+    color: #e0e0e0 !important;
   }
 }
 
@@ -54,15 +101,14 @@
   background: var(--p-sky-600); // Light gray background that's easy on the eyes
   border: none;
   padding: none;
+  display: flex !important;
+  flex-wrap: nowrap !important;
+  align-items: center !important;
+
   // Style for text in the header
   .p-menuitem-text,
   h3 {
     color: #d1d5d9; // Dark gray text that contrasts well with the background
-  }
-
-  // Style for icons
-  .pi {
-    color: #6c757d;
   }
 
   // Hover effects for menu items
@@ -76,15 +122,32 @@
   box-shadow: none; // Remove shadow for a cleaner look
   height: 3.5rem; // Consistent height
   border-radius: 0; // No border radius for a flat design
+  display: flex; // Ensure flex layout
+  align-items: center; // Center items vertically
+  flex-wrap: nowrap; // Prevent wrapping
+}
+
+// Hide PrimeNG's default mobile menu button (we have our own)
+:host ::ng-deep .p-menubar-button {
+  display: none !important;
 }
 
 // Center the menu items or add spacing
 :host ::ng-deep .p-menubar-root-list {
-  display: flex;
+  display: flex !important;
   justify-content: center;
   align-items: center;
   flex: 1;
   margin: 0 0; // Add spacing from the start section
+  flex-wrap: nowrap; // Prevent wrapping
+  overflow: hidden; // Hide overflow
+  visibility: visible !important;
+
+  // Override PrimeNG's default mobile hiding
+  @media (max-width: 60rem) {
+    display: flex !important;
+    position: static !important;
+  }
 }
 
 // Make menu item content background transparent
@@ -92,103 +155,87 @@
   background: transparent !important;
 }
 
-// Menu link styling
-:host ::ng-deep .menu-link {
-  color: #000000 !important;
-  text-decoration: underline;
-  text-decoration-thickness: 2px;
-  padding: 0.75rem 1.25rem;
-  display: inline-flex;
+// Menu link styling with PrimeNG classes
+:host ::ng-deep .p-menubar-item-link {
+  color: #ffffff !important; // White text for blue background
+  text-decoration: none; // Remove underline
+  text-decoration-thickness: 0;
+  padding: 0.5rem 0.75rem;
+  display: flex !important;
   align-items: center;
   gap: 0.5rem;
-  border-radius: 6px;
+  border-radius: 0.375rem;
   font-weight: 700;
   font-size: 1rem;
-  transition: none;
+  transition: background-color 0.2s ease;
   position: relative;
+  white-space: nowrap;
+  flex-shrink: 0;
 
-  .menu-label {
+  span {
     font-weight: 700;
-    color: #000000 !important;
+    color: #ffffff !important;
   }
 
   i {
-    color: #000000 !important;
+    color: #ffffff !important;
     font-size: 1rem;
-  }
-
-  .external-icon {
-    font-size: 0.85rem;
-    opacity: 0.8;
-    color: #000000 !important;
   }
 
   // Keep the same color when visited
   &:visited {
-    color: #000000 !important;
-    text-decoration: underline;
-    text-decoration-thickness: 2px;
+    color: #ffffff !important;
+    text-decoration: none;
     background: none !important;
 
-    .menu-label {
-      color: #000000 !important;
+    span {
+      color: #ffffff !important;
     }
 
     i {
-      color: #000000 !important;
-    }
-
-    .external-icon {
-      color: #000000 !important;
+      color: #ffffff !important;
     }
   }
 
   &:hover {
-    color: #000000 !important;
-    text-decoration: underline;
-    text-decoration-thickness: 2px;
-    background: none !important;
+    color: #ffffff !important;
+    text-decoration: none;
+    background: rgba(255, 255, 255, 0.1) !important; // Subtle hover effect
 
-    .menu-label {
-      color: #000000 !important;
+    span {
+      color: #ffffff !important;
     }
 
     i {
-      color: #000000 !important;
-    }
-
-    .external-icon {
-      color: #000000 !important;
+      color: #ffffff !important;
     }
   }
 
   &:active {
-    color: #000000 !important;
-    text-decoration: underline;
-    text-decoration-thickness: 2px;
+    color: #ffffff !important;
+    text-decoration: none;
 
-    .menu-label {
-      color: #000000 !important;
+    span {
+      color: #ffffff !important;
     }
 
     i {
-      color: #000000 !important;
+      color: #ffffff !important;
     }
   }
 
   &:focus {
-    outline: 2px solid rgba(0, 0, 0, 0.5);
-    outline-offset: 2px;
-    color: #000000 !important;
-    text-decoration: underline;
-    text-decoration-thickness: 2px;
+    outline: 0.125rem solid rgba(255, 255, 255, 0.5);
+    outline-offset: 0.125rem;
+    color: #ffffff !important;
+    text-decoration: none;
 
-    .menu-label {
-      color: #000000 !important;
+    span {
+      color: #ffffff !important;
     }
 
     i {
-      color: #000000 !important;
+      color: #ffffff !important;
     }
   }
 }
@@ -208,7 +255,7 @@
     display: inline-flex;
     align-items: flex-start;
     padding: 0.3rem 0.6rem;
-    border-radius: 4px;
+    border-radius: 0.25rem;
     gap: 0.1rem;
 
     .temp-value {
@@ -235,7 +282,7 @@
     align-items: flex-start;
     gap: 0.25rem;
     padding: 0.25rem 0.5rem;
-    border-radius: 4px;
+    border-radius: 0.25rem;
 
     i {
       font-size: 0.75rem;
@@ -280,7 +327,7 @@
     font-weight: 700;
     color: #ffffff;
     padding: 0.25rem 0.5rem;
-    border-radius: 4px;
+    border-radius: 0.25rem;
     display: inline-flex;
     align-items: center;
 
@@ -301,7 +348,7 @@
     align-items: center;
     gap: 0.3rem;
     padding: 0.25rem 0.5rem;
-    border-radius: 4px;
+    border-radius: 0.25rem;
 
     i {
       font-size: 0.85rem;
@@ -318,7 +365,7 @@
     font-weight: 500;
     padding: 0.5rem 0.75rem;
     background-color: rgba(255, 255, 255, 0.1);
-    border-radius: 4px;
+    border-radius: 0.25rem;
 
     .pi-user {
       font-size: 1rem;
@@ -334,4 +381,328 @@
 :host ::ng-deep .p-menubar-end {
   pointer-events: auto !important;
   z-index: 1000;
+}
+
+// ========================================
+// RESPONSIVE STYLES
+// ========================================
+
+// Breakpoints
+$breakpoint-mobile: 36rem;
+$breakpoint-tablet: 48rem;
+$breakpoint-desktop: 64rem;
+$breakpoint-large: 80rem;
+
+// Mobile Layout (< 768px)
+@media (max-width: $breakpoint-tablet) {
+  // Allow horizontal scrolling for entire menubar on mobile
+  :host ::ng-deep .p-menubar {
+    overflow-x: auto;
+    overflow-y: hidden;
+  }
+
+  .header-left {
+    gap: 0.25rem;
+
+    .title {
+      font-size: 1rem;
+      padding-bottom: 0.25rem;
+    }
+
+    .logo {
+      width: 2.5rem;
+      height: 2.5rem;
+    }
+
+    .menu-toggle .pi-bars {
+      font-size: 1rem;
+    }
+  }
+
+  .header-right {
+    gap: 0.5rem;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+
+    &.mobile-layout {
+      // Current temp - slightly smaller
+      .air-temp {
+        padding: 0.2rem 0.4rem;
+
+        .temp-value {
+          font-size: 1.8rem;
+        }
+
+        .temp-unit {
+          font-size: 0.6rem;
+        }
+      }
+
+      // User info - icon only
+      .user-info {
+        padding: 0.375rem;
+        background-color: transparent;
+
+        .username {
+          display: none;
+        }
+
+        .pi-user {
+          font-size: 1.1rem;
+        }
+      }
+
+      // Logout button - smaller
+      ::ng-deep .p-button {
+        padding: 0.375rem !important;
+
+        .p-button-icon {
+          font-size: 1rem !important;
+        }
+      }
+    }
+  }
+
+  // Make menu items scrollable on mobile instead of hiding
+  :host ::ng-deep .p-menubar-root-list {
+    display: flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    position: static !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    max-width: calc(100vw - 25rem); // Leave space for left and right sections
+    flex-wrap: nowrap !important;
+    -webkit-overflow-scrolling: touch; // Smooth scrolling on iOS
+    scrollbar-width: thin; // Firefox
+
+    &::-webkit-scrollbar {
+      height: 0.1875rem;
+    }
+
+    &::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.3);
+      border-radius: 0.1875rem;
+    }
+  }
+
+  // Ensure menu items are visible
+  :host ::ng-deep .p-menubar-item {
+    display: block !important;
+    visibility: visible !important;
+  }
+
+  // Ensure menu item content is visible
+  :host ::ng-deep .p-menubar-item-content {
+    display: block !important;
+    visibility: visible !important;
+  }
+
+  .p-menubar {
+    height: 3rem;
+  }
+
+  // Make menu items more compact on mobile
+  :host ::ng-deep .p-menubar-item-link {
+    padding: 0.4rem 0.6rem !important;
+    font-size: 0.8rem !important;
+  }
+}
+
+// Small Mobile (< 576px)
+@media (max-width: $breakpoint-mobile) {
+  .header-left {
+    .title {
+      font-size: 0.85rem;
+    }
+
+    .logo {
+      width: 2rem;
+      height: 2rem;
+    }
+  }
+
+  .header-right {
+    gap: 0.375rem;
+
+    &.mobile-layout {
+      .air-temp {
+        padding: 0.15rem 0.3rem;
+
+        .temp-value {
+          font-size: 1.5rem;
+        }
+
+        .temp-unit {
+          font-size: 0.5rem;
+        }
+      }
+
+      .user-info {
+        padding: 0.25rem;
+
+        .pi-user {
+          font-size: 1rem;
+        }
+      }
+    }
+  }
+
+  .p-menubar {
+    height: 2.75rem;
+  }
+
+  // Extra compact menu links on very small screens
+  :host ::ng-deep .p-menubar-item-link {
+    padding: 0.3rem 0.5rem !important;
+    font-size: 0.75rem !important;
+  }
+
+  // Reduce max-width for menu list to fit better
+  :host ::ng-deep .p-menubar-root-list {
+    max-width: calc(100vw - 21.875rem) !important; // Even less space on tiny screens
+    display: flex !important;
+    visibility: visible !important;
+  }
+
+  // Force menu items to be visible on small mobile
+  :host ::ng-deep .p-menubar-item,
+  :host ::ng-deep .p-menubar-item-content {
+    display: block !important;
+    visibility: visible !important;
+  }
+}
+
+// Tablet Layout (768px - 1024px)
+@media (min-width: $breakpoint-tablet) and (max-width: $breakpoint-desktop) {
+  .header-right {
+    gap: 0.75rem;
+
+    &.tablet-layout {
+      .temp-display {
+        .temp-value {
+          font-size: 1.25rem;
+        }
+
+        .temp-unit {
+          font-size: 0.5rem;
+        }
+      }
+
+      .user-info {
+        .username {
+          display: none;
+        }
+      }
+    }
+  }
+
+  // Show menu items but with smaller font
+  :host ::ng-deep .p-menubar-item-link {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.9rem;
+  }
+}
+
+// Desktop Layout (1024px - 1280px)
+@media (min-width: $breakpoint-desktop) and (max-width: $breakpoint-large) {
+  .header-right {
+    gap: 0.85rem;
+
+    &.desktop-layout {
+      .temp-display {
+        .temp-value {
+          font-size: 1.35rem;
+        }
+      }
+    }
+  }
+
+  :host ::ng-deep .p-menubar-item-link {
+    padding: 0.6rem 1rem;
+    font-size: 0.95rem;
+  }
+}
+
+// Large Desktop (> 1280px) - Keep original styles
+@media (min-width: $breakpoint-large) {
+  .header-right {
+    &.desktop-layout {
+      gap: 0.75rem;
+    }
+  }
+
+  :host ::ng-deep .p-menubar-item-link {
+    padding: 0.5rem 0.85rem;
+    font-size: 0.95rem;
+  }
+}
+
+// Extra Large Desktop (> 100rem) - Full spacing
+@media (min-width: 100rem) {
+  .header-right {
+    &.desktop-layout {
+      gap: 1rem;
+    }
+  }
+
+  :host ::ng-deep .p-menubar-item-link {
+    padding: 0.75rem 1.25rem;
+    font-size: 1rem;
+  }
+}
+
+// Ensure header doesn't overflow
+.header-container {
+  padding: 0;
+  width: 101%;
+  max-width: 100vw;
+  position: relative;
+}
+
+// Make menubar responsive and prevent wrapping
+:host ::ng-deep .p-menubar {
+  overflow: visible;
+  width: 100%;
+  background: #0284c7 !important;
+
+  .p-menubar-start {
+    flex-shrink: 0;
+    margin-right: 1rem;
+  }
+
+  .p-menubar-end {
+    flex-shrink: 0;
+    margin-left: auto;
+  }
+}
+
+// Ensure end section doesn't overflow
+:host ::ng-deep .p-menubar-end {
+  overflow-x: visible;
+  overflow-y: hidden;
+  max-width: fit-content;
+  display: flex;
+  align-items: center;
+  flex-wrap: nowrap;
+}
+
+// Prevent weather icons from breaking layout
+.weather-icon {
+  flex-shrink: 0;
+}
+
+// Make temperature displays inline on mobile
+@media (max-width: $breakpoint-tablet) {
+  .header-right {
+    .air-temp,
+    .temp-display,
+    .user-info {
+      flex-shrink: 0;
+    }
+  }
 }
