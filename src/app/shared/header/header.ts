@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Output, OnInit, OnDestroy, ViewEncapsulation } from '@angular/core';
+import { Component, EventEmitter, Output, OnInit, OnDestroy } from '@angular/core';
 import { MenuItem } from 'primeng/api';
 import { BadgeModule } from 'primeng/badge';
 import { AvatarModule } from 'primeng/avatar';
@@ -26,7 +26,6 @@ import { WeatherConsumerBase } from '../../core/base/weather-consumer.base';
   ],
   templateUrl: './header.html',
   styleUrl: './header.scss',
-  encapsulation: ViewEncapsulation.None,
 })
 export class Header extends WeatherConsumerBase implements OnInit, OnDestroy {
   items: MenuItem[] = [];
@@ -60,8 +59,8 @@ export class Header extends WeatherConsumerBase implements OnInit, OnDestroy {
     // Initialize menu items
     this.items = [
       {
-        label: 'ACT - Canberra Weather',
-        url: 'https://reg.bom.gov.au/places/act/canberra/',
+        label: 'Canberra Forecast',
+        url: 'https://reg.bom.gov.au/act/forecasts/canberra.shtml',
         target: '_blank',
         icon: 'pi pi-map-marker',
       },
@@ -74,6 +73,12 @@ export class Header extends WeatherConsumerBase implements OnInit, OnDestroy {
       {
         label: 'Ventusky',
         url: 'https://www.ventusky.com/?p=-35.3;149.0;5&l=rain-1h',
+        target: '_blank',
+        // icon: 'pi pi-globe'
+      },
+      {
+        label: 'Contrail',
+        url: 'https://contrail.onerain.com.au/login/?status=300&message=Redirection:%20Multiple%20Choices&continue=ZA',
         target: '_blank',
         // icon: 'pi pi-globe'
       },

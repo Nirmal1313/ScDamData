@@ -1,4 +1,5 @@
 import { Component, ViewChild, EventEmitter, Input, Output, OnInit, OnDestroy } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { DrawerModule } from 'primeng/drawer';
 import { ButtonModule } from 'primeng/button';
 import { RippleModule } from 'primeng/ripple';
@@ -13,7 +14,7 @@ import { WeatherConsumerBase } from '../../core/base/weather-consumer.base';
 @Component({
   selector: 'app-sidebar',
   standalone: true,
-  imports: [DrawerModule, ButtonModule, RippleModule, AvatarModule, StyleClassModule, TableModule],
+  imports: [CommonModule, DrawerModule, ButtonModule, RippleModule, AvatarModule, StyleClassModule, TableModule],
   templateUrl: './sidebar.html',
   styleUrl: './sidebar.scss',
 })
@@ -24,6 +25,10 @@ export class Sidebar extends WeatherConsumerBase implements OnInit, OnDestroy {
   rowsWeather = [{ key: ' ', value: '' }];
   forecastWeather: RainForecastItem[] = [];
   weekdaysWeather: ForecastItem[] = [];
+
+  // Today's forecast data for the first table
+  todayForecastIcon: string = '';
+  todayForecastIconAlt: string = '';
 
 
   constructor(weatherService: WeatherService) {
@@ -49,6 +54,15 @@ export class Sidebar extends WeatherConsumerBase implements OnInit, OnDestroy {
         // rainForecast and forecasts are at the BomWeatherResult level
         this.forecastWeather = state.data.rainForecast || [];
         this.weekdaysWeather = state.data.forecasts || [];
+
+        // Get today's forecast data (first item in arrays)
+        if (this.weekdaysWeather.length > 0) {
+          this.todayForecastIcon = this.weekdaysWeather[0].forecastIcon;
+          this.todayForecastIconAlt = this.weekdaysWeather[0].forecastIconAlt;
+
+          // Update the table with forecast data
+          this.updateWeatherTable();
+        }
       }
     });
   }
@@ -58,12 +72,59 @@ export class Sidebar extends WeatherConsumerBase implements OnInit, OnDestroy {
    * Process weather data specific to Sidebar component display
    */
   protected onWeatherDataReceived(weather: WeatherSummary): void {
-    // Use inherited utility method from base class for table data
-    this.rowsWeather = this.processWeatherTable(weather.table);
+    // Store the base weather data and update the table
+    this.baseWeatherData = this.processWeatherTable(weather.table);
+    this.updateWeatherTable();
   }
 
-  override ngOnDestroy(): void {
+  /**
+   * Update the weather table with forecast data prepended
+   */
+  private baseWeatherData: { key: string; value: string }[] = [];
+
+  private updateWeatherTable(): void {
+    // Prepend forecast data to the table
+    this.rowsWeather = [];
+
+    // Add Condition first
+    if (this.todayForecastIconAlt && this.todayForecastIconAlt.trim() !== '') {
+      this.rowsWeather.push({
+        key: 'Condition',
+        value: this.todayForecastIconAlt
+      });
+    }
+
+    // Add rest of weather data
+    this.rowsWeather.push(...this.baseWeatherData);
+  }  override ngOnDestroy(): void {
     // Call parent's ngOnDestroy to handle cleanup
     super.ngOnDestroy();
+  }
+
+  /**
+   * Format weather values with icons and styling based on the key
+   */
+  formatWeatherValue(key: string, value: string): string {
+    const keyLower = key.toLowerCase();
+
+    // Map keys to icons and formatting with increased spacing
+    if (keyLower.includes('rainfall') || keyLower.includes('rain')) {
+      return `<i class="pi pi-cloud" style="margin-right: 0.75rem; padding: 1rem;"></i>&nbsp;&nbsp;${value}`;
+    } else if (keyLower.includes('condition') || keyLower.includes('weather')) {
+      return `<i class="pi pi-sun" style="margin-right: 0.75rem; padding: 1rem;"></i>&nbsp;&nbsp;${value}`;
+    } else if (keyLower.includes('temperature') || keyLower === 'temp') {
+      return `<i class="pi pi-thermometer" style="margin-right: 0.75rem; padding: 1rem;"></i>&nbsp;&nbsp;${value}`;
+    } else if (keyLower.includes('humidity')) {
+      return `<i class="pi pi-sparkles" style="margin-right: 0.75rem; padding: 1rem;"></i>&nbsp;&nbsp;${value}`;
+    } else if (keyLower.includes('wind')) {
+      return `<i class="pi pi-flag" style="margin-right: 0.75rem; padding: 1rem;"></i>&nbsp;&nbsp;${value}`;
+    } else if (keyLower.includes('pressure')) {
+      return `<i class="pi pi-compass" style="margin-right: 0.75rem; padding: 1rem;"></i>&nbsp;&nbsp;${value}`;
+    } else if (keyLower.includes('gust')) {
+      return `<i class="pi pi-send" style="margin-right: 0.75rem; padding: 1rem;"></i>&nbsp;&nbsp;${value}`;
+    }
+
+    // Default formatting for other keys
+    return value;
   }
 }

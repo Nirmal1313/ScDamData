@@ -12,10 +12,12 @@ import { filter } from 'rxjs/operators';
 import { SplitterModule } from 'primeng/splitter';
 import { DialogModule } from 'primeng/dialog';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
+import { ButtonModule } from 'primeng/button';
+import { TooltipModule } from 'primeng/tooltip';
 
 @Component({
   selector: 'app-monitoring',
-  imports: [PanelModule, DividerModule, TableModule, CommonModule, SplitterModule, DialogModule, ProgressSpinnerModule],
+  imports: [PanelModule, DividerModule, TableModule, CommonModule, SplitterModule, DialogModule, ProgressSpinnerModule, ButtonModule, TooltipModule],
   templateUrl: './monitoring.html',
   styleUrl: './monitoring.scss',
 })
@@ -58,7 +60,7 @@ export class Monitoring implements OnInit, OnDestroy {
   // Auto-refresh subscription
   private refreshSubscription?: Subscription;
   private authSubscription?: Subscription;
-  private readonly REFRESH_INTERVAL = 7 * 60 * 1000; // 7 minutes in milliseconds
+  private readonly REFRESH_INTERVAL = 5 * 60 * 1000; // 5 minutes in milliseconds
 
   constructor(
     private waterLevelService: WaterLevelService,
@@ -109,6 +111,13 @@ export class Monitoring implements OnInit, OnDestroy {
       this.refreshSubscription.unsubscribe();
       this.refreshSubscription = undefined;
     }
+  }
+
+  /**
+   * Manual refresh triggered by user
+   */
+  refreshData(): void {
+    this.loadWaterLevelData();
   }
 
   private loadWaterLevelData() {

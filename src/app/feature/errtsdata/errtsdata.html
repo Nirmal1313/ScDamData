@@ -1,14 +1,32 @@
-<p-panel [toggleable]="true" [collapsed]="false">
+<p-panel [toggleable]="true" [collapsed]="false" styleClass="errts-panel">
   <ng-template #header>
-    <span class="panel-title">ERRTS Weather Data</span>
-    <span class="panel-datetime">
-      <i class="pi pi-clock"></i>
-      {{ dateTime || 'Loading...' }}
-    </span>
-    <span class="panel-discharge-sum" *ngIf="totalDischargeForHighlighted > 0">
-      <i class="pi pi-chart-bar"></i>
-      Combined Discharge (Highlighted): {{ totalDischargeForHighlighted }}
-    </span>
+    <div class="errts-panel-header-content">
+      <div class="errts-header-left">
+        <span class="errts-panel-title">ERRTS Weather Data</span>
+        <p-button type="button" icon="pi pi-refresh"
+          styleClass="p-button-rounded p-button-text p-button-lg errts-refresh-button" (click)="refreshData()"
+          [loading]="loading" pTooltip="Refresh data" tooltipPosition="bottom">
+        </p-button>
+      </div>
+      <div class="errts-header-center" *ngIf="totalDischargeForHighlighted > 0">
+        <div class="errts-metrics-header">
+          <span class="errts-info-item errts-metric-with-trend" [ngClass]="getTrendColorClassForStatus(totalDischargeChangeStatus)">
+            <i class="pi pi-chart-bar errts-metric-icon"></i>
+            <span>Combined Inflows (Cumecs):</span>
+            <strong>{{ totalDischargeForHighlighted }}</strong>
+            <i *ngIf="getTrendIconForStatus(totalDischargeChangeStatus)"
+               [class]="getTrendIconForStatus(totalDischargeChangeStatus)"
+               class="errts-trend-icon"></i>
+          </span>
+
+          <span class="errts-info-item errts-panel-datetime">
+            <i class="pi pi-clock"></i>
+            <span>{{ dateTime || 'Loading...' }}</span>
+          </span>
+        </div>
+      </div>
+      <div class="errts-header-spacer"></div>
+    </div>
   </ng-template>
 
   <!-- Error Message -->
@@ -50,28 +68,26 @@
             <ng-template #body let-row>
               <tr [ngClass]="{'highlighted-row': isRowHighlighted(row)}">
                 <td *ngFor="let column of waterLevelColumns" [ngClass]="getStatusClass(row[column])">
-                  <a *ngIf="column.toLowerCase() === 'commsid'"
-                     href="javascript:void(0)"
-                     class="comms-link"
-                     (click)="openImagePopup(row[column])">
+                  <a *ngIf="column.toLowerCase() === 'commsid'" href="javascript:void(0)" class="comms-link"
+                    (click)="openImagePopup(row[column])">
                     {{ row[column] }}
                   </a>
 
                   <!-- Discharge column with trend indicator for highlighted rows -->
                   <span *ngIf="column.toLowerCase() === 'discharge' && isRowHighlighted(row)"
-                        class="discharge-with-trend"
-                        [ngClass]="getTrendColorClass(row)">
+                    class="discharge-with-trend" [ngClass]="getTrendColorClass(row)">
                     {{ row[column] }}
-                    <i *ngIf="getTrendIcon(row)" [class]="getTrendIcon(row)" class="trend-icon"></i>
+                    <i *ngIf="getTrendIcon(row)" [class]="getTrendIcon(row)" class="errts-discharge-trend-icon"></i>
                   </span>
 
-                  <span *ngIf="column.toLowerCase() !== 'commsid' && column.toLowerCase() !== 'name' && column.toLowerCase() !== 'discharge'">{{ row[column] }}</span>
-                  <span *ngIf="column.toLowerCase() !== 'commsid' && column.toLowerCase() !== 'name' && column.toLowerCase() === 'discharge' && !isRowHighlighted(row)">{{ row[column] }}</span>
-                  <span *ngIf="column.toLowerCase() === 'name'"
-                        [pTooltip]="row[column]"
-                        tooltipPosition="top"
-                        [showDelay]="300"
-                        [escape]="false">{{ row[column] }}</span>
+                  <span
+                    *ngIf="column.toLowerCase() !== 'commsid' && column.toLowerCase() !== 'name' && column.toLowerCase() !== 'discharge'">{{
+                    row[column] }}</span>
+                  <span
+                    *ngIf="column.toLowerCase() !== 'commsid' && column.toLowerCase() !== 'name' && column.toLowerCase() === 'discharge' && !isRowHighlighted(row)">{{
+                    row[column] }}</span>
+                  <span *ngIf="column.toLowerCase() === 'name'" [pTooltip]="row[column]" tooltipPosition="top"
+                    [showDelay]="300" [escape]="false">{{ row[column] }}</span>
                 </td>
               </tr>
             </ng-template>
@@ -112,18 +128,14 @@
             <ng-template #body let-row>
               <tr>
                 <td *ngFor="let column of rainfallColumns">
-                  <a *ngIf="column.toLowerCase() === 'commsid'"
-                     href="javascript:void(0)"
-                     class="comms-link"
-                     (click)="openImagePopup(row[column])">
+                  <a *ngIf="column.toLowerCase() === 'commsid'" href="javascript:void(0)" class="comms-link"
+                    (click)="openImagePopup(row[column])">
                     {{ row[column] }}
                   </a>
-                  <span *ngIf="column.toLowerCase() !== 'commsid' && column.toLowerCase() !== 'name'">{{ row[column] }}</span>
-                  <span *ngIf="column.toLowerCase() === 'name'"
-                        [pTooltip]="row[column]"
-                        tooltipPosition="top"
-                        [showDelay]="300"
-                        [escape]="false">{{ row[column] }}</span>
+                  <span *ngIf="column.toLowerCase() !== 'commsid' && column.toLowerCase() !== 'name'">{{ row[column]
+                    }}</span>
+                  <span *ngIf="column.toLowerCase() === 'name'" [pTooltip]="row[column]" tooltipPosition="top"
+                    [showDelay]="300" [escape]="false">{{ row[column] }}</span>
                 </td>
               </tr>
             </ng-template>
@@ -143,19 +155,11 @@
 </p-panel>
 
 <!-- Image Popup Dialog -->
-<p-dialog
-  [(visible)]="showImageDialog"
-  [header]="'Station Image - CommsId: ' + selectedCommsId"
-  [modal]="true"
-  [dismissableMask]="true"
-  [draggable]="false"
-  [resizable]="true"
-  [style]="{ width: '80vw', maxWidth: '900px' }"
+<p-dialog [(visible)]="showImageDialog" [header]="'Station Image - CommsId: ' + selectedCommsId" [modal]="true"
+  [dismissableMask]="true" [draggable]="false" [resizable]="true" [style]="{ width: '80vw', maxWidth: '900px' }"
   styleClass="image-dialog">
   <div class="image-container">
-    <img [src]="imageUrl"
-         [alt]="'Station image for ' + selectedCommsId"
-         class="station-image"
-         (error)="onImageError($event)" />
+    <img [src]="imageUrl" [alt]="'Station image for ' + selectedCommsId" class="station-image"
+      (error)="onImageError($event)" />
   </div>
 </p-dialog>

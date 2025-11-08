@@ -9,6 +9,7 @@ import { SplitterModule } from 'primeng/splitter';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { DialogModule } from 'primeng/dialog';
 import { TooltipModule } from 'primeng/tooltip';
+import { ButtonModule } from 'primeng/button';
 import { ConfigService } from '../../core/services/config.service';
 
 @Component({
@@ -20,7 +21,8 @@ import { ConfigService } from '../../core/services/config.service';
     SplitterModule,
     ProgressSpinnerModule,
     DialogModule,
-    TooltipModule
+    TooltipModule,
+    ButtonModule
   ],
   templateUrl: './errtsdata.html',
   styleUrl: './errtsdata.scss'
@@ -46,13 +48,14 @@ export class ERRTSData implements OnInit, OnDestroy {
 
   // Auto-refresh
   private refreshInterval: Subscription | null = null;
-  private readonly REFRESH_INTERVAL_MS = 7 * 60 * 1000; // 5 minutes
+  private readonly REFRESH_INTERVAL_MS = 5 * 60 * 1000; // 5 minutes
 
   // Highlighted CommsIds for discharge sum calculation
   private readonly highlightedCommsIds = ['3349', '3351', '3419'];
 
   // Store previous discharge values for change detection
   private previousDischargeValues: Map<string, number> = new Map();
+  private previousTotalDischarge: number | null = null;
 
   constructor(
     private ertsWeatherService: ErtsWeatherService,
@@ -98,6 +101,13 @@ export class ERRTSData implements OnInit, OnDestroy {
   }
 
   /**
+   * Manual refresh triggered by user
+   */
+  refreshData(): void {
+    this.loadErtsWeatherData();
+  }
+
+  /**
    * Process and transform ERTS weather data
    */
   private processErtsWeatherData(data: ErtsWeatherResult): void {
@@ -107,7 +117,23 @@ export class ERRTSData implements OnInit, OnDestroy {
     // Process Water Level Status
     if (data.waterLevelStatus && data.waterLevelStatus.length > 0) {
       this.waterLevelColumns = this.extractDynamicColumns(data.waterLevelStatus);
-      this.waterLevelData = data.waterLevelStatus.map(item => item.data);
+      this.waterLevelData = data.waterLevelStatus.map(item => {
+        const rowData = { ...item.data };
+
+        // Fix typo for CommsId 3346: "Molonoglo" -> "Molonglo"
+        const commsId = rowData['CommsId'] || rowData['commsid'] || rowData['Comms Id'] || rowData['comms id'];
+        if (commsId && String(commsId).trim() === '3346') {
+          // Check various possible field names for the location name
+          const nameFields = ['Name', 'name', 'Location', 'location', 'Station', 'station'];
+          for (const field of nameFields) {
+            if (rowData[field] && typeof rowData[field] === 'string') {
+              rowData[field] = rowData[field].replace(/Molonoglo/gi, 'Molonglo');
+            }
+          }
+        }
+
+        return rowData;
+      });
 
       // Update discharge change tracking
       this.updateDischargeTracking();
@@ -146,6 +172,12 @@ export class ERRTSData implements OnInit, OnDestroy {
 
     // Store for next comparison
     this.previousDischargeValues = newDischargeValues;
+
+    // Track total discharge
+    const currentTotal = this.totalDischargeForHighlighted;
+    if (!isNaN(currentTotal)) {
+      this.previousTotalDischarge = currentTotal;
+    }
   }
 
   /**
@@ -330,6 +362,59 @@ export class ERRTSData implements OnInit, OnDestroy {
   getTrendColorClass(row: any): string {
     const change = this.getDischargeChange(row);
     switch (change) {
+      case 'rising':
+        return 'errts-discharge-rising';
+      case 'falling':
+        return 'errts-discharge-falling';
+      case 'steady':
+        return 'errts-discharge-steady';
+      default:
+        return '';
+    }
+  }
+
+  /**
+   * Get change status for total discharge
+   */
+  get totalDischargeChangeStatus(): 'rising' | 'falling' | 'steady' | 'none' {
+    const currentTotal = this.totalDischargeForHighlighted;
+    if (isNaN(currentTotal) || this.previousTotalDischarge === null) {
+      return 'none';
+    }
+
+    const threshold = 0.01;
+    const difference = currentTotal - this.previousTotalDischarge;
+
+    if (Math.abs(difference) < threshold) {
+      return 'steady';
+    } else if (difference > 0) {
+      return 'rising';
+    } else {
+      return 'falling';
+    }
+  }
+
+  /**
+   * Get trend icon based on change status
+   */
+  getTrendIconForStatus(status: 'rising' | 'falling' | 'steady' | 'none'): string {
+    switch (status) {
+      case 'rising':
+        return 'pi pi-arrow-up';
+      case 'falling':
+        return 'pi pi-arrow-down';
+      case 'steady':
+        return 'pi pi-minus';
+      default:
+        return '';
+    }
+  }
+
+  /**
+   * Get trend color class for status
+   */
+  getTrendColorClassForStatus(status: 'rising' | 'falling' | 'steady' | 'none'): string {
+    switch (status) {
       case 'rising':
         return 'trend-rising';
       case 'falling':
