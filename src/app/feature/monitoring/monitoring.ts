@@ -48,7 +48,6 @@ export class Monitoring implements OnInit, OnDestroy {
   private previousOutflow: number | null = null;
   private previousTotalDischarge: number | null = null;
 
-
   // Image popup
   showImageDialog: boolean = false;
   selectedImageUrl: string = '';
@@ -162,13 +161,11 @@ export class Monitoring implements OnInit, OnDestroy {
 
   private processWaterLevelData(waterLevel: string[]) {
     if (waterLevel && waterLevel.length > 0) {
-      // Store the raw water level data for display at the top
-      this.waterLevelData = waterLevel;
+      // Store current values as previous BEFORE updating with new data
+      this.storePreviousValues();
 
-      // Store current values as previous for next comparison (after a delay to allow rendering)
-      setTimeout(() => {
-        this.storePreviousValues();
-      }, 0);
+      // Now update with new water level data
+      this.waterLevelData = waterLevel;
     }
   }
 
@@ -176,35 +173,38 @@ export class Monitoring implements OnInit, OnDestroy {
    * Store current values as previous for next comparison
    */
   private storePreviousValues() {
-    // Extract lake level from waterLevelData[0] (e.g., "Lake Level is 555.633m AHD")
-    if (this.waterLevelData.length > 0) {
-      const lakeLevelMatch = this.waterLevelData[0].match(/(\d+\.\d+)m\s+AHD/);
-      if (lakeLevelMatch) {
-        const currentLakeLevel = parseFloat(lakeLevelMatch[1]);
-        if (!isNaN(currentLakeLevel)) {
-          this.previousLakeLevel = currentLakeLevel;
-        }
-      }
+    // Only store values if we have existing data (not the first load)
+    if (this.waterLevelData.length === 0) {
+      return;
+    }
 
-      // Extract lake storage from waterLevelData[0] (e.g., "Lake Storage is 30980 ML")
-      const lakeStorageMatch = this.waterLevelData[0].match(/Lake Storage is (\d+)\s+ML/);
-      if (lakeStorageMatch) {
-        const currentLakeStorage = parseFloat(lakeStorageMatch[1]);
-        if (!isNaN(currentLakeStorage)) {
-          this.previousLakeStorage = currentLakeStorage;
-        }
+    // Extract lake level from waterLevelData[0] (e.g., "Lake Level is 555.633m AHD")
+    const lakeLevelMatch = this.waterLevelData[0].match(/(\d+\.\d+)m\s+AHD/);
+    if (lakeLevelMatch) {
+      const currentLakeLevel = parseFloat(lakeLevelMatch[1]);
+      if (!isNaN(currentLakeLevel)) {
+        this.previousLakeLevel = currentLakeLevel;
+      }
+    }
+
+    // Extract lake storage from waterLevelData[0] (e.g., "Lake Storage is 30980 ML")
+    const lakeStorageMatch = this.waterLevelData[0].match(/Lake Storage is (\d+)\s+ML/);
+    if (lakeStorageMatch) {
+      const currentLakeStorage = parseFloat(lakeStorageMatch[1]);
+      if (!isNaN(currentLakeStorage)) {
+        this.previousLakeStorage = currentLakeStorage;
       }
     }
 
     // Track outflow
     const outflowValue = parseFloat(this.outflowData);
-    if (!isNaN(outflowValue)) {
+    if (!isNaN(outflowValue) && outflowValue > 0) {
       this.previousOutflow = outflowValue;
     }
 
     // Track total discharge
     const totalDischargeValue = parseFloat(this.totalDischargeData);
-    if (!isNaN(totalDischargeValue)) {
+    if (!isNaN(totalDischargeValue) && totalDischargeValue > 0) {
       this.previousTotalDischarge = totalDischargeValue;
     }
   }
