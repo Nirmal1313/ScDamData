@@ -1,4 +1,5 @@
-import { Component } from '@angular/core';
+import { Component, PLATFORM_ID, inject } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
@@ -42,6 +43,19 @@ export class Login {
   isLoading = false;
   errorMessage: string | null = null;
 
+  // Image loading properties
+  imageLoaded = false;
+  imageLoadError = false;
+
+  // Image paths - Using public folder (Angular 19+ structure)
+  // The placeholder should be a tiny (< 5KB) blurred version of your image
+  placeholderImage = 'images/login-bg-placeholder.jpg'; // Tiny blurred version
+  backgroundImage = 'images/login-bg.webp'; // Optimized WebP version
+
+  // Platform check for SSR compatibility
+  private platformId = inject(PLATFORM_ID);
+  private isBrowser = isPlatformBrowser(this.platformId);
+
   constructor(
     private router: Router,
     private authService: AuthService,
@@ -52,6 +66,40 @@ export class Login {
       password: ['', [Validators.required]],
       rememberMe: [false],
     });
+
+    // Log image paths for debugging
+    // Preload the main image for faster loading (only in browser)
+    this.preloadImage();
+  }
+
+  /**
+   * Preload the background image to cache it
+   * Only runs in browser context to avoid SSR errors
+   */
+  private preloadImage(): void {
+    // Check if running in browser before using Image constructor
+    if (this.isBrowser) {
+      const img = new Image();
+      img.src = this.backgroundImage;
+      // Image will be cached by browser once loaded
+    }
+  }
+
+  /**
+   * Called when the main background image loads successfully
+   */
+  onImageLoad(): void {
+    this.imageLoaded = true;
+  }
+
+  /**
+   * Called if the main background image fails to load
+   * Falls back to showing just the placeholder
+   */
+  onImageError(): void {
+    this.imageLoadError = true;
+    console.error('❌ Failed to load background image, using placeholder');
+    console.error('Attempted path:', this.backgroundImage);
   }
 
   onSubmit() {

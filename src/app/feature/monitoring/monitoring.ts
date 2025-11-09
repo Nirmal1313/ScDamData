@@ -165,15 +165,17 @@ export class Monitoring implements OnInit, OnDestroy {
       // Store the raw water level data for display at the top
       this.waterLevelData = waterLevel;
 
-      // Update previous values for change tracking
-      this.updateChangeTracking();
+      // Store current values as previous for next comparison (after a delay to allow rendering)
+      setTimeout(() => {
+        this.storePreviousValues();
+      }, 0);
     }
   }
 
   /**
-   * Update change tracking for monitoring values
+   * Store current values as previous for next comparison
    */
-  private updateChangeTracking() {
+  private storePreviousValues() {
     // Extract lake level from waterLevelData[0] (e.g., "Lake Level is 555.633m AHD")
     if (this.waterLevelData.length > 0) {
       const lakeLevelMatch = this.waterLevelData[0].match(/(\d+\.\d+)m\s+AHD/);
@@ -228,9 +230,9 @@ export class Monitoring implements OnInit, OnDestroy {
         row[firstColumnKey] === 'Discharge (cumecs)'
       );
 
-      // Find the row where the first column contains "Discharge (ML/Day)"
+      // Find the row where the first column contains "Volume since 0h (ML)"
       const dischargeMLDayRow = this.sluiceStatusData.find(row =>
-        row[firstColumnKey] === 'Discharge (ML/Day)'
+        row[firstColumnKey] === 'Volume since 0h (ML)'
       );
 
       // Get the last column (excluding the first label column)
@@ -313,8 +315,13 @@ export class Monitoring implements OnInit, OnDestroy {
    * Get change status for a metric value
    */
   getChangeStatus(currentValue: number, previousValue: number | null, isHigherBetter: boolean = false): 'rising' | 'falling' | 'steady' | 'none' {
-    if (previousValue === null || isNaN(currentValue)) {
+    if (isNaN(currentValue)) {
       return 'none';
+    }
+
+    // If no previous value exists, show as steady (baseline)
+    if (previousValue === null) {
+      return 'steady';
     }
 
     const threshold = 0.01; // Minimum change to consider

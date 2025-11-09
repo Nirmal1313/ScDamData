@@ -1,20 +1,17 @@
 <div class="dashboard-container">
   <!-- Sidebar Component -->
-  <app-sidebar [sidebarVisible]="sidebarVisible" (sidebarToggleChange)="onSidebarToggleChange($event)">
+  <app-sidebar
+    [sidebarVisible]="sidebarVisible"
+    (sidebarToggleChange)="onSidebarToggleChange($event)"
+  >
   </app-sidebar>
 
   <div class="main-content">
     <!-- Top Navigation/Menu Bar Component -->
-    <app-header (sidebarToggle)="onHeaderSidebarToggle()">
-    </app-header>
+    <app-header (sidebarToggle)="onHeaderSidebarToggle()"> </app-header>
 
     <!-- Dashboard Content -->
     <div class="dashboard-content">
-      <!-- Status Overview Section -->
-      <section class="status-overview">
-        <app-scheduler></app-scheduler>
-      </section>
-
       <!-- Monitoring Section -->
       <section class="monitoring-section">
         <app-monitoring></app-monitoring>
@@ -27,6 +24,11 @@
       <!-- Alerts and Notifications Section -->
       <section class="alerts-section">
         <app-notes></app-notes>
+      </section>
+
+      <!-- Status Overview Section -->
+      <section class="status-overview">
+        <app-scheduler></app-scheduler>
       </section>
     </div>
   </div>

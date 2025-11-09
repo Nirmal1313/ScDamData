@@ -588,6 +588,9 @@ $text-secondary: #64748b;
   align-items: center;
   gap: 0.4rem;
   font-weight: 600;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  transition: all 0.3s ease;
 }
 
 .errts-discharge-trend-icon {
@@ -597,26 +600,32 @@ $text-secondary: #64748b;
 }
 
 .errts-discharge-rising {
-  color: #dc2626 !important; // Red for rising (alert)
+  background: rgba(220, 38, 38, 0.15) !important; // Red background for rising (alert)
+  color: #dc2626 !important;
 
   .errts-discharge-trend-icon {
     color: #dc2626;
+    animation: errts-bounce-up 1.5s ease-in-out infinite;
   }
 }
 
 .errts-discharge-falling {
-  color: #16a34a !important; // Green for falling (good)
+  background: rgba(22, 163, 74, 0.15) !important; // Green background for falling (good)
+  color: #16a34a !important;
 
   .errts-discharge-trend-icon {
     color: #16a34a;
+    animation: errts-bounce-down 1.5s ease-in-out infinite;
   }
 }
 
 .errts-discharge-steady {
-  color: #2563eb !important; // Blue for steady
+  background: rgba(37, 99, 235, 0.15) !important; // Blue background for steady
+  color: #2563eb !important;
 
   .errts-discharge-trend-icon {
     color: #2563eb;
+    animation: errts-steady-pulse 2s ease-in-out infinite;
   }
 }
 

@@ -135,8 +135,10 @@ export class ERRTSData implements OnInit, OnDestroy {
         return rowData;
       });
 
-      // Update discharge change tracking
-      this.updateDischargeTracking();
+      // Store current values as previous for next comparison (after a delay to allow rendering)
+      setTimeout(() => {
+        this.storePreviousDischargeValues();
+      }, 0);
     } else {
       this.waterLevelColumns = [];
       this.waterLevelData = [];
@@ -153,10 +155,10 @@ export class ERRTSData implements OnInit, OnDestroy {
   }
 
   /**
-   * Update discharge tracking for change detection
+   * Store current discharge values as previous for next comparison
    */
-  private updateDischargeTracking(): void {
-    const newDischargeValues = new Map<string, number>();
+  private storePreviousDischargeValues(): void {
+    const currentDischargeValues = new Map<string, number>();
 
     for (const row of this.waterLevelData) {
       const commsId = row['CommsId'] || row['commsid'] || row['Comms Id'] || row['comms id'];
@@ -165,13 +167,13 @@ export class ERRTSData implements OnInit, OnDestroy {
       if (commsId && discharge && this.highlightedCommsIds.includes(String(commsId))) {
         const dischargeValue = parseFloat(discharge);
         if (!isNaN(dischargeValue)) {
-          newDischargeValues.set(String(commsId), dischargeValue);
+          currentDischargeValues.set(String(commsId), dischargeValue);
         }
       }
     }
 
-    // Store for next comparison
-    this.previousDischargeValues = newDischargeValues;
+    // Store current values as previous for next comparison
+    this.previousDischargeValues = currentDischargeValues;
 
     // Track total discharge
     const currentTotal = this.totalDischargeForHighlighted;
@@ -323,11 +325,13 @@ export class ERRTSData implements OnInit, OnDestroy {
     const currentValue = parseFloat(discharge);
     const previousValue = this.previousDischargeValues.get(String(commsId));
 
+
+    // If no previous value exists, show as steady (baseline)
     if (previousValue === undefined || isNaN(currentValue)) {
-      return 'none';
+      return 'steady'; // Changed from 'none' to 'steady' to show baseline state
     }
 
-    const threshold = 0.01; // Minimum change to consider
+    const threshold = 0.001; // Reduced threshold for more sensitive detection
     const difference = currentValue - previousValue;
 
     if (Math.abs(difference) < threshold) {
@@ -378,11 +382,16 @@ export class ERRTSData implements OnInit, OnDestroy {
    */
   get totalDischargeChangeStatus(): 'rising' | 'falling' | 'steady' | 'none' {
     const currentTotal = this.totalDischargeForHighlighted;
-    if (isNaN(currentTotal) || this.previousTotalDischarge === null) {
+    if (isNaN(currentTotal)) {
       return 'none';
     }
 
-    const threshold = 0.01;
+    // If no previous value exists, show as steady (baseline)
+    if (this.previousTotalDischarge === null) {
+      return 'steady'; // Changed from 'none' to 'steady' to show baseline state
+    }
+
+    const threshold = 0.001; // Reduced threshold for more sensitive detection
     const difference = currentTotal - this.previousTotalDischarge;
 
     if (Math.abs(difference) < threshold) {

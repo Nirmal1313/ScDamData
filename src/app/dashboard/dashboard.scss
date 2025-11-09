@@ -44,6 +44,8 @@
 .monitoring-section,
 .alerts-section {
   margin-top: 1rem;
+  margin-left: 0.5rem;
+  margin-right: 0.5rem;
 
   @media (max-width: 768px) {
     margin-top: 0.75rem;
