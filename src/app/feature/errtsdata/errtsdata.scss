@@ -1,5 +1,5 @@
 // =========================================
-// ERTS Weather Monitoring System Styles
+// ERRTS Weather Monitoring System Styles
 // =========================================
 
 @use 'sass:color';
@@ -183,7 +183,7 @@ $text-secondary: #64748b;
     font-size: 1rem;
     font-weight: bold;
     margin-left: 0.5rem;
-    animation: errts-pulse 2s ease-in-out infinite;
+    animation: errts-pulse 20s ease-in-out infinite;
   }
 
   &.trend-rising {
@@ -196,7 +196,7 @@ $text-secondary: #64748b;
 
     .errts-trend-icon {
       color: #dc2626;
-      animation: errts-bounce-up 1.5s ease-in-out infinite;
+      animation: errts-bounce-up 15s ease-in-out infinite;
     }
   }
 
@@ -210,7 +210,7 @@ $text-secondary: #64748b;
 
     .errts-trend-icon {
       color: #16a34a;
-      animation: errts-bounce-down 1.5s ease-in-out infinite;
+      animation: errts-bounce-down 15s ease-in-out infinite;
     }
   }
 
@@ -224,7 +224,7 @@ $text-secondary: #64748b;
 
     .errts-trend-icon {
       color: #2563eb;
-      animation: errts-steady-pulse 2s ease-in-out infinite;
+      animation: errts-steady-pulse 20s ease-in-out infinite;
     }
   }
 
@@ -596,7 +596,7 @@ $text-secondary: #64748b;
 .errts-discharge-trend-icon {
   font-size: 0.9rem;
   font-weight: bold;
-  animation: pulse 2s ease-in-out infinite;
+  animation: pulse 20s ease-in-out infinite;
 }
 
 .errts-discharge-rising {
@@ -605,7 +605,7 @@ $text-secondary: #64748b;
 
   .errts-discharge-trend-icon {
     color: #dc2626;
-    animation: errts-bounce-up 1.5s ease-in-out infinite;
+    animation: errts-bounce-up 15s ease-in-out infinite;
   }
 }
 
@@ -615,7 +615,7 @@ $text-secondary: #64748b;
 
   .errts-discharge-trend-icon {
     color: #16a34a;
-    animation: errts-bounce-down 1.5s ease-in-out infinite;
+    animation: errts-bounce-down 15s ease-in-out infinite;
   }
 }
 
@@ -625,7 +625,7 @@ $text-secondary: #64748b;
 
   .errts-discharge-trend-icon {
     color: #2563eb;
-    animation: errts-steady-pulse 2s ease-in-out infinite;
+    animation: errts-steady-pulse 20s ease-in-out infinite;
   }
 }
 
@@ -738,6 +738,74 @@ $text-secondary: #64748b;
   }
 }
 
+// =========================================
+// Table Detail View
+// =========================================
+.table-container {
+  .api-response-content {
+    padding: 1rem;
+
+    .station-detail-table {
+      ::ng-deep {
+        .p-datatable-header {
+          background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+          color: white;
+          padding: 0.75rem 1rem;
+          border-radius: 0.375rem 0.375rem 0 0;
+        }
+
+        .p-datatable-thead > tr > th {
+          background: #f8fafc;
+          border-bottom: 2px solid #e2e8f0;
+          padding: 0.75rem 1rem;
+          font-weight: 600;
+          color: $text-primary;
+
+          .flex {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+
+            .p-column-filter-menu-button {
+              margin-left: auto;
+            }
+          }
+        }
+
+        .p-datatable-tbody > tr > td {
+          padding: 0.625rem 1rem;
+          border-bottom: 1px solid #f1f5f9;
+        }
+
+        .p-datatable-tbody > tr:hover {
+          background: #f8fafc;
+        }
+      }
+    }
+  }
+
+  .api-response-footer {
+    padding: 0.75rem 1rem;
+    background: #f8fafc;
+    border-top: 1px solid #e2e8f0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    .record-count {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: $text-secondary;
+      font-size: 0.875rem;
+
+      i {
+        color: $primary-color;
+      }
+    }
+  }
+}
+
 .image-container {
   display: flex;
   justify-content: center;
@@ -788,6 +856,15 @@ $text-secondary: #64748b;
   .status-offline {
     border: 2px solid currentColor !important;
   }
+}
+
+// =========================================
+// Empty Value Styling
+// =========================================
+.empty-value {
+  color: $text-secondary;
+  font-style: italic;
+  opacity: 0.7;
 }
 
 

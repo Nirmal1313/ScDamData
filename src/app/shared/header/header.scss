@@ -116,6 +116,21 @@
     background-color: #e9ecef;
     transition: background-color 0.2s;
   }
+
+  // Menu item link styles
+  .menu-item-link {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.5rem 0.75rem;
+    text-decoration: underline;
+    color: #000000;
+    font-weight: 700;
+    white-space: nowrap;
+  }
+
+  .menu-item-icon {
+    margin-right: 0.5rem;
+  }
 }
 .p-menubar {
   border: none; // Remove border for a cleaner look
@@ -336,6 +351,27 @@
       display: inline-flex;
       align-items: center;
       color: #ffffff;
+    }
+  }
+
+  .rain-info {
+    font-family: Verdana, sans-serif;
+    font-size: 1rem;
+    font-weight: 700;
+    color: #ffffff;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.25rem;
+
+    strong {
+      font-weight: 700;
+      color: #ffffff;
+    }
+
+    .weather-icon {
+      filter: brightness(0) invert(1);
     }
   }
 

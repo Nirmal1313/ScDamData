@@ -183,11 +183,12 @@ export class WeatherService implements OnDestroy {
   private fetchWeatherData(): Observable<BomWeatherResult> {
     // Set loading state
     this.updateState({ loading: true, error: null });
-
+ const apiUrl = this.configService.getApiUrl('weather');
+    const apiEndpoint = this.configService.getApiUrl('main');
     // Fetch and process the data
     // Use 'weather' as apiName which contains the full URL, pass empty string as endpoint
     const dataObservable = this.apiService
-      .directGet<ApiResponse<BomWeatherResult>>(this.configService.getApiUrl('weather'))
+      .directGet<ApiResponse<BomWeatherResult>>(`${apiEndpoint}/${apiUrl}`)
       .pipe(
         tap((response: ApiResponse<BomWeatherResult>) => {
           // Extract data from ApiResponse wrapper

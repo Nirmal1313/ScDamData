@@ -32,24 +32,28 @@
 
   <div class="table-divider"></div>
 
-  <div class="weather-table-section">
+  <div class="weather-table-section scrollable-table">
     <p-table [value]="forecastWeather" size="small" [rowHover]="true" showGridlines stripedRows
-             responsiveLayout="scroll" [breakpoint]="'768px'">
+             responsiveLayout="scroll" [breakpoint]="'768px'" [scrollable]="true" scrollHeight="400px">
       <ng-template #caption>
         <div class="table-caption">Forecast Report ACT - Canberra</div>
       </ng-template>
       <ng-template #header>
         <tr>
           <th>Time (Today)</th>
+          <th>Summary</th>
+          <th>Temperature</th>
+          <th>Feels Like</th>
           <th>Rainfall</th>
-          <th>Possibility</th>
         </tr>
       </ng-template>
       <ng-template #body let-forecastWeather>
         <tr>
           <td>{{ forecastWeather.time }}</td>
-          <td>{{ forecastWeather.possibleRainfall }}</td>
           <td>{{ forecastWeather.chanceOfRain }}</td>
+          <td>{{ forecastWeather.temperature }}</td>
+          <td>{{ forecastWeather.feelsLike }}</td>
+          <td>{{ forecastWeather.possibleRainfall }}</td>
         </tr>
       </ng-template>
     </p-table>
@@ -66,6 +70,7 @@
       <ng-template #header>
         <tr>
           <th>Date</th>
+          <th>Conditions</th>
           <th>Rain</th>
           <th>Min</th>
           <th>Max</th>
@@ -74,6 +79,7 @@
       <ng-template #body let-weekdaysWeather>
         <tr>
           <td>{{ weekdaysWeather.date }}</td>
+          <td>{{ weekdaysWeather.conditions }}</td>
           <td>{{ weekdaysWeather.possibleRainfall }}</td>
           <td>{{ weekdaysWeather.minTemp }}</td>
           <td>{{ weekdaysWeather.maxTemp }}</td>
@@ -89,7 +95,7 @@
         <span class="text-sm">Data from Bureau of Meteorology</span>
       </div>
       <div class="footer-timestamp text-xs text-gray-500">
-        Last updated: {{ weatherSummary?.latestWeatherTime || 'N/A' }}
+        Last updated: {{ lastUpdated }}
       </div>
     </div>
   </ng-template>

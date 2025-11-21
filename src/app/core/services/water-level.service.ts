@@ -18,8 +18,9 @@ export class WaterLevelService {
    */
   getWaterLevelData(): Observable<ScrivenerCR1000Result> {
     const apiUrl = this.configService.getApiUrl('waterLevel');
+    const apiEndpoint = this.configService.getApiUrl('main');
 
-    return this.http.get<ScrivenerCR1000Result>(apiUrl).pipe(
+    return this.http.get<ScrivenerCR1000Result>(`${apiEndpoint}/${apiUrl}`).pipe(
       tap((response) => {}),
       catchError((error) => {
         console.error('Error fetching water level data:', error);

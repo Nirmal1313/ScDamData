@@ -2,8 +2,8 @@ import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { PanelModule } from 'primeng/panel';
 import { TableModule } from 'primeng/table';
 import { CommonModule } from '@angular/common';
-import { ErtsWeatherService } from '../../core/services/erts-weather.service';
-import { ErtsWeatherResult } from '../../core/models/erts-weather.model';
+import { ErrtsWeatherService } from '../../core/services/errts-weather.service';
+import { ErrtsWeatherResult } from '../../core/models/errts-weather.model';
 import { interval, Subscription } from 'rxjs';
 import { SplitterModule } from 'primeng/splitter';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
@@ -11,6 +11,7 @@ import { DialogModule } from 'primeng/dialog';
 import { TooltipModule } from 'primeng/tooltip';
 import { ButtonModule } from 'primeng/button';
 import { ConfigService } from '../../core/services/config.service';
+import { HttpClient } from '@angular/common/http';
 
 @Component({
   selector: 'app-errtsdata',
@@ -22,13 +23,13 @@ import { ConfigService } from '../../core/services/config.service';
     ProgressSpinnerModule,
     DialogModule,
     TooltipModule,
-    ButtonModule
+    ButtonModule,
   ],
   templateUrl: './errtsdata.html',
-  styleUrl: './errtsdata.scss'
+  styleUrl: './errtsdata.scss',
 })
 export class ERRTSData implements OnInit, OnDestroy {
-  // ERTS Weather Data
+  // ERRTS Weather Data
   dateTime: string = '';
   waterLevelData: any[] = [];
   rainfallData: any[] = [];
@@ -41,14 +42,17 @@ export class ERRTSData implements OnInit, OnDestroy {
   loading: boolean = false;
   error: string = '';
 
-  // Image dialog
+  // Resource dialog (image or table)
   showImageDialog: boolean = false;
   selectedCommsId: string = '';
   imageUrl: string = '';
+  resourceType: 'image' | 'table' = 'image';
+  selectedRowData: any = null;
+  loadingResourceData: boolean = false;
 
   // Auto-refresh
   private refreshInterval: Subscription | null = null;
-  private readonly REFRESH_INTERVAL_MS = 5 * 60 * 1000; // 5 minutes
+  private readonly REFRESH_INTERVAL_MS = 7 * 60 * 1000; // 5 minutes
 
   // Highlighted CommsIds for discharge sum calculation
   private readonly highlightedCommsIds = ['3349', '3351', '3419'];
@@ -58,14 +62,15 @@ export class ERRTSData implements OnInit, OnDestroy {
   private previousTotalDischarge: number | null = null;
 
   constructor(
-    private ertsWeatherService: ErtsWeatherService,
+    private errtsWeatherService: ErrtsWeatherService,
     private configService: ConfigService,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private http: HttpClient
   ) {}
 
   ngOnInit(): void {
     // Initial load
-    this.loadErtsWeatherData();
+    this.loadErrtsWeatherData();
 
     // Setup auto-refresh every 5 minutes
     this.setupAutoRefresh();
@@ -79,24 +84,24 @@ export class ERRTSData implements OnInit, OnDestroy {
   }
 
   /**
-   * Load ERTS weather data from the service
+   * Load ERRTS weather data from the service
    */
-  loadErtsWeatherData(): void {
+  loadErrtsWeatherData(): void {
     this.loading = true;
     this.error = '';
 
-    this.ertsWeatherService.getErrtsData().subscribe({
-      next: (data: ErtsWeatherResult) => {
-        this.processErtsWeatherData(data);
+    this.errtsWeatherService.getErrtsData().subscribe({
+      next: (data: ErrtsWeatherResult) => {
+        this.processErrtsWeatherData(data);
         this.loading = false;
         this.cdr.detectChanges();
       },
       error: (err) => {
-        this.error = 'Failed to load ERTS weather data. Please try again.';
+        this.error = 'Failed to load ERRTS weather data. Please try again.';
         this.loading = false;
-        console.error('Error loading ERTS data:', err);
+        console.error('Error loading ERRTS data:', err);
         this.cdr.detectChanges();
-      }
+      },
     });
   }
 
@@ -104,24 +109,25 @@ export class ERRTSData implements OnInit, OnDestroy {
    * Manual refresh triggered by user
    */
   refreshData(): void {
-    this.loadErtsWeatherData();
+    this.loadErrtsWeatherData();
   }
 
   /**
-   * Process and transform ERTS weather data
+   * Process and transform ERRTS weather data
    */
-  private processErtsWeatherData(data: ErtsWeatherResult): void {
+  private processErrtsWeatherData(data: ErrtsWeatherResult): void {
     // Set datetime
     this.dateTime = data.datetime || 'N/A';
 
     // Process Water Level Status
     if (data.waterLevelStatus && data.waterLevelStatus.length > 0) {
       this.waterLevelColumns = this.extractDynamicColumns(data.waterLevelStatus);
-      this.waterLevelData = data.waterLevelStatus.map(item => {
+      this.waterLevelData = data.waterLevelStatus.map((item) => {
         const rowData = { ...item.data };
 
         // Fix typo for CommsId 3346: "Molonoglo" -> "Molonglo"
-        const commsId = rowData['CommsId'] || rowData['commsid'] || rowData['Comms Id'] || rowData['comms id'];
+        const commsId =
+          rowData['CommsId'] || rowData['commsid'] || rowData['Comms Id'] || rowData['comms id'];
         if (commsId && String(commsId).trim() === '3346') {
           // Check various possible field names for the location name
           const nameFields = ['Name', 'name', 'Location', 'location', 'Station', 'station'];
@@ -147,7 +153,7 @@ export class ERRTSData implements OnInit, OnDestroy {
     // Process Rainfall Status
     if (data.rainfallStatus && data.rainfallStatus.length > 0) {
       this.rainfallColumns = this.extractDynamicColumns(data.rainfallStatus);
-      this.rainfallData = data.rainfallStatus.map(item => item.data);
+      this.rainfallData = data.rainfallStatus.map((item) => item.data);
     } else {
       this.rainfallColumns = [];
       this.rainfallData = [];
@@ -200,7 +206,7 @@ export class ERRTSData implements OnInit, OnDestroy {
   private setupAutoRefresh(): void {
     // Refresh data every 5 minutes
     this.refreshInterval = interval(this.REFRESH_INTERVAL_MS).subscribe(() => {
-      this.loadErtsWeatherData();
+      this.loadErrtsWeatherData();
     });
   }
 
@@ -246,6 +252,11 @@ export class ERRTSData implements OnInit, OnDestroy {
   formatColumnHeader(column: string): string {
     if (!column) return '';
 
+    // Special case: Replace "Last Value" with "Water Discharge"
+    if (column === 'Last Value' || column === 'LastValue' || column.toLowerCase() === 'last value') {
+      return 'Water Level';
+    }
+
     // If already contains spaces, return as is
     if (column.includes(' ')) return column;
 
@@ -257,16 +268,59 @@ export class ERRTSData implements OnInit, OnDestroy {
   }
 
   /**
-   * Open image popup for a CommsId
+   * Open resource popup - shows image for CommsId clicks, table for Name clicks
    */
-  openImagePopup(commsId: string): void {
+  openResourcePopup(commsId: string, source: 'commsid' | 'name'): void {
     if (!commsId) return;
 
     this.selectedCommsId = commsId;
-    // Construct the image URL - this is an open API endpoint, just pass the commsId value
-    const baseUrl = this.configService.getApiUrl('errts').replace('/WeatherForecast/ERRTSData', '');
-    this.imageUrl = `${baseUrl}/WeatherForecast/getProxiedImage?imageUrl=${commsId}`;
-    this.showImageDialog = true;
+
+    const baseUrl = this.configService.getApiUrl('main');
+
+    if (source === 'commsid') {
+      // Show image when CommsId is clicked
+      this.resourceType = 'image';
+      this.imageUrl = `${baseUrl}/WeatherForecast/getProxiedResource?resourceUrl=${commsId}&resourceType=${this.resourceType}`;
+      this.selectedRowData = null;
+      this.showImageDialog = true;
+    } else if (source === 'name') {
+      // Show table data when Name is clicked - fetch from API
+      this.resourceType = 'table';
+      this.selectedRowData = null;
+      this.loadingResourceData = true;
+      this.showImageDialog = true;
+
+      const apiUrl = `${baseUrl}/WeatherForecast/getProxiedResource?resourceUrl=${commsId}&resourceType=table`;
+
+      this.http.get(apiUrl).subscribe({
+        next: (response: any) => {
+
+          // If response is an array, sort by timestamp descending
+          if (Array.isArray(response)) {
+            this.selectedRowData = [...response].sort((a, b) => {
+              // Get timestamp with case-insensitive field name check
+              const timestampA = a.timestamp || a.Timestamp || a.TimeStamp || a.TIMESTAMP;
+              const timestampB = b.timestamp || b.Timestamp || b.TimeStamp || b.TIMESTAMP;
+
+              const dateA = new Date(timestampA || 0).getTime();
+              const dateB = new Date(timestampB || 0).getTime();
+              return dateB - dateA; // Descending order (newest first)
+            });
+          } else {
+            this.selectedRowData = response;
+          }
+
+          this.loadingResourceData = false;
+          this.cdr.detectChanges();
+        },
+        error: (err) => {
+          console.error('Error fetching resource data:', err);
+          this.selectedRowData = { error: 'Failed to load data from API' };
+          this.loadingResourceData = false;
+          this.cdr.detectChanges();
+        }
+      });
+    }
   }
 
   /**
@@ -274,7 +328,8 @@ export class ERRTSData implements OnInit, OnDestroy {
    */
   onImageError(event: any): void {
     // Set a placeholder image on error
-    event.target.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjMwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iNDAwIiBoZWlnaHQ9IjMwMCIgZmlsbD0iI2VlZSIvPjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBmb250LXNpemU9IjE4IiBmaWxsPSIjOTk5IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkeT0iLjNlbSI+SW1hZ2UgTm90IEF2YWlsYWJsZTwvdGV4dD48L3N2Zz4=';
+    event.target.src =
+      'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjMwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iNDAwIiBoZWlnaHQ9IjMwMCIgZmlsbD0iI2VlZSIvPjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBmb250LXNpemU9IjE4IiBmaWxsPSIjOTk5IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkeT0iLjNlbSI+SW1hZ2UgTm90IEF2YWlsYWJsZTwvdGV4dD48L3N2Zz4=';
   }
 
   /**
@@ -324,7 +379,6 @@ export class ERRTSData implements OnInit, OnDestroy {
 
     const currentValue = parseFloat(discharge);
     const previousValue = this.previousDischargeValues.get(String(commsId));
-
 
     // If no previous value exists, show as steady (baseline)
     if (previousValue === undefined || isNaN(currentValue)) {
@@ -433,5 +487,57 @@ export class ERRTSData implements OnInit, OnDestroy {
       default:
         return '';
     }
+  }
+
+  /**
+   * Get keys from selected row data for table display
+   */
+  getRowDataKeys(): string[] {
+    if (!this.selectedRowData) return [];
+
+    // If it's an array, get keys from first item
+    if (Array.isArray(this.selectedRowData) && this.selectedRowData.length > 0) {
+      return Object.keys(this.selectedRowData[0]);
+    }
+
+    return Object.keys(this.selectedRowData);
+  }
+
+  /**
+   * Check if selected data is an array (multiple records)
+   */
+  isArrayData(): boolean {
+    return Array.isArray(this.selectedRowData);
+  }
+
+  /**
+   * Format timestamp for display
+   */
+  formatTimestamp(timestamp: string): string {
+    if (!timestamp) return 'N/A';
+    try {
+      const date = new Date(timestamp);
+      return date.toLocaleString('en-AU', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: false
+      });
+    } catch {
+      return timestamp;
+    }
+  }
+
+  /**
+   * Format cell value - replace null/empty with user-friendly placeholder
+   */
+  formatCellValue(value: any): string {
+    if (value === null || value === undefined || value === '' || String(value).trim() === '') {
+      return '|'; // Em dash symbol for empty values
+    }
+    return String(value);
   }
 }

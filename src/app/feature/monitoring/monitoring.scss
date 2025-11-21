@@ -31,6 +31,7 @@ $error-text: #b91c1c;
     color: $text-primary;
     font-weight: 600;
     border: none;
+    position: relative;
 
     @media (max-width: 768px) {
       padding: 0.875rem 1rem;
@@ -39,6 +40,33 @@ $error-text: #b91c1c;
     @media (max-width: 480px) {
       padding: 0.75rem;
     }
+  }
+
+  // Ensure toggle icon is visible
+  ::ng-deep .p-panel-header-icon {
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+    color: $text-primary;
+    border-radius: 0.25rem;
+    transition: all 0.2s;
+    margin-left: auto;
+
+    &:hover {
+      background-color: rgba(0, 0, 0, 0.05);
+    }
+
+    .p-icon {
+      font-size: 1rem;
+    }
+  }
+
+  ::ng-deep .p-panel-toggler {
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
   }
 
   ::ng-deep .p-panel-content {
@@ -229,7 +257,7 @@ $error-text: #b91c1c;
     font-size: 1rem;
     font-weight: bold;
     margin-left: 0.5rem;
-    animation: monitoring-pulse 2s ease-in-out infinite;
+    animation: monitoring-pulse 20s ease-in-out infinite;
   }
 
   &.trend-rising {
@@ -242,7 +270,7 @@ $error-text: #b91c1c;
 
     .monitoring-trend-icon {
       color: #dc2626;
-      animation: monitoring-bounce-up 1.5s ease-in-out infinite;
+      animation: monitoring-bounce-up 15s ease-in-out infinite;
     }
   }
 
@@ -256,7 +284,7 @@ $error-text: #b91c1c;
 
     .monitoring-trend-icon {
       color: #16a34a;
-      animation: monitoring-bounce-down 1.5s ease-in-out infinite;
+      animation: monitoring-bounce-down 15s ease-in-out infinite;
     }
   }
 
@@ -270,7 +298,7 @@ $error-text: #b91c1c;
 
     .monitoring-trend-icon {
       color: #2563eb;
-      animation: monitoring-steady-pulse 2s ease-in-out infinite;
+      animation: monitoring-steady-pulse 20s ease-in-out infinite;
     }
   }
 }

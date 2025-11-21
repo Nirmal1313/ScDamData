@@ -42,6 +42,10 @@ export class Monitoring implements OnInit, OnDestroy {
   outflowData: string = '';
   totalDischargeData: string = '';
 
+  // Mock test data toggle
+  private useMockData: boolean = false; // Set to false to use real data
+  private mockCounter: number = 0;
+
   // Previous values for change detection
   private previousLakeLevel: number | null = null;
   private previousLakeStorage: number | null = null;
@@ -59,7 +63,7 @@ export class Monitoring implements OnInit, OnDestroy {
   // Auto-refresh subscription
   private refreshSubscription?: Subscription;
   private authSubscription?: Subscription;
-  private readonly REFRESH_INTERVAL = 5 * 60 * 1000; // 5 minutes in milliseconds
+  private readonly REFRESH_INTERVAL = 7 * 60 * 1000; // 7 minutes in milliseconds
 
   constructor(
     private waterLevelService: WaterLevelService,
@@ -164,8 +168,13 @@ export class Monitoring implements OnInit, OnDestroy {
       // Store current values as previous BEFORE updating with new data
       this.storePreviousValues();
 
-      // Now update with new water level data
-      this.waterLevelData = waterLevel;
+      // Use mock data if enabled, otherwise use real data
+     // if (this.useMockData) {
+        //this.generateMockWaterLevelData();
+      //} else {
+        // Now update with new water level data
+        this.waterLevelData = waterLevel;
+     // }
     }
   }
 
@@ -238,11 +247,101 @@ export class Monitoring implements OnInit, OnDestroy {
       // Get the last column (excluding the first label column)
       const lastColumnKey = this.sluiceStatusColumns[this.sluiceStatusColumns.length - 1];
 
-      // Extract the last column value from each row
-      this.outflowData = dischargeCumecsRow ? (dischargeCumecsRow[lastColumnKey] || '0.0') : '0.0';
-      this.totalDischargeData = dischargeMLDayRow ? (dischargeMLDayRow[lastColumnKey] || '0.0') : '0.0';
+      // Use mock data if enabled, otherwise use real data
+      //if (this.useMockData) {
+        //this.generateMockFlowData();
+      //} else {
+        // Extract the last column value from each row
+        this.outflowData = dischargeCumecsRow ? (dischargeCumecsRow[lastColumnKey] || '0.0') : '0.0';
+        this.totalDischargeData = dischargeMLDayRow ? (dischargeMLDayRow[lastColumnKey] || '0.0') : '0.0';
+      //}
     }
   }
+
+  /**
+   * Generate random mock water level data for testing trend indicators
+   */
+  private generateMockWaterLevelData() {
+    let lakeLevel: number;
+    let lakeStorage: number;
+
+    const pattern = this.mockCounter % 4;
+
+    switch (pattern) {
+      case 0: // Rising pattern
+        lakeLevel = 555.5 + (this.mockCounter * 0.05);
+        lakeStorage = 30800 + (this.mockCounter * 100);
+        break;
+      case 1: // Falling pattern
+        lakeLevel = 555.8 - (this.mockCounter * 0.03);
+        lakeStorage = 31200 - (this.mockCounter * 80);
+        break;
+      case 2: // Steady pattern
+        lakeLevel = 555.633 + (Math.random() * 0.005); // Very small change
+        lakeStorage = 30980 + (Math.random() * 5);
+        break;
+      case 3: // Random pattern
+        lakeLevel = 555.4 + (Math.random() * 0.4);
+        lakeStorage = 30500 + (Math.random() * 800);
+        break;
+      default:
+        lakeLevel = 555.633;
+        lakeStorage = 30980;
+    }
+
+    // Ensure values stay within realistic bounds
+    lakeLevel = Math.max(554.0, Math.min(557.0, lakeLevel));
+    lakeStorage = Math.max(29000, Math.min(32000, lakeStorage));
+
+    // Format as the expected string format
+    this.waterLevelData = [
+      `Lake Level is ${lakeLevel.toFixed(3)}m AHD. Lake Storage is ${Math.round(lakeStorage)} ML`
+    ];
+  }
+
+  /**
+   * Generate random mock data for testing trend indicators
+   */
+  private generateMockFlowData() {
+    this.mockCounter++;
+
+    // Generate random outflow data (between 0 and 50 cumecs)
+    // Create different patterns to test all trend states
+    let outflow: number;
+    let totalDischarge: number;
+
+    const pattern = this.mockCounter % 4;
+
+    switch (pattern) {
+      case 0: // Rising pattern
+        outflow = 10 + (this.mockCounter * 2.5);
+        totalDischarge = 500 + (this.mockCounter * 50);
+        break;
+      case 1: // Falling pattern
+        outflow = 40 - (this.mockCounter * 2);
+        totalDischarge = 2000 - (this.mockCounter * 80);
+        break;
+      case 2: // Steady pattern
+        outflow = 25 + (Math.random() * 0.005); // Very small change
+        totalDischarge = 1200 + (Math.random() * 0.5);
+        break;
+      case 3: // Random pattern
+        outflow = 15 + (Math.random() * 20);
+        totalDischarge = 800 + (Math.random() * 800);
+        break;
+      default:
+        outflow = 20;
+        totalDischarge = 1000;
+    }
+
+    // Ensure values stay within realistic bounds
+    outflow = Math.max(0, Math.min(50, outflow));
+    totalDischarge = Math.max(0, Math.min(3000, totalDischarge));
+
+    this.outflowData = outflow.toFixed(1);
+    this.totalDischargeData = totalDischarge.toFixed(1);
+
+   }
 
   private processGateStatusData(gateStatus: any[]) {
     if (gateStatus && gateStatus.length > 0) {

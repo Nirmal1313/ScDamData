@@ -1,4 +1,13 @@
-import { Component, ViewChild, EventEmitter, Input, Output, OnInit, OnDestroy, HostListener } from '@angular/core';
+import {
+  Component,
+  ViewChild,
+  EventEmitter,
+  Input,
+  Output,
+  OnInit,
+  OnDestroy,
+  HostListener,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { DrawerModule } from 'primeng/drawer';
 import { ButtonModule } from 'primeng/button';
@@ -7,26 +16,57 @@ import { AvatarModule } from 'primeng/avatar';
 import { StyleClassModule } from 'primeng/styleclass';
 import { Drawer } from 'primeng/drawer';
 import { TableModule } from 'primeng/table';
-import { WeatherService } from '../../core/services/weather.service';
-import { WeatherSummary, RainForecastItem, ForecastItem } from '../../core/models/weather.model';
-import { WeatherConsumerBase } from '../../core/base/weather-consumer.base';
+import { BomWeatherService } from '../../core/services/bom-weather.service';
+import { LocationData, DailyForecast, HourlyForecast } from '../../core/models/weatherBOM.module';
+
+import { BomWeatherConsumerBase } from '../../core/base/bom-weather-consumer.base';
+
+// Interfaces for table data
+interface WeatherRow {
+  key: string;
+  value: string;
+}
+
+interface ForecastRow {
+  time: string;
+  possibleRainfall: string;
+  chanceOfRain: string;
+}
+
+interface WeekdayRow {
+  date: string;
+  conditions: string;
+  possibleRainfall: string;
+  minTemp: string;
+  maxTemp: string;
+}
 
 @Component({
   selector: 'app-sidebar',
   standalone: true,
-  imports: [CommonModule, DrawerModule, ButtonModule, RippleModule, AvatarModule, StyleClassModule, TableModule],
+  imports: [
+    CommonModule,
+    DrawerModule,
+    ButtonModule,
+    RippleModule,
+    AvatarModule,
+    StyleClassModule,
+    TableModule,
+  ],
   templateUrl: './sidebar.html',
   styleUrl: './sidebar.scss',
 })
-export class Sidebar extends WeatherConsumerBase implements OnInit, OnDestroy {
+export class Sidebar implements OnInit, OnDestroy {
   @ViewChild('drawerRef') drawerRef!: Drawer;
   @Input() sidebarVisible: boolean = false;
   @Output() sidebarToggleChange = new EventEmitter<boolean>();
-  rowsWeather = [{ key: ' ', value: '' }];
-  forecastWeather: RainForecastItem[] = [];
-  weekdaysWeather: ForecastItem[] = [];
+  rowsWeather: WeatherRow[] = [];
+  forecastWeather: ForecastRow[] = [];
+  weekdaysWeather: WeekdayRow[] = [];
+  weatherSummary: LocationData | null = null;
+  lastUpdated: string = 'N/A';
 
-  // Today's forecast data for the first table
+  private weatherSubscription?: any; // Today's forecast data for the first table
   todayForecastIcon: string = '';
   todayForecastIconAlt: string = '';
 
@@ -61,7 +101,7 @@ export class Sidebar extends WeatherConsumerBase implements OnInit, OnDestroy {
       return { width: '60vw' };
     } else {
       // Desktop: Fixed 26rem
-      return { width: '26rem' };
+      return { width: '28rem' };
     }
   }
 
@@ -72,10 +112,7 @@ export class Sidebar extends WeatherConsumerBase implements OnInit, OnDestroy {
     return this.windowWidth < this.BREAKPOINT_TABLET;
   }
 
-
-  constructor(weatherService: WeatherService) {
-    super(weatherService);
-  }
+  constructor(private bomWeatherService: BomWeatherService) {}
 
   closeCallback(e: any): void {
     this.drawerRef.close(e);
@@ -86,61 +123,144 @@ export class Sidebar extends WeatherConsumerBase implements OnInit, OnDestroy {
     this.sidebarToggleChange.emit(visible);
   }
 
-  override ngOnInit(): void {
-    // Call parent's ngOnInit to handle weather subscription
-    super.ngOnInit();
+  ngOnInit(): void {
+    // Subscribe to BOM weather state
+    this.weatherSubscription = this.bomWeatherService.weatherState$.subscribe((state) => {
+      if (state.data && state.data.locations) {
+        // Get Canberra weather data from the three sources
+        const canberraToday = state.data.locations['canberra-today'];
+        const canberra7day = state.data.locations['canberra-7day'];
+        const canberraHourly = state.data.locations['canberra-hourly'];
 
-    // Subscribe to weather state to get rainForecast and forecasts
-    this.weatherSubscription = this.weatherService.weatherState$.subscribe((state) => {
-      if (state.data) {
-        // rainForecast and forecasts are at the BomWeatherResult level
-        this.forecastWeather = state.data.rainForecast || [];
-        this.weekdaysWeather = state.data.forecasts || [];
+        // Store for template access
+        this.weatherSummary = canberraToday;
+        this.lastUpdated = this.formatTime(state.data.timestamp || 'N/A');
 
-        // Get today's forecast data (first item in arrays)
-        if (this.weekdaysWeather.length > 0) {
-          this.todayForecastIcon = this.weekdaysWeather[0].forecastIcon;
-          this.todayForecastIconAlt = this.weekdaysWeather[0].forecastIconAlt;
-
-          // Update the table with forecast data
-          this.updateWeatherTable();
-        }
+        // Map data to tables
+        this.mapWeatherReportTable(canberraToday);
+        this.mapWeekdaysTable(canberra7day);
+        this.mapForecastTable(canberraHourly);
       }
     });
+
+    // Trigger initial data fetch
+    this.bomWeatherService.getWeatherData().subscribe();
   }
 
   /**
-   * Implement abstract method from WeatherConsumerBase
-   * Process weather data specific to Sidebar component display
+   * Map current weather data to Weather Report table (rowsWeather)
    */
-  protected onWeatherDataReceived(weather: WeatherSummary): void {
-    // Store the base weather data and update the table
-    this.baseWeatherData = this.processWeatherTable(weather.table);
-    this.updateWeatherTable();
-  }
-
-  /**
-   * Update the weather table with forecast data prepended
-   */
-  private baseWeatherData: { key: string; value: string }[] = [];
-
-  private updateWeatherTable(): void {
-    // Prepend forecast data to the table
-    this.rowsWeather = [];
-
-    // Add Condition first
-    if (this.todayForecastIconAlt && this.todayForecastIconAlt.trim() !== '') {
-      this.rowsWeather.push({
-        key: 'Condition',
-        value: this.todayForecastIconAlt
-      });
+  private mapWeatherReportTable(todayData: LocationData | undefined): void {
+    if (!todayData || !todayData.current || !todayData.sunInfo) {
+      this.rowsWeather = [];
+      return;
     }
 
-    // Add rest of weather data
-    this.rowsWeather.push(...this.baseWeatherData);
-  }  override ngOnDestroy(): void {
-    // Call parent's ngOnDestroy to handle cleanup
-    super.ngOnDestroy();
+    const current = todayData.current;
+    const sunInfo = todayData.sunInfo;
+    const todayForecast =
+      todayData.forecast && todayData.forecast.length > 0 ? todayData.forecast[0] : null;
+
+    this.rowsWeather = [
+      { key: 'Condition', value: todayForecast?.conditions || current.conditions },
+      { key: 'Feels Like', value: current.feelsLike },
+      { key: 'Min Temp', value: current.minTemp },
+      { key: 'Max Temp', value: current.maxTemp },
+      { key: 'Wind', value: current.wind },
+      { key: 'Gust', value: current.gust },
+      { key: 'Humidity', value: current.humidity },
+      { key: 'Dew Point', value: current.dewPoint },
+      { key: 'Rain Since Midnight', value: current.rainSinceMidnight },
+      { key: 'Rain Chance', value: current.rainChance },
+    ];
+  }
+
+  /**
+   * Map 7-day forecast data to Week Days Report table (weekdaysWeather)
+   */
+  private mapWeekdaysTable(weekData: LocationData | undefined): void {
+    if (!weekData || !weekData.forecast) {
+      this.weekdaysWeather = [];
+      return;
+    }
+
+    this.weekdaysWeather = weekData.forecast.map((day: DailyForecast) => ({
+      date: day.day,
+      conditions: day.conditions,
+      possibleRainfall: this.extractRainfall(day.rainfall),
+      minTemp: day.minTemp,
+      maxTemp: day.maxTemp,
+    }));
+    // Keep only the next 6 days
+    this.weekdaysWeather = this.weekdaysWeather.splice(0, 6);
+  }
+
+  /**
+   * Map hourly forecast data to Forecast Report table (forecastWeather)
+   */
+  private mapForecastTable(hourlyData: LocationData | undefined): void {
+    if (!hourlyData || !hourlyData.hourlyForecast) {
+      this.forecastWeather = [];
+      return;
+    }
+
+    this.forecastWeather = hourlyData.hourlyForecast.map((hour: HourlyForecast) => ({
+      time: hour.time,
+      chanceOfRain: hour.summary,
+      temperature: hour.temperature,
+      feelsLike: hour.feelsLike,
+      possibleRainfall: this.extractRainfall(hour.rainChanceMedium),
+    }));
+  }
+
+  /**
+   * Get the most relevant rain chance from the available fields
+   */
+  private getRainChance(hour: HourlyForecast): string {
+    // Return the first non-empty rain chance field
+    if (hour.rainChanceMedium) return this.extractRainfall(hour.rainChanceMedium);
+    if (hour.rainChanceLow) return this.extractRainfall(hour.rainChanceLow);
+    if (hour.rainChanceVeryLow) return this.extractRainfall(hour.rainChanceVeryLow);
+    return 'N/A';
+  }
+
+  /**
+   * Extract numeric rainfall from mixed string format
+   * e.g., "0 millimetres\n0 mm" -> "0 mm"
+   * e.g., "0 to 4 millimetres" -> "0-4mm"
+   * e.g., "North West\nNW \n10 knots" -> "10 knots" (wind data)
+   */
+  private extractRainfall(rainfallString: string): string {
+    if (!rainfallString) return '';
+
+    // Check if it contains "millimetres" or "mm"
+    if (rainfallString.includes('millimetres') || rainfallString.includes('mm')) {
+      // Extract the numeric value and unit
+
+      // Check for range format: "0 to 4 millimetres" -> "0-4mm"
+      const rangeMatch = rainfallString.match(
+        /(\d+(?:\.\d+)?)\s*to\s*(\d+(?:\.\d+)?)\s*(?:millimetres|mm)/i
+      );
+      if (rangeMatch) {
+        return `${rangeMatch[1]}-${rangeMatch[2]} mm`;
+      }
+
+      // Check for single value: "4 millimetres" -> "4mm"
+      const singleMatch = rainfallString.match(/(\d+(?:\.\d+)?)\s*(?:millimetres|mm)/i);
+      if (singleMatch) {
+        return `${singleMatch[1]} mm`;
+      }
+    }
+
+    // If it's wind data or other format, return the last meaningful line
+    const lines = rainfallString.split('\n').filter((line) => line.trim() !== '');
+    return lines[lines.length - 1] || rainfallString;
+  }
+
+  ngOnDestroy(): void {
+    if (this.weatherSubscription) {
+      this.weatherSubscription.unsubscribe();
+    }
   }
 
   /**
@@ -148,25 +268,60 @@ export class Sidebar extends WeatherConsumerBase implements OnInit, OnDestroy {
    */
   formatWeatherValue(key: string, value: string): string {
     const keyLower = key.toLowerCase();
+    const iconStyle = 'margin-right: 0.75rem; padding: 1rem;';
 
-    // Map keys to icons and formatting with increased spacing
-    if (keyLower.includes('rainfall') || keyLower.includes('rain')) {
-      return `<i class="pi pi-cloud" style="margin-right: 0.75rem; padding: 1rem;"></i>&nbsp;&nbsp;${value}`;
-    } else if (keyLower.includes('condition') || keyLower.includes('weather')) {
-      return `<i class="pi pi-sun" style="margin-right: 0.75rem; padding: 1rem;"></i>&nbsp;&nbsp;${value}`;
-    } else if (keyLower.includes('temperature') || keyLower === 'temp') {
-      return `<i class="pi pi-thermometer" style="margin-right: 0.75rem; padding: 1rem;"></i>&nbsp;&nbsp;${value}`;
-    } else if (keyLower.includes('humidity')) {
-      return `<i class="pi pi-sparkles" style="margin-right: 0.75rem; padding: 1rem;"></i>&nbsp;&nbsp;${value}`;
+    // Map keys to icons and formatting
+    if (keyLower.includes('condition') || keyLower.includes('weather')) {
+      return `<i class="pi pi-cloud" style="${iconStyle}"></i>&nbsp;&nbsp;${value}`;
+    } else if (keyLower.includes('feels') || keyLower.includes('temp')) {
+      return `<i class="pi pi-sun" style="${iconStyle}"></i>&nbsp;&nbsp;${value}`;
+    } else if (keyLower.includes('rainfall') || keyLower.includes('rain')) {
+      return `<i class="pi pi-cloud" style="${iconStyle}"></i>&nbsp;&nbsp;${value}`;
+    } else if (keyLower.includes('humidity') || keyLower.includes('dew point')) {
+      return `<i class="pi pi-sparkles" style="${iconStyle}"></i>&nbsp;&nbsp;${value}`;
     } else if (keyLower.includes('wind')) {
-      return `<i class="pi pi-flag" style="margin-right: 0.75rem; padding: 1rem;"></i>&nbsp;&nbsp;${value}`;
-    } else if (keyLower.includes('pressure')) {
-      return `<i class="pi pi-compass" style="margin-right: 0.75rem; padding: 1rem;"></i>&nbsp;&nbsp;${value}`;
+      return `<i class="pi pi-flag" style="${iconStyle}"></i>&nbsp;&nbsp;${value}`;
     } else if (keyLower.includes('gust')) {
-      return `<i class="pi pi-send" style="margin-right: 0.75rem; padding: 1rem;"></i>&nbsp;&nbsp;${value}`;
+      return `<i class="pi pi-send" style="${iconStyle}"></i>&nbsp;&nbsp;${value}`;
+    } else if (keyLower.includes('sunrise') || keyLower.includes('sunset')) {
+      return `<i class="pi pi-sun" style="${iconStyle}"></i>&nbsp;&nbsp;${value}`;
+    } else if (keyLower.includes('uv') || keyLower.includes('sun protection')) {
+      return `<i class="pi pi-shield" style="${iconStyle}"></i>&nbsp;&nbsp;${value}`;
+    } else if (keyLower.includes('fire danger')) {
+      return `<i class="pi pi-exclamation-triangle" style="${iconStyle}"></i>&nbsp;&nbsp;${value}`;
+    } else if (keyLower.includes('pressure')) {
+      return `<i class="pi pi-compass" style="${iconStyle}"></i>&nbsp;&nbsp;${value}`;
     }
 
     // Default formatting for other keys
     return value;
+  }
+
+  protected formatTime(timeString: string | undefined): string {
+    if (!timeString) return '';
+    try {
+      const date = new Date(timeString);
+      // Format as YYYY-MM-DD HH:mm:ss in Australia/Sydney timezone
+      const formatter = new Intl.DateTimeFormat('en-AU', {
+        timeZone: 'Australia/Sydney',
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: false,
+      });
+
+      const parts = formatter.formatToParts(date);
+      const year = parts.find((p) => p.type === 'year')?.value;
+      const month = parts.find((p) => p.type === 'month')?.value;
+      const day = parts.find((p) => p.type === 'day')?.value;
+      const hour = parts.find((p) => p.type === 'hour')?.value;
+      const minute = parts.find((p) => p.type === 'minute')?.value;
+
+      return `${year}-${month}-${day} ${hour}:${minute}`;
+    } catch {
+      return timeString.trim();
+    }
   }
 }

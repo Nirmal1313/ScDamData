@@ -6,24 +6,12 @@ import { Injectable } from '@angular/core';
 export class ConfigService {
   private config = {
     // API endpoints
- apis: {
-      main: 'https://scdamdemo.runasp.net/api',
-      weather: 'https://scdamdemo.runasp.net/WeatherForecast/bomWeather',
-      errts: 'https://scdamdemo.runasp.net/WeatherForecast/ERRTSData',
-      waterLevel: 'https://scdamdemo.runasp.net/WeatherForecast/ScrivenerCR1000',
-      login: 'account/login',
-      register: 'account/register',
-      calendarEvent: 'calendarTask',
-      projectNote: 'projectNote',
-      // Add more external APIs as needed
-    },
-    production: false
-  };
- /*  apis: {
-      main: 'https://localhost:7107/api',
-      weather: 'https://localhost:7107/WeatherForecast/bomWeather',
-      errts: 'https://localhost:7107/WeatherForecast/ERRTSData',
-      waterLevel: 'https://localhost:7107/WeatherForecast/ScrivenerCR1000',
+    apis: {
+       main: 'https://scrivenerdam-api--0000010.braveocean-4ca6a2d4.eastus2.azurecontainerapps.io/api/v1',
+      weather: 'WeatherForecast/bomWeather',
+      weatherBOM: 'WeatherForecast/latestBomWeather',
+      errts: 'WeatherForecast/ERRTSData',
+      waterLevel: 'WeatherForecast/ScrivenerCR1000',
       login: 'account/login',
       register: 'account/register',
       calendarEvent: 'calendarTask',
@@ -32,7 +20,21 @@ export class ConfigService {
     },
     production: true
   };
- */
+  /*apis: {
+      main: 'https://scrivenerdam-api--0000010.braveocean-4ca6a2d4.eastus2.azurecontainerapps.io/api/v1',
+      weather: 'WeatherForecast/bomWeather',
+      weatherBOM: 'WeatherForecast/latestBomWeather',
+      errts: 'WeatherForecast/ERRTSData',
+      waterLevel: 'WeatherForecast/ScrivenerCR1000',
+      login: 'account/login',
+      register: 'account/register',
+      calendarEvent: 'calendarTask',
+      projectNote: 'projectNote',
+      // Add more external APIs as needed
+    },
+    production: false
+  };
+
   constructor() {
     // You could load configuration from different sources here if needed
     // For example, from a JSON file, from localStorage, or from an API call

@@ -3,20 +3,34 @@
     <div class="errts-panel-header-content">
       <div class="errts-header-left">
         <span class="errts-panel-title">ERRTS Weather Data</span>
-        <p-button type="button" icon="pi pi-sync" [rounded]="true" severity="success"[text]="true"
-          styleClass="p-button-sm" (click)="refreshData()" [loading]="loading" pTooltip="Refresh data"
-          tooltipPosition="bottom">
+        <p-button
+          type="button"
+          icon="pi pi-sync"
+          [rounded]="true"
+          severity="success"
+          [text]="true"
+          styleClass="p-button-sm"
+          (click)="refreshData()"
+          [loading]="loading"
+          pTooltip="Refresh data"
+          tooltipPosition="bottom"
+        >
         </p-button>
       </div>
       <div class="errts-header-center" *ngIf="totalDischargeForHighlighted > 0">
         <div class="errts-metrics-header">
-          <span class="errts-info-item errts-metric-with-trend"
-            [ngClass]="getTrendColorClassForStatus(totalDischargeChangeStatus)">
+          <span
+            class="errts-info-item errts-metric-with-trend"
+            [ngClass]="getTrendColorClassForStatus(totalDischargeChangeStatus)"
+          >
             <i class="pi pi-chart-bar errts-metric-icon"></i>
             <span>Combined Inflows (Cumecs):</span>
             <strong>{{ totalDischargeForHighlighted }}</strong>
-            <i *ngIf="getTrendIconForStatus(totalDischargeChangeStatus)"
-              [class]="getTrendIconForStatus(totalDischargeChangeStatus)" class="errts-trend-icon"></i>
+            <i
+              *ngIf="getTrendIconForStatus(totalDischargeChangeStatus)"
+              [class]="getTrendIconForStatus(totalDischargeChangeStatus)"
+              class="errts-trend-icon"
+            ></i>
           </span>
 
           <span class="errts-info-item errts-panel-datetime">
@@ -37,13 +51,21 @@
 
   <!-- Loading Indicator -->
   <div *ngIf="loading && !waterLevelData.length && !rainfallData.length" class="loading-container">
-    <p-progressSpinner styleClass="custom-spinner" strokeWidth="4" animationDuration="1s"></p-progressSpinner>
-    <p class="loading-text">Loading ERTS weather data...</p>
+    <p-progressSpinner
+      styleClass="custom-spinner"
+      strokeWidth="4"
+      animationDuration="1s"
+    ></p-progressSpinner>
+    <p class="loading-text">Loading ERRTS weather data...</p>
   </div>
 
   <!-- Data Tables Container with Splitter -->
-  <p-splitter layout="vertical" [panelSizes]="[50, 50]" styleClass="errts-splitter"
-    *ngIf="!loading || waterLevelData.length || rainfallData.length">
+  <p-splitter
+    layout="vertical"
+    [panelSizes]="[50, 50]"
+    styleClass="errts-splitter"
+    *ngIf="!loading || waterLevelData.length || rainfallData.length"
+  >
     <!-- Top Panel: Water Level Status -->
     <ng-template #panel>
       <div class="flex items-center justify-center h-full p-2">
@@ -56,8 +78,16 @@
             <span class="data-count">{{ waterLevelData.length }} record(s)</span>
           </div>
 
-          <p-table [value]="waterLevelData" [rowHover]="true" [scrollable]="true" scrollHeight="flex"
-            styleClass="errts-data-table" [loading]="loading" showGridlines stripedRows>
+          <p-table
+            [value]="waterLevelData"
+            [rowHover]="true"
+            [scrollable]="true"
+            scrollHeight="flex"
+            styleClass="errts-data-table"
+            [loading]="loading"
+            showGridlines
+            stripedRows
+          >
             <ng-template #header>
               <tr>
                 <th *ngFor="let column of waterLevelColumns">
@@ -66,28 +96,62 @@
               </tr>
             </ng-template>
             <ng-template #body let-row>
-              <tr [ngClass]="{'highlighted-row': isRowHighlighted(row)}">
-                <td *ngFor="let column of waterLevelColumns" [ngClass]="getStatusClass(row[column])">
-                  <a *ngIf="column.toLowerCase() === 'commsid'" href="javascript:void(0)" class="comms-link"
-                    (click)="openImagePopup(row[column])">
+              <tr [ngClass]="{ 'highlighted-row': isRowHighlighted(row) }">
+                <td
+                  *ngFor="let column of waterLevelColumns"
+                  [ngClass]="getStatusClass(row[column])"
+                >
+                  <!-- CommsId column with hyperlink -->
+                  <a
+                    *ngIf="column.toLowerCase() === 'commsid'"
+                    href="javascript:void(0)"
+                    class="comms-link"
+                    (click)="openResourcePopup(row['CommsId'], 'commsid')"
+                  >
+                    {{ row[column] }}
+                  </a>
+
+                  <!-- Name column with hyperlink and tooltip -->
+                  <a
+                    *ngIf="column.toLowerCase() === 'name'"
+                    href="javascript:void(0)"
+                    class="comms-link"
+                    (click)="openResourcePopup(row['CommsId'], 'name')"
+                    [pTooltip]="row[column]"
+                    tooltipPosition="top"
+                    [showDelay]="300"
+                    [escape]="false"
+                  >
                     {{ row[column] }}
                   </a>
 
                   <!-- Discharge column with trend indicator for highlighted rows -->
-                  <span *ngIf="column.toLowerCase() === 'discharge' && isRowHighlighted(row)"
-                    class="discharge-with-trend" [ngClass]="getTrendColorClass(row)">
+                  <span
+                    *ngIf="column.toLowerCase() === 'discharge' && isRowHighlighted(row)"
+                    class="discharge-with-trend"
+                    [ngClass]="getTrendColorClass(row)"
+                  >
                     {{ row[column] }}
-                    <i *ngIf="getTrendIcon(row)" [class]="getTrendIcon(row)" class="errts-discharge-trend-icon"></i>
+                    <i
+                      *ngIf="getTrendIcon(row)"
+                      [class]="getTrendIcon(row)"
+                      class="errts-discharge-trend-icon"
+                    ></i>
                   </span>
 
+                  <!-- Other columns -->
                   <span
-                    *ngIf="column.toLowerCase() !== 'commsid' && column.toLowerCase() !== 'name' && column.toLowerCase() !== 'discharge'">{{
-                    row[column] }}</span>
-                  <span
-                    *ngIf="column.toLowerCase() !== 'commsid' && column.toLowerCase() !== 'name' && column.toLowerCase() === 'discharge' && !isRowHighlighted(row)">{{
-                    row[column] }}</span>
-                  <span *ngIf="column.toLowerCase() === 'name'" [pTooltip]="row[column]" tooltipPosition="top"
-                    [showDelay]="300" [escape]="false">{{ row[column] }}</span>
+                    *ngIf="
+                      column.toLowerCase() !== 'commsid' &&
+                      column.toLowerCase() !== 'name' &&
+                      column.toLowerCase() !== 'discharge'
+                    "
+                    >{{ row[column] }}</span
+                  >
+                  <!-- Discharge column for non-highlighted rows -->
+                  <span *ngIf="column.toLowerCase() === 'discharge' && !isRowHighlighted(row)">{{
+                    row[column]
+                  }}</span>
                 </td>
               </tr>
             </ng-template>
@@ -116,8 +180,16 @@
             <span class="data-count">{{ rainfallData.length }} record(s)</span>
           </div>
 
-          <p-table [value]="rainfallData" [rowHover]="true" [scrollable]="true" scrollHeight="flex"
-            styleClass="errts-data-table rainfall-table" [loading]="loading" showGridlines stripedRows>
+          <p-table
+            [value]="rainfallData"
+            [rowHover]="true"
+            [scrollable]="true"
+            scrollHeight="flex"
+            styleClass="errts-data-table rainfall-table"
+            [loading]="loading"
+            showGridlines
+            stripedRows
+          >
             <ng-template #header>
               <tr>
                 <th *ngFor="let column of rainfallColumns">
@@ -128,14 +200,36 @@
             <ng-template #body let-row>
               <tr>
                 <td *ngFor="let column of rainfallColumns">
-                  <a *ngIf="column.toLowerCase() === 'commsid'" href="javascript:void(0)" class="comms-link"
-                    (click)="openImagePopup(row[column])">
-                    {{ row[column] }}
+                  <!-- CommsId column with hyperlink -->
+                  <a
+                    *ngIf="column.toLowerCase() === 'commsid'"
+                    href="javascript:void(0)"
+                    class="comms-link"
+                    (click)="openResourcePopup(row['CommsId'], 'commsid')"
+                  >
+                    {{ formatCellValue(row[column]) }}
                   </a>
-                  <span *ngIf="column.toLowerCase() !== 'commsid' && column.toLowerCase() !== 'name'">{{ row[column]
-                    }}</span>
-                  <span *ngIf="column.toLowerCase() === 'name'" [pTooltip]="row[column]" tooltipPosition="top"
-                    [showDelay]="300" [escape]="false">{{ row[column] }}</span>
+
+                  <!-- Name column with hyperlink and tooltip -->
+                  <a
+                    *ngIf="column.toLowerCase() === 'name'"
+                    href="javascript:void(0)"
+                    class="comms-link"
+                    (click)="openResourcePopup(row['CommsId'], 'name')"
+                    [pTooltip]="row[column]"
+                    tooltipPosition="top"
+                    [showDelay]="300"
+                    [escape]="false"
+                  >
+                    {{ formatCellValue(row[column]) }}
+                  </a>
+
+                  <!-- Other columns with empty value handling -->
+                  <span
+                    *ngIf="column.toLowerCase() !== 'commsid' && column.toLowerCase() !== 'name'"
+                    [class.empty-value]="!row[column] || row[column] === ''"
+                    >{{ formatCellValue(row[column]) }}</span
+                  >
                 </td>
               </tr>
             </ng-template>
@@ -154,12 +248,93 @@
   </p-splitter>
 </p-panel>
 
-<!-- Image Popup Dialog -->
-<p-dialog [(visible)]="showImageDialog" [header]="'Station Image - CommsId: ' + selectedCommsId" [modal]="true"
-  [dismissableMask]="true" [draggable]="false" [resizable]="true" [style]="{ width: '80vw', maxWidth: '900px' }"
-  styleClass="image-dialog">
-  <div class="image-container">
-    <img [src]="imageUrl" [alt]="'Station image for ' + selectedCommsId" class="station-image"
-      (error)="onImageError($event)" />
+<!-- Resource Popup Dialog (Image or Table) -->
+<p-dialog
+  [(visible)]="showImageDialog"
+  [header]="
+    resourceType === 'image'
+      ? 'Station Image - CommsId: ' + selectedCommsId
+      : 'Station Details - CommsId: ' + selectedCommsId
+  "
+  [modal]="true"
+  [dismissableMask]="true"
+  [draggable]="false"
+  [resizable]="true"
+  [style]="{
+    width: resourceType === 'image' ? '80vw' : '60vw',
+    maxWidth: resourceType === 'image' ? '900px' : '700px'
+  }"
+  styleClass="image-dialog"
+>
+  <!-- Image View -->
+  <div *ngIf="resourceType === 'image'" class="image-container">
+    <img
+      [src]="imageUrl"
+      [alt]="'Station image for ' + selectedCommsId"
+      class="station-image"
+      (error)="onImageError($event)"
+    />
+  </div>
+
+  <!-- Table View - API Response Details -->
+  <div *ngIf="resourceType === 'table' && !loadingResourceData && selectedRowData" class="table-container">
+    <div class="api-response-content">
+      <p-table
+        [value]="isArrayData() ? selectedRowData : [selectedRowData]"
+        [scrollable]="true"
+        scrollHeight="500px"
+        styleClass="station-detail-table"
+        [rowHover]="true"
+        showGridlines
+        stripedRows
+        sortMode="multiple"
+        [sortField]="'timestamp'"
+        [sortOrder]="-1"
+        [globalFilterFields]="getRowDataKeys()">
+        <ng-template #header>
+          <tr>
+            <th *ngFor="let key of getRowDataKeys()" [pSortableColumn]="key">
+              <div class="flex items-center gap-2">
+                {{ formatColumnHeader(key) }}
+                <p-sortIcon [field]="key" />
+                <p-columnFilter
+                  *ngIf="key.toLowerCase() === 'timestamp'"
+                  type="date"
+                  [field]="key"
+                  display="menu"
+                  [showOperator]="false">
+                </p-columnFilter>
+              </div>
+            </th>
+          </tr>
+        </ng-template>
+        <ng-template #body let-row>
+          <tr>
+            <td *ngFor="let key of getRowDataKeys()">
+              <span *ngIf="key.toLowerCase() === 'timestamp'">{{ formatTimestamp(row[key]) }}</span>
+              <span *ngIf="key.toLowerCase() !== 'timestamp'" [ngClass]="getStatusClass(row[key])">{{ row[key] }}</span>
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </div>
+    <div class="api-response-footer">
+      <span class="record-count">
+        <i class="pi pi-list"></i>
+        {{ isArrayData() ? 'Total Records: ' + selectedRowData.length : 'Total Fields: ' + getRowDataKeys().length }}
+      </span>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="resourceType === 'table' && loadingResourceData" class="loading-container">
+    <p-progressSpinner styleClass="custom-spinner" strokeWidth="4" animationDuration="1s"></p-progressSpinner>
+    <p class="loading-text">Loading API data...</p>
+  </div>
+
+  <!-- No Data Message -->
+  <div *ngIf="resourceType === 'table' && !loadingResourceData && !selectedRowData" class="no-data-message">
+    <i class="pi pi-info-circle"></i>
+    <span>No data available for this station</span>
   </div>
 </p-dialog>

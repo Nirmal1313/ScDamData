@@ -9,10 +9,10 @@ import { ButtonModule } from 'primeng/button';
 import { TooltipModule } from 'primeng/tooltip';
 import { RippleModule } from 'primeng/ripple';
 import { AuthService } from '../../core/services/auth.service';
-import { WeatherService } from '../../core/services/weather.service';
-import { WeatherSummary } from '../../core/models/weather.model';
+import { BomWeatherService } from '../../core/services/bom-weather.service';
+import { NewBomWeatherModel, LocationData } from '../../core/models/weatherBOM.module';
 import { Router } from '@angular/router';
-import { WeatherConsumerBase } from '../../core/base/weather-consumer.base';
+import { BomWeatherConsumerBase } from '../../core/base/bom-weather-consumer.base';
 
 @Component({
   selector: 'app-header',
@@ -29,12 +29,13 @@ import { WeatherConsumerBase } from '../../core/base/weather-consumer.base';
   templateUrl: './header.html',
   styleUrl: './header.scss',
 })
-export class Header extends WeatherConsumerBase implements OnInit, OnDestroy {
+export class Header extends BomWeatherConsumerBase implements OnInit, OnDestroy {
   items: MenuItem[] = [];
   userName: string = '';
 
   // Cleaned weather display properties
   displayLatestTime: string = '';
+  displayCurrentTemp: string = '';
   displayHighestTemp: string = '';
   displayHighestTime: string = '';
   displayLowestTemp: string = '';
@@ -104,10 +105,10 @@ export class Header extends WeatherConsumerBase implements OnInit, OnDestroy {
 
   constructor(
     private authService: AuthService,
-    weatherService: WeatherService,
+    bomWeatherService: BomWeatherService,
     private router: Router
   ) {
-    super(weatherService);
+    super(bomWeatherService);
     // Get username from auth service
     this.authService.authState$.subscribe((state) => {
       if (state.user) {
@@ -152,20 +153,21 @@ export class Header extends WeatherConsumerBase implements OnInit, OnDestroy {
   }
 
   /**
-   * Implement abstract method from WeatherConsumerBase
+   * Implement abstract method from BomWeatherConsumerBase
    * Process weather data specific to Header component display
    */
-  protected onWeatherDataReceived(weather: WeatherSummary): void {
-    // Use inherited utility methods from base class
-    this.displayLatestTime = this.extractLatestTime(weather.latestWeatherTime);
-    this.displayHighestTemp = this.extractTemperature(weather.highestTemp);
-    this.displayLowestTemp = this.extractTemperature(weather.lowestTemp);
-
-    // Times are already separate, just trim them
-    this.displayHighestTime = weather.highestTime?.trim() || '';
-    this.displayLowestTime = weather.lowestTime?.trim() || '';
-
-    this.displayRain = this.extractRainAmount(weather.rain);
+  protected onBomWeatherDataReceived(
+    weatherData: NewBomWeatherModel,
+    primaryLocation: LocationData
+  ): void {
+    // Get current weather from the primary location
+    const current = primaryLocation.current;
+    // Display current temperature and conditions
+    this.displayLatestTime = this.formatTime(weatherData.timestamp);
+    this.displayCurrentTemp = current?.temperature ?? '';
+    this.displayHighestTemp = current?.maxTemp ?? '';
+    this.displayLowestTemp = current?.minTemp ?? '';
+    this.displayRain = this.extractRainAmount(current?.rainSinceMidnight ?? '');
   }
 
   override ngOnDestroy(): void {
