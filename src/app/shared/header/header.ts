@@ -188,4 +188,8 @@ export class Header extends BomWeatherConsumerBase implements OnInit, OnDestroy 
   onLogout(): void {
     this.authService.logout();
   }
+
+  onRefreshWeather(): void {
+    this.bomWeatherService.forceRefresh().subscribe();
+  }
 }

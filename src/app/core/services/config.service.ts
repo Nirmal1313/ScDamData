@@ -7,7 +7,7 @@ export class ConfigService {
   private config = {
     // API endpoints
     apis: {
-       main: 'https://scrivenerdam-api--0000010.braveocean-4ca6a2d4.eastus2.azurecontainerapps.io/api/v1',
+      main: 'https://scrivenerdam-api.braveocean-4ca6a2d4.eastus2.azurecontainerapps.io/api/v1',
       weather: 'WeatherForecast/bomWeather',
       weatherBOM: 'WeatherForecast/latestBomWeather',
       errts: 'WeatherForecast/ERRTSData',
@@ -21,7 +21,7 @@ export class ConfigService {
     production: true
   };
   /*apis: {
-      main: 'https://scrivenerdam-api--0000010.braveocean-4ca6a2d4.eastus2.azurecontainerapps.io/api/v1',
+      main: 'https://scrivenerdam-api.braveocean-4ca6a2d4.eastus2.azurecontainerapps.io/api/v1',
       weather: 'WeatherForecast/bomWeather',
       weatherBOM: 'WeatherForecast/latestBomWeather',
       errts: 'WeatherForecast/ERRTSData',
