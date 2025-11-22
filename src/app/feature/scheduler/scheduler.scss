@@ -1,4 +1,34 @@
 // ===================================
+// SCHEDULER PANEL STYLES
+// ===================================
+.scheduler-panel {
+  // Inherits global panel styles from styles.scss
+  // Component-specific overrides can be added here if needed
+}
+
+// Panel Header Content
+.scheduler-panel-header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+.scheduler-panel-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--text-color);
+
+  @media (max-width: 768px) {
+    font-size: 1.125rem;
+  }
+
+  @media (max-width: 480px) {
+    font-size: 1rem;
+  }
+}
+
+// ===================================
 // QUICK BOOKING STYLES
 // ===================================
 
@@ -449,105 +479,8 @@
 // ===================================
 // CALENDAR PANEL STYLES
 // ===================================
-.p-panel {
-  box-shadow: 0 0.125rem 0.5rem rgba(0, 0, 0, 0.1);
-  border-radius: 0.5rem;
-  overflow: hidden;
-
-  ::ng-deep .p-panel-header {
-    background: #f8fafc;
-    color: #1e293b;
-    font-weight: 600;
-    border: none;
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-
-    @media (max-width: 48rem) {
-      padding: 0.875rem 1rem;
-    }
-
-    @media (max-width: 30rem) {
-      padding: 0.75rem;
-    }
-  }
-
-  // Ensure toggle icon is visible and properly styled
-  ::ng-deep .p-panel-header-icon {
-    display: inline-flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    width: 2rem !important;
-    height: 2rem !important;
-    color: #1e293b !important;
-    border-radius: 0.25rem !important;
-    transition: all 0.2s !important;
-    background-color: transparent !important;
-    border: none !important;
-    margin-left: auto !important;
-    cursor: pointer !important;
-    opacity: 1 !important;
-    visibility: visible !important;
-
-    &:hover {
-      background-color: rgba(0, 0, 0, 0.05) !important;
-    }
-
-    .p-icon {
-      font-size: 1rem !important;
-      color: #1e293b !important;
-    }
-
-    svg {
-      width: 1rem !important;
-      height: 1rem !important;
-      fill: #1e293b !important;
-    }
-  }
-
-  ::ng-deep .p-panel-toggler {
-    display: inline-flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    opacity: 1 !important;
-    visibility: visible !important;
-  }
-
-  ::ng-deep .p-panel-icons {
-    display: flex !important;
-    align-items: center !important;
-    margin-left: auto !important;
-  }
-
-  ::ng-deep .p-panel-content {
-    padding: 1.5rem;
-    background: white;
-
-    @media (max-width: 48rem) {
-      padding: 1rem;
-    }
-
-    @media (max-width: 30rem) {
-      padding: 0.75rem;
-    }
-  }
-
-  ::ng-deep .p-panel-title {
-    font-weight: 600;
-    font-size: 1.125rem;
-    color: #1e293b;
-    flex-grow: 1;
-
-    @media (max-width: 48rem) {
-      font-size: 1.1rem;
-    }
-
-    @media (max-width: 30rem) {
-      font-size: 1rem;
-    }
-  }
-}
+// Panel styles now inherit from global styles.scss
+// Component-specific overrides removed to ensure consistency
 
 .calendar-container {
   height: calc(100vh - 20rem); // 320px

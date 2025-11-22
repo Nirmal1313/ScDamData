@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class ConfigService {
   private config = {
@@ -18,9 +18,9 @@ export class ConfigService {
       projectNote: 'projectNote',
       // Add more external APIs as needed
     },
-    production: true
+    production: true,
   };
-  /*apis: {
+  /* apis: {
       main: 'https://scrivenerdam-api.braveocean-4ca6a2d4.eastus2.azurecontainerapps.io/api/v1',
       weather: 'WeatherForecast/bomWeather',
       weatherBOM: 'WeatherForecast/latestBomWeather',
@@ -33,7 +33,7 @@ export class ConfigService {
       // Add more external APIs as needed
     },
     production: false
-  };
+  };*/
 
   constructor() {
     // You could load configuration from different sources here if needed

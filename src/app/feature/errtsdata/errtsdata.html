@@ -279,7 +279,42 @@
   <!-- Table View - API Response Details -->
   <div *ngIf="resourceType === 'table' && !loadingResourceData && selectedRowData" class="table-container">
     <div class="api-response-content">
+      <div class="date-filter-container">
+        <div class="date-filter-wrapper">
+          <div class="date-filter-group">
+            <label class="date-filter-label">From:</label>
+            <p-datepicker
+              [(ngModel)]="filterDateFrom"
+              dateFormat="yy-mm-dd"
+              [showTime]="false"
+              [showSeconds]="true"
+              hourFormat="24"
+              placeholder="Start date/time"
+              [showIcon]="true"
+              (onSelect)="applyDateRangeFilter()"
+              (onClear)="applyDateRangeFilter()"
+              [showClear]="true"
+            />
+          </div>
+          <div class="date-filter-group">
+            <label class="date-filter-label">To:</label>
+            <p-datepicker
+              [(ngModel)]="filterDateTo"
+              dateFormat="yy-mm-dd"
+              [showTime]="false"
+              [showSeconds]="true"
+              hourFormat="24"
+              placeholder="End date/time"
+              [showIcon]="true"
+              (onSelect)="applyDateRangeFilter()"
+              (onClear)="applyDateRangeFilter()"
+              [showClear]="true"
+            />
+          </div>
+        </div>
+      </div>
       <p-table
+        #stationTable
         [value]="isArrayData() ? selectedRowData : [selectedRowData]"
         [scrollable]="true"
         scrollHeight="500px"
@@ -297,13 +332,6 @@
               <div class="flex items-center gap-2">
                 {{ formatColumnHeader(key) }}
                 <p-sortIcon [field]="key" />
-                <p-columnFilter
-                  *ngIf="key.toLowerCase() === 'timestamp'"
-                  type="date"
-                  [field]="key"
-                  display="menu"
-                  [showOperator]="false">
-                </p-columnFilter>
               </div>
             </th>
           </tr>

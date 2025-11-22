@@ -43,15 +43,27 @@
 .status-overview,
 .monitoring-section,
 .alerts-section {
-  margin-top: 1rem;
-  margin-left: 0.5rem;
-  margin-right: 0.5rem;
+  margin: 1rem 0.5rem;
 
   @media (max-width: 768px) {
-    margin-top: 0.75rem;
+    margin: 0.75rem 0.5rem;
   }
 
   @media (max-width: 480px) {
-    margin-top: 0.5rem;
+    margin: 0.5rem 0.25rem;
+  }
+}
+
+// Ensure all sections have consistent spacing
+.monitoring-section:first-child {
+  margin-top: none;
+}
+
+.status-overview {
+  // Calendar section - ensure consistent margins
+  ::ng-deep .scheduler-panel {
+    @media (max-width: 768px) {
+      margin-top: 0;
+    }
   }
 }

@@ -8,6 +8,7 @@ import { MenubarModule } from 'primeng/menubar';
 import { ButtonModule } from 'primeng/button';
 import { TooltipModule } from 'primeng/tooltip';
 import { RippleModule } from 'primeng/ripple';
+import { DrawerModule } from 'primeng/drawer';
 import { AuthService } from '../../core/services/auth.service';
 import { BomWeatherService } from '../../core/services/bom-weather.service';
 import { NewBomWeatherModel, LocationData } from '../../core/models/weatherBOM.module';
@@ -25,6 +26,7 @@ import { BomWeatherConsumerBase } from '../../core/base/bom-weather-consumer.bas
     ButtonModule,
     TooltipModule,
     RippleModule,
+    DrawerModule,
   ],
   templateUrl: './header.html',
   styleUrl: './header.scss',
@@ -32,6 +34,7 @@ import { BomWeatherConsumerBase } from '../../core/base/bom-weather-consumer.bas
 export class Header extends BomWeatherConsumerBase implements OnInit, OnDestroy {
   items: MenuItem[] = [];
   userName: string = '';
+  mobileMenuVisible: boolean = false;
 
   // Cleaned weather display properties
   displayLatestTime: string = '';
@@ -179,10 +182,19 @@ export class Header extends BomWeatherConsumerBase implements OnInit, OnDestroy 
     this.sidebarToggle.emit();
   }
 
+  toggleMobileMenu(): void {
+    this.mobileMenuVisible = !this.mobileMenuVisible;
+  }
+
+  closeMobileMenu(): void {
+    this.mobileMenuVisible = false;
+  }
+
   onMenuItemClick(url: string, target?: string): void {
     if (url) {
       window.open(url, target || '_self');
     }
+    this.closeMobileMenu();
   }
 
   onLogout(): void {

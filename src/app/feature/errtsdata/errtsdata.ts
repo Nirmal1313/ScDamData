@@ -2,6 +2,7 @@ import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { PanelModule } from 'primeng/panel';
 import { TableModule } from 'primeng/table';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { ErrtsWeatherService } from '../../core/services/errts-weather.service';
 import { ErrtsWeatherResult } from '../../core/models/errts-weather.model';
 import { interval, Subscription } from 'rxjs';
@@ -10,23 +11,26 @@ import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { DialogModule } from 'primeng/dialog';
 import { TooltipModule } from 'primeng/tooltip';
 import { ButtonModule } from 'primeng/button';
+import { DatePickerModule } from 'primeng/datepicker';
 import { ConfigService } from '../../core/services/config.service';
 import { HttpClient } from '@angular/common/http';
 
 @Component({
   selector: 'app-errtsdata',
+  templateUrl: './errtsdata.html',
+  styleUrl: './errtsdata.scss',
   imports: [
     PanelModule,
     TableModule,
     CommonModule,
+    FormsModule,
     SplitterModule,
     ProgressSpinnerModule,
     DialogModule,
     TooltipModule,
     ButtonModule,
+    DatePickerModule,
   ],
-  templateUrl: './errtsdata.html',
-  styleUrl: './errtsdata.scss',
 })
 export class ERRTSData implements OnInit, OnDestroy {
   // ERRTS Weather Data
@@ -60,6 +64,11 @@ export class ERRTSData implements OnInit, OnDestroy {
   // Store previous discharge values for change detection
   private previousDischargeValues: Map<string, number> = new Map();
   private previousTotalDischarge: number | null = null;
+
+  // Date range filter properties
+  filterDateFrom: Date | null = null;
+  filterDateTo: Date | null = null;
+  private unfilteredRowData: any = null;
 
   constructor(
     private errtsWeatherService: ErrtsWeatherService,
@@ -274,6 +283,11 @@ export class ERRTSData implements OnInit, OnDestroy {
     if (!commsId) return;
 
     this.selectedCommsId = commsId;
+
+    // Reset date filters when opening popup
+    this.filterDateFrom = null;
+    this.filterDateTo = null;
+    this.unfilteredRowData = null;
 
     const baseUrl = this.configService.getApiUrl('main');
 
@@ -540,4 +554,70 @@ export class ERRTSData implements OnInit, OnDestroy {
     }
     return String(value);
   }
+
+  /**
+   * Custom filter callback for timestamp column
+   * Filters against the formatted timestamp string instead of raw ISO string
+   */
+  filterTimestamp(value: any, filter: any): boolean {
+    if (!filter) {
+      return true; // No filter, show all
+    }
+
+    if (!value) {
+      return false; // No value, don't show
+    }
+
+    // Format the timestamp value same way as displayed
+    const formattedValue = this.formatTimestamp(value);
+    const filterValue = filter.toString().toLowerCase();
+
+    // Check if formatted timestamp contains the filter text
+    return formattedValue.toLowerCase().includes(filterValue);
+  }
+
+  /**
+   * Apply date range filter to the table data
+   */
+  applyDateRangeFilter(): void {
+    // Store unfiltered data on first filter
+    if (!this.unfilteredRowData && this.selectedRowData) {
+      this.unfilteredRowData = Array.isArray(this.selectedRowData)
+        ? [...this.selectedRowData]
+        : { ...this.selectedRowData };
+    }
+
+    // If no filters, restore original data
+    if (!this.filterDateFrom && !this.filterDateTo) {
+      if (this.unfilteredRowData) {
+        this.selectedRowData = Array.isArray(this.unfilteredRowData)
+          ? [...this.unfilteredRowData]
+          : { ...this.unfilteredRowData };
+      }
+      return;
+    }
+
+    // Filter the data based on date range
+    if (Array.isArray(this.unfilteredRowData)) {
+      this.selectedRowData = this.unfilteredRowData.filter((row: any) => {
+        const timestamp = row.timestamp || row.Timestamp;
+        if (!timestamp) return true;
+
+        const rowDate = new Date(timestamp);
+
+        // Check from date
+        if (this.filterDateFrom && rowDate < this.filterDateFrom) {
+          return false;
+        }
+
+        // Check to date
+        if (this.filterDateTo && rowDate > this.filterDateTo) {
+          return false;
+        }
+
+        return true;
+      });
+    }
+  }
+
 }

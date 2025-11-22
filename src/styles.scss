@@ -52,6 +52,78 @@ body {
   border-color: #2563eb !important;
 }
 
+/* =========================================
+   Global Panel Styles
+   ========================================= */
+.monitoring-panel,
+.errts-panel,
+.scheduler-panel,
+.notes-panel,
+.p-panel {
+  box-shadow: 0 0.125rem 0.5rem rgba(0, 0, 0, 0.1);
+  border-radius: 0.5rem;
+  overflow: hidden;
+  border: 1px solid var(--surface-200);
+  background: white;
+
+  ::ng-deep .p-panel-header {
+    background: var(--surface-50);
+    color: var(--text-color);
+    font-weight: 600;
+    border: none;
+    padding: 1rem 1.5rem;
+    position: relative;
+
+    @media (max-width: 768px) {
+      padding: 0.875rem 1rem;
+    }
+
+    @media (max-width: 480px) {
+      padding: 0.75rem;
+    }
+  }
+
+  // Ensure toggle icon is visible and styled consistently
+  ::ng-deep .p-panel-header-icon {
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+    color: var(--text-color);
+    border-radius: 0.25rem;
+    transition: all 0.2s;
+    margin-left: auto;
+
+    &:hover {
+      background-color: rgba(0, 0, 0, 0.05);
+    }
+
+    .p-icon {
+      font-size: 1rem;
+    }
+  }
+
+  ::ng-deep .p-panel-toggler {
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+  }
+
+  ::ng-deep .p-panel-content {
+    padding: 1.5rem;
+    background: white;
+
+    @media (max-width: 768px) {
+      padding: 1rem;
+    }
+
+    @media (max-width: 480px) {
+      padding: 0.75rem;
+    }
+  }
+}
+
 footer {
   position: fixed;
   bottom: 0;

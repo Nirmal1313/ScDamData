@@ -1489,3 +1489,31 @@
     }
   }
 }
+
+// =========================================
+// Notes Panel Header
+// =========================================
+.notes-panel {
+  // Inherits global panel styles from styles.scss
+}
+
+.notes-panel-header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+.notes-panel-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--text-color);
+
+  @media (max-width: 768px) {
+    font-size: 1.125rem;
+  }
+
+  @media (max-width: 480px) {
+    font-size: 1rem;
+  }
+}

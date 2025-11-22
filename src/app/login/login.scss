@@ -5,6 +5,11 @@
   height: 100vh;
   overflow: hidden;
   position: relative;
+  box-sizing: border-box;
+
+  * {
+    box-sizing: border-box;
+  }
 }
 
 // Main wrapper - full screen split layout
@@ -200,15 +205,20 @@
   }
 
   @media (max-width: 968px) {
-    flex: 1;
+    flex: 1 1 auto;
     max-width: 100%;
     width: 100%;
     padding: 1.5rem;
     overflow-y: auto;
+    min-height: auto;
   }
 
   @media (max-width: 576px) {
-    padding: 1rem;
+    padding: 1rem 0.75rem;
+  }
+
+  @media (max-width: 360px) {
+    padding: 0.75rem 0.5rem;
   }
 }
 
@@ -216,6 +226,10 @@
   width: 100%;
   max-width: 26rem; // Slightly narrower card for better proportion
   animation: fadeIn 0.6s ease-in-out;
+
+  @media (max-width: 968px) {
+    max-width: 100%;
+  }
 
   @media (max-width: 576px) {
     max-width: 100%;
@@ -229,16 +243,37 @@
       border: 1px solid rgba(0, 0, 0, 0.05);
       overflow: hidden;
 
+      @media (max-width: 576px) {
+        border-radius: 8px;
+        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+      }
+
       .p-card-title {
         font-size: 1.75rem;
         color: var(--text-color);
         font-weight: 600;
         margin-bottom: 0.5rem;
         letter-spacing: -0.01em;
+
+        @media (max-width: 576px) {
+          font-size: 1.5rem;
+        }
+
+        @media (max-width: 360px) {
+          font-size: 1.25rem;
+        }
       }
 
       .p-card-content {
         padding: 1.5rem;
+
+        @media (max-width: 576px) {
+          padding: 1rem;
+        }
+
+        @media (max-width: 360px) {
+          padding: 0.75rem;
+        }
       }
 
       .p-card-header {
@@ -246,6 +281,20 @@
         padding: 2rem 1.5rem 1rem;
         border-top-left-radius: 12px;
         border-top-right-radius: 12px;
+
+        @media (max-width: 768px) {
+          padding: 1.5rem 1rem 0.75rem;
+        }
+
+        @media (max-width: 576px) {
+          padding: 1rem 0.75rem 0.5rem;
+          border-top-left-radius: 8px;
+          border-top-right-radius: 8px;
+        }
+
+        @media (max-width: 360px) {
+          padding: 0.75rem 0.5rem 0.5rem;
+        }
       }
     }
   }
@@ -284,12 +333,24 @@
 .form-field {
   margin-bottom: 1.75rem;
 
+  @media (max-width: 576px) {
+    margin-bottom: 1.25rem;
+  }
+
+  @media (max-width: 360px) {
+    margin-bottom: 1rem;
+  }
+
   // Error message styling using PrimeNG variables
   .p-error {
     color: var(--red-500);
     font-size: 0.875rem;
     margin-top: 0.5rem;
     display: block;
+
+    @media (max-width: 360px) {
+      font-size: 0.8rem;
+    }
   }
 
   // Add subtle spacing and transitions
@@ -302,6 +363,26 @@
         transform: translateY(-1px);
       }
     }
+
+    // Ensure input groups are responsive
+    .p-inputgroup {
+      flex-wrap: nowrap;
+
+      .p-inputgroup-addon {
+        flex: 0 0 auto;
+        min-width: 2.5rem;
+
+        @media (max-width: 360px) {
+          min-width: 2.25rem;
+          padding: 0.5rem;
+        }
+      }
+
+      input {
+        flex: 1 1 auto;
+        min-width: 0;
+      }
+    }
   }
 }
 
@@ -310,9 +391,19 @@
   align-items: center;
   margin: 1.25rem 0;
 
+  @media (max-width: 576px) {
+    margin: 1rem 0;
+  }
+
   label {
     margin-left: 0.5rem;
     color: var(--text-color-secondary);
+    font-size: 0.9rem;
+    white-space: nowrap;
+
+    @media (max-width: 360px) {
+      font-size: 0.85rem;
+    }
   }
 
   ::ng-deep {
@@ -426,26 +517,129 @@
   }
 }
 
+// Logo header wrapper
+.logo-header {
+  padding: 0.75rem 0 0.5rem;
+
+  @media (max-width: 768px) {
+    padding: 0.5rem 0 0.25rem;
+  }
+
+  @media (max-width: 576px) {
+    padding: 0.5rem 0 0.25rem;
+  }
+
+  @media (max-width: 360px) {
+    padding: 0.25rem 0 0.25rem;
+  }
+}
+
+// Title section below logo
+.title-section {
+  padding: 0.5rem 0 0.75rem;
+
+  @media (max-width: 768px) {
+    padding: 0.25rem 0 0.5rem;
+  }
+
+  @media (max-width: 576px) {
+    padding: 0.25rem 0 0.5rem;
+  }
+
+  @media (max-width: 360px) {
+    padding: 0.25rem 0 0.25rem;
+  }
+}
+
+// Logo responsive styling
+.login-logo {
+  display: block;
+  width: 100%;
+  max-width: 180px;
+  height: auto;
+  margin: 0 auto;
+  object-fit: contain;
+  object-position: center;
+
+  @media (max-width: 768px) {
+    max-width: 160px;
+  }
+
+  @media (max-width: 576px) {
+    max-width: 140px;
+  }
+
+  @media (max-width: 480px) {
+    max-width: 130px;
+  }
+
+  @media (max-width: 360px) {
+    max-width: 110px;
+  }
+}
+
+// Additional responsive adjustments for small screens
+@media (max-width: 480px) {
+  .flex.align-items-center.justify-content-between {
+    flex-direction: column;
+    gap: 0.75rem;
+    align-items: flex-start !important;
+
+    a {
+      font-size: 0.9rem;
+    }
+  }
+
+  .register-link {
+    font-size: 0.9rem;
+
+    span,
+    a {
+      display: inline-block;
+      margin: 0.25rem 0;
+    }
+  }
+}
+
+// Ensure text wraps properly on very small screens
+@media (max-width: 360px) {
+  .register-link {
+    span {
+      display: block;
+      margin-bottom: 0.25rem;
+    }
+  }
+}
+
 // Responsive adjustments for very small screens
 @media (max-width: 360px) {
   .login-container {
-    padding: 0.75rem;
+    padding: 0.75rem 0.5rem;
+  }
+
+  .login-logo {
+    max-width: 100px !important;
   }
 
   .login-card {
     ::ng-deep .p-card {
       .p-card-header {
-        padding: 1rem 1rem 0;
+        padding: 1rem 0.75rem 0.5rem;
       }
 
       .p-card-content {
-        padding: 1rem;
+        padding: 0.75rem;
       }
     }
   }
 
   .form-field {
     margin-bottom: 1rem;
+  }
+
+  .register-link,
+  .flex.align-items-center.justify-content-between a {
+    font-size: 0.85rem;
   }
 }
 

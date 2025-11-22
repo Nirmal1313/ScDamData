@@ -38,7 +38,7 @@
             [ngClass]="getTrendColorClass(outflowChangeStatus)"
           >
             <i class="pi pi-arrow-circle-down monitoring-metric-icon"></i>
-            <span>Discharge (Cumecs):</span>
+            <span class="monitoring-label">Discharge (Cumecs):</span>
             <strong>{{ outflowData }}</strong>
             <i
               *ngIf="getTrendIcon(outflowChangeStatus)"
@@ -53,7 +53,7 @@
             [ngClass]="getTrendColorClass(totalDischargeChangeStatus)"
           >
             <i class="pi pi-database monitoring-metric-icon"></i>
-            <span>Total Discharge (ML):</span>
+            <span class="monitoring-label">Total Discharge (ML):</span>
             <strong>{{ totalDischargeData }}</strong>
             <i
               *ngIf="getTrendIcon(totalDischargeChangeStatus)"
