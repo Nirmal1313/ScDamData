@@ -188,7 +188,7 @@ export class Monitoring implements OnInit, OnDestroy {
     }
 
     // Extract lake level from waterLevelData[0] (e.g., "Lake Level is 555.633m AHD")
-    const lakeLevelMatch = this.waterLevelData[0].match(/(\d+\.\d+)m\s+AHD/);
+    const lakeLevelMatch = this.waterLevelData[0].match(/Lake Level is (\d+\.\d+)m\s+AHD/);
     if (lakeLevelMatch) {
       const currentLakeLevel = parseFloat(lakeLevelMatch[1]);
       if (!isNaN(currentLakeLevel)) {
@@ -295,7 +295,7 @@ export class Monitoring implements OnInit, OnDestroy {
 
     // Format as the expected string format
     this.waterLevelData = [
-      `Lake Level is ${lakeLevel.toFixed(3)}m AHD. Lake Storage is ${Math.round(lakeStorage)} ML`
+      `Lake Level : ${lakeLevel.toFixed(3)}m AHD. Lake Storage : ${Math.round(lakeStorage)} ML`
     ];
   }
 
@@ -436,11 +436,37 @@ export class Monitoring implements OnInit, OnDestroy {
   }
 
   /**
+   * Get formatted lake level display string
+   */
+  get formattedLakeLevel(): string {
+    if (this.waterLevelData.length > 0) {
+      const match = this.waterLevelData[0].match(/Lake Level is (\d+\.\d+)m\s+AHD/);
+      if (match) {
+        return `Lake Level : ${match[1]}m AHD`;
+      }
+    }
+    return '';
+  }
+
+  /**
+   * Get formatted lake storage display string
+   */
+  get formattedLakeStorage(): string {
+    if (this.waterLevelData.length > 0) {
+      const match = this.waterLevelData[0].match(/Lake Storage is (\d+)\s+ML/);
+      if (match) {
+        return `Lake Storage : ${match[1]} ML`;
+      }
+    }
+    return '';
+  }
+
+  /**
    * Get lake level with current value
    */
   get lakeLevelValue(): number | null {
     if (this.waterLevelData.length > 0) {
-      const match = this.waterLevelData[0].match(/(\d+\.\d+)m\s+AHD/);
+      const match = this.waterLevelData[0].match(/Lake Level is (\d+\.\d+)m\s+AHD/);
       if (match) {
         return parseFloat(match[1]);
       }

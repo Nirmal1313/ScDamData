@@ -16,10 +16,33 @@ $text-secondary: #64748b;
 // Panel Styles
 // =========================================
 .errts-panel {
-  // Inherits global panel styles from styles.scss
-  // Component-specific overrides can be added here if needed
-}
+  ::ng-deep {
+    .p-panel-header {
+      position: relative;
+    }
 
+    .p-panel-icons {
+      order: 2;
+      margin-left: auto;
+
+      @media (max-width: 1200px) {
+        position: absolute;
+        right: 1rem;
+        top: 1rem;
+      }
+
+      @media (max-width: 768px) {
+        right: 0.875rem;
+        top: 0.875rem;
+      }
+
+      @media (max-width: 480px) {
+        right: 0.75rem;
+        top: 0.75rem;
+      }
+    }
+  }
+}
 
 // Panel Header Content
 .errts-panel-header-content {
@@ -28,11 +51,21 @@ $text-secondary: #64748b;
   align-items: center;
   width: 100%;
   gap: 1rem;
+  flex-wrap: wrap;
 
-  @media (max-width: 1024px) {
-    flex-wrap: wrap;
-    justify-content: center;
+  @media (max-width: 1200px) {
+    flex-direction: column;
+    align-items: flex-start;
     gap: 0.75rem;
+    padding-right: 3rem;
+  }
+
+  @media (max-width: 768px) {
+    padding-right: 2.5rem;
+  }
+
+  @media (max-width: 480px) {
+    padding-right: 2.5rem;
   }
 }
 
@@ -40,32 +73,22 @@ $text-secondary: #64748b;
   display: flex;
   align-items: center;
   gap: 1rem;
-
-  @media (max-width: 1024px) {
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-    gap: 0.5rem;
-  }
+  flex-shrink: 0;
 
   @media (max-width: 768px) {
-    gap: 0.375rem;
+    gap: 0.5rem;
   }
 }
 
 .errts-header-center {
+  flex: 1;
   display: flex;
-  align-items: center;
   justify-content: center;
+  align-items: center;
 
-  @media (max-width: 1024px) {
+  @media (max-width: 1200px) {
     width: 100%;
-  }
-}
-
-.errts-header-spacer {
-  @media (max-width: 1024px) {
-    display: none;
+    justify-content: flex-start;
   }
 }
 
@@ -86,24 +109,22 @@ $text-secondary: #64748b;
   display: flex;
   align-items: center;
   justify-content: center;
-  flex-wrap: wrap;
   gap: 1.5rem;
-  font-size: 1rem;
-  font-weight: 500;
+  flex-wrap: wrap;
 
-  @media (max-width: 1024px) {
-    width: 100%;
+  @media (max-width: 1400px) {
     gap: 1rem;
   }
 
-  @media (max-width: 768px) {
-    font-size: 0.9rem;
+  @media (max-width: 1024px) {
     gap: 0.75rem;
   }
 
-  @media (max-width: 480px) {
-    font-size: 0.85rem;
+  @media (max-width: 768px) {
+    flex-direction: column;
+    align-items: flex-start;
     gap: 0.5rem;
+    width: 100%;
   }
 }
 
@@ -112,6 +133,8 @@ $text-secondary: #64748b;
   align-items: center;
   gap: 0.5rem;
   white-space: nowrap;
+  padding-right: 0.5rem;
+  font-weight: 500;
 
   i {
     font-size: 1.1rem;
@@ -125,11 +148,32 @@ $text-secondary: #64748b;
     margin-left: 0.25rem;
   }
 
+  @media (max-width: 1200px) {
+    font-size: 0.9rem;
+  }
+
   @media (max-width: 768px) {
     gap: 0.375rem;
+    font-size: 0.8rem;
 
     i {
-      font-size: 1rem;
+      font-size: 0.9rem;
+    }
+
+    strong {
+      font-size: 0.8rem;
+    }
+  }
+
+  @media (max-width: 480px) {
+    font-size: 0.75rem;
+
+    i {
+      font-size: 0.85rem;
+    }
+
+    strong {
+      font-size: 0.75rem;
     }
   }
 }
@@ -199,8 +243,51 @@ $text-secondary: #64748b;
     }
   }
 
-  @media (max-width: 768px) {
+  @media (max-width: 1200px) {
     padding: 0.4rem 0.6rem;
+    font-size: 0.9rem;
+
+    .errts-metric-icon {
+      font-size: 1.1rem !important;
+    }
+
+    strong {
+      font-size: 0.9rem;
+    }
+  }
+
+  @media (max-width: 768px) {
+    padding: 0.35rem 0.5rem;
+    font-size: 0.8rem;
+
+    .errts-metric-icon {
+      font-size: 1rem !important;
+    }
+
+    strong {
+      font-size: 0.8rem;
+    }
+
+    .errts-trend-icon {
+      font-size: 0.85rem;
+    }
+  }
+
+  @media (max-width: 480px) {
+    padding: 0.3rem 0.4rem;
+    font-size: 0.7rem;
+
+    .errts-metric-icon {
+      font-size: 0.9rem !important;
+    }
+
+    strong {
+      font-size: 0.7rem;
+    }
+
+    .errts-trend-icon {
+      font-size: 0.75rem;
+    }
   }
 }
 
@@ -214,12 +301,16 @@ $text-secondary: #64748b;
 }
 
 .errts-panel-datetime {
-  @media (max-width: 768px) {
+  @media (max-width: 1200px) {
     font-size: 0.9rem;
   }
 
+  @media (max-width: 768px) {
+    font-size: 0.8rem;
+  }
+
   @media (max-width: 480px) {
-    font-size: 0.85rem;
+    font-size: 0.75rem;
   }
 }
 
@@ -476,14 +567,14 @@ $text-secondary: #64748b;
   ::ng-deep {
     .p-datatable-thead > tr > th {
       // Highlight time-based columns for Rainfall table only (columns 4-17)
-      &:nth-child(n+4):nth-child(-n+17) {
+      &:nth-child(n + 4):nth-child(-n + 17) {
         background: #d1e7f0;
       }
     }
 
     .p-datatable-tbody > tr > td {
       // Highlight time-based columns for Rainfall table only (columns 4-17)
-      &:nth-child(n+4):nth-child(-n+17) {
+      &:nth-child(n + 4):nth-child(-n + 17) {
         background: #e8f4f8;
       }
     }
@@ -602,7 +693,8 @@ $text-secondary: #64748b;
 
 // Pulse animation for trend icons
 @keyframes pulse {
-  0%, 100% {
+  0%,
+  100% {
     opacity: 1;
     transform: scale(1);
   }
@@ -614,7 +706,8 @@ $text-secondary: #64748b;
 
 // Animations for trend indicators (matching monitoring panel)
 @keyframes errts-pulse {
-  0%, 100% {
+  0%,
+  100% {
     opacity: 1;
     transform: scale(1);
   }
@@ -625,7 +718,8 @@ $text-secondary: #64748b;
 }
 
 @keyframes errts-bounce-up {
-  0%, 100% {
+  0%,
+  100% {
     transform: translateY(0);
   }
   50% {
@@ -634,7 +728,8 @@ $text-secondary: #64748b;
 }
 
 @keyframes errts-bounce-down {
-  0%, 100% {
+  0%,
+  100% {
     transform: translateY(0);
   }
   50% {
@@ -643,7 +738,8 @@ $text-secondary: #64748b;
 }
 
 @keyframes errts-steady-pulse {
-  0%, 100% {
+  0%,
+  100% {
     opacity: 1;
   }
   50% {
@@ -910,4 +1006,9 @@ $text-secondary: #64748b;
   @media (max-width: 768px) {
     min-width: 45px;
   }
+}
+
+.dischargeLabel {
+  font-weight: 500;
+  white-space: nowrap;
 }

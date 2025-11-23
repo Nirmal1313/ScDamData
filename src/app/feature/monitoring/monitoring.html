@@ -17,14 +17,15 @@
         >
         </p-button>
       </div>
+
       <div class="monitoring-header-center" *ngIf="waterLevelData.length > 0">
-        <div class="monitoring-water-level-header">
+        <div class="monitoring-metrics-row">
           <span
             class="monitoring-info-item monitoring-metric-with-trend"
             [ngClass]="getTrendColorClass(lakeLevelChangeStatus)"
           >
-            <i class="pi pi-chart-line monitoring-metric-icon"></i>
-            <span [innerHTML]="waterLevelData[0]"></span>
+            <i class="pi pi-chart-scatter monitoring-metric-icon"></i>
+            <span class="monitoring-metric-value">{{ formattedLakeLevel }}</span>
             <i
               *ngIf="getTrendIcon(lakeLevelChangeStatus)"
               [class]="getTrendIcon(lakeLevelChangeStatus)"
@@ -33,13 +34,26 @@
           </span>
 
           <span
-            class="monitoring-info-item monitoring-discharge-info monitoring-metric-with-trend"
+            class="monitoring-info-item monitoring-metric-with-trend"
+            [ngClass]="getTrendColorClass(lakeStorageChangeStatus)"
+          >
+            <i class="pi pi-inbox monitoring-metric-icon"></i>
+            <span class="monitoring-metric-value">{{ formattedLakeStorage }}</span>
+            <i
+              *ngIf="getTrendIcon(lakeStorageChangeStatus)"
+              [class]="getTrendIcon(lakeStorageChangeStatus)"
+              class="monitoring-trend-icon"
+            ></i>
+          </span>
+
+          <span
+            class="monitoring-info-item monitoring-metric-with-trend"
             *ngIf="outflowData"
             [ngClass]="getTrendColorClass(outflowChangeStatus)"
           >
             <i class="pi pi-arrow-circle-down monitoring-metric-icon"></i>
-            <span class="monitoring-label">Discharge (Cumecs):</span>
-            <strong>{{ outflowData }}</strong>
+            <span class="monitoring-metric-label">Discharge (Cumecs):</span>
+            <strong class="monitoring-metric-value">{{ outflowData }}</strong>
             <i
               *ngIf="getTrendIcon(outflowChangeStatus)"
               [class]="getTrendIcon(outflowChangeStatus)"
@@ -48,13 +62,13 @@
           </span>
 
           <span
-            class="monitoring-info-item monitoring-discharge-info monitoring-metric-with-trend"
+            class="monitoring-info-item monitoring-metric-with-trend"
             *ngIf="totalDischargeData"
             [ngClass]="getTrendColorClass(totalDischargeChangeStatus)"
           >
-            <i class="pi pi-database monitoring-metric-icon"></i>
-            <span class="monitoring-label">Total Discharge (ML):</span>
-            <strong>{{ totalDischargeData }}</strong>
+            <i class="pi pi-chart-bar monitoring-metric-icon"></i>
+            <span class="monitoring-metric-label">Total Discharge (ML):</span>
+            <strong class="monitoring-metric-value">{{ totalDischargeData }}</strong>
             <i
               *ngIf="getTrendIcon(totalDischargeChangeStatus)"
               [class]="getTrendIcon(totalDischargeChangeStatus)"
@@ -62,13 +76,12 @@
             ></i>
           </span>
 
-          <span class="monitoring-info-item monitoring-panel-datetime">
+          <span class="monitoring-info-item monitoring-datetime">
             <i class="pi pi-clock"></i>
-            <span>{{ dateTime || 'Loading...' }}</span>
+            <span class="monitoring-metric-value">{{ dateTime || 'Loading...' }}</span>
           </span>
         </div>
       </div>
-      <div class="monitoring-header-spacer"></div>
     </div>
   </ng-template>
 
@@ -93,111 +106,99 @@
 
   <!-- Tables Container with Splitter Layout -->
   <p-splitter
+    *ngIf="!loading || sluiceStatusData.length || gateStatusData.length"
     layout="vertical"
     [panelSizes]="[45, 55]"
     styleClass="monitoring-splitter"
-    *ngIf="!loading || sluiceStatusData.length || gateStatusData.length"
   >
     <!-- Top Panel: Sluice Status -->
     <ng-template #panel>
-      <div class="flex items-center justify-center h-full p-2">
-        <div class="monitoring-table-section">
-          <div class="monitoring-table-header-wrapper">
-            <h3 class="monitoring-table-title">
-              <i class="pi pi-sliders-h"></i>
-              Sluice Status
-            </h3>
-            <span class="monitoring-data-count">{{ sluiceStatusData.length }} record(s)</span>
-          </div>
-
-          <p-table
-            [value]="sluiceStatusData"
-            [rowHover]="true"
-            [scrollable]="true"
-            scrollHeight="flex"
-            styleClass="monitoring-data-table"
-            [loading]="loading"
-            showGridlines
-            stripedRows
-          >
-            <ng-template #header>
-              <tr>
-                <th *ngFor="let column of sluiceStatusColumns">{{ column }}</th>
-              </tr>
-            </ng-template>
-            <ng-template #body let-row>
-              <tr>
-                <td
-                  *ngFor="let column of sluiceStatusColumns"
-                  [ngClass]="getStatusClass(row[column])"
-                >
-                  {{ row[column] }}
-                </td>
-              </tr>
-            </ng-template>
-            <ng-template #emptymessage>
-              <tr>
-                <td
-                  [attr.colspan]="sluiceStatusColumns.length || 1"
-                  class="monitoring-empty-message"
-                >
-                  <i class="pi pi-info-circle"></i>
-                  <span>No sluice status data available</span>
-                </td>
-              </tr>
-            </ng-template>
-          </p-table>
+      <div class="monitoring-table-section">
+        <div class="monitoring-table-header-wrapper">
+          <h3 class="monitoring-table-title">
+            <i class="pi pi-sliders-h"></i>
+            Sluice Status
+          </h3>
+          <span class="monitoring-data-count">{{ sluiceStatusData.length }} record(s)</span>
         </div>
+
+        <p-table
+          [value]="sluiceStatusData"
+          [rowHover]="true"
+          [scrollable]="false"
+          styleClass="monitoring-data-table"
+          [loading]="loading"
+          showGridlines
+          stripedRows
+        >
+          <ng-template #header>
+            <tr>
+              <th *ngFor="let column of sluiceStatusColumns">{{ column }}</th>
+            </tr>
+          </ng-template>
+          <ng-template #body let-row>
+            <tr>
+              <td
+                *ngFor="let column of sluiceStatusColumns"
+                [ngClass]="getStatusClass(row[column])"
+              >
+                {{ row[column] }}
+              </td>
+            </tr>
+          </ng-template>
+          <ng-template #emptymessage>
+            <tr>
+              <td [attr.colspan]="sluiceStatusColumns.length || 1" class="monitoring-empty-message">
+                <i class="pi pi-info-circle"></i>
+                <span>No sluice status data available</span>
+              </td>
+            </tr>
+          </ng-template>
+        </p-table>
       </div>
     </ng-template>
-
+    <div><br></div>
     <!-- Bottom Panel: Gate Status -->
     <ng-template #panel>
-      <div class="flex items-center justify-center h-full p-2">
-        <div class="monitoring-table-section">
-          <div class="monitoring-table-header-wrapper">
-            <h3 class="monitoring-table-title">
-              <i class="pi pi-directions"></i>
-              Gate Status
-            </h3>
-            <span class="monitoring-data-count">{{ gateStatusData.length }} record(s)</span>
-          </div>
-
-          <p-table
-            [value]="gateStatusData"
-            [rowHover]="true"
-            [scrollable]="true"
-            scrollHeight="flex"
-            styleClass="monitoring-data-table"
-            [loading]="loading"
-            showGridlines
-            stripedRows
-          >
-            <ng-template #header>
-              <tr>
-                <th *ngFor="let column of gateStatusColumns">{{ column }}</th>
-              </tr>
-            </ng-template>
-            <ng-template #body let-row>
-              <tr>
-                <td
-                  *ngFor="let column of gateStatusColumns"
-                  [ngClass]="getStatusClass(row[column])"
-                >
-                  {{ row[column] }}
-                </td>
-              </tr>
-            </ng-template>
-            <ng-template #emptymessage>
-              <tr>
-                <td [attr.colspan]="gateStatusColumns.length || 1" class="monitoring-empty-message">
-                  <i class="pi pi-info-circle"></i>
-                  <span>No gate status data available</span>
-                </td>
-              </tr>
-            </ng-template>
-          </p-table>
+      <div class="monitoring-table-section">
+        <div class="monitoring-table-header-wrapper">
+          <h3 class="monitoring-table-title">
+            <i class="pi pi-directions"></i>
+            Gate Status
+          </h3>
+          <span class="monitoring-data-count">{{ gateStatusData.length }} record(s)</span>
         </div>
+
+        <p-table
+          [value]="gateStatusData"
+          [rowHover]="true"
+          [scrollable]="false"
+          styleClass="monitoring-data-table"
+          [loading]="loading"
+          showGridlines
+          stripedRows
+        >
+          <ng-template #header>
+            <tr>
+              <th *ngFor="let column of gateStatusColumns">{{ column }}</th>
+            </tr>
+          </ng-template>
+          <ng-template #body let-row>
+            <tr>
+              <td *ngFor="let column of gateStatusColumns" [ngClass]="getStatusClass(row[column])">
+                {{ row[column] }}
+              </td>
+            </tr>
+          </ng-template>
+          <ng-template #emptymessage>
+            <tr>
+              <td [attr.colspan]="gateStatusColumns.length || 1" class="monitoring-empty-message">
+                <i class="pi pi-info-circle"></i>
+                <span>No gate status data available</span>
+              </td>
+            </tr>
+          </ng-template>
+        </p-table>
       </div>
     </ng-template>
   </p-splitter>

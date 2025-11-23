@@ -24,7 +24,7 @@
             [ngClass]="getTrendColorClassForStatus(totalDischargeChangeStatus)"
           >
             <i class="pi pi-chart-bar errts-metric-icon"></i>
-            <span>Combined Inflows (Cumecs):</span>
+            <span class="dischargeLabel">Combined Inflows (Cumecs): </span>
             <strong>{{ totalDischargeForHighlighted }}</strong>
             <i
               *ngIf="getTrendIconForStatus(totalDischargeChangeStatus)"
@@ -39,7 +39,6 @@
           </span>
         </div>
       </div>
-      <div class="errts-header-spacer"></div>
     </div>
   </ng-template>
 
