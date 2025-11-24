@@ -39,8 +39,6 @@ export class Header extends BomWeatherConsumerBase implements OnInit, OnDestroy 
   // Cleaned weather display properties
   displayLatestTime: string = '';
   displayCurrentTemp: string = '';
-  displayHighestTemp: string = '';
-  displayHighestTime: string = '';
   displayLowestTemp: string = '';
   displayLowestTime: string = '';
   displayRain: string = '';
@@ -49,7 +47,7 @@ export class Header extends BomWeatherConsumerBase implements OnInit, OnDestroy 
 
   // Responsive breakpoints
   private readonly BREAKPOINT_MOBILE = 576;
-  private readonly BREAKPOINT_TABLET = 768;
+  private readonly BREAKPOINT_TABLET = 960;
   private readonly BREAKPOINT_DESKTOP = 1024;
   private readonly BREAKPOINT_LARGE = 1280;
 
@@ -75,14 +73,14 @@ export class Header extends BomWeatherConsumerBase implements OnInit, OnDestroy 
    * Check if current view is tablet
    */
   get isTabletView(): boolean {
-    return this.windowWidth >= this.BREAKPOINT_TABLET && this.windowWidth < this.BREAKPOINT_DESKTOP;
+    return this.windowWidth >= this.BREAKPOINT_TABLET && this.windowWidth < this.BREAKPOINT_LARGE;
   }
 
   /**
    * Check if current view is desktop
    */
   get isDesktopView(): boolean {
-    return this.windowWidth >= this.BREAKPOINT_DESKTOP;
+    return this.windowWidth >= this.BREAKPOINT_LARGE;
   }
 
   /**
@@ -124,13 +122,13 @@ export class Header extends BomWeatherConsumerBase implements OnInit, OnDestroy 
     // Initialize menu items
     this.items = [
       {
-        label: 'Canberra Forecast',
+        label: 'BOM',
         url: 'https://reg.bom.gov.au/act/forecasts/canberra.shtml',
         target: '_blank',
         icon: 'pi pi-map-marker',
       },
       {
-        label: 'Satellite Viewer',
+        label: 'Satellite',
         url: 'http://satview.bom.gov.au/',
         target: '_blank',
         //icon: 'pi pi-cloud'
@@ -170,8 +168,6 @@ export class Header extends BomWeatherConsumerBase implements OnInit, OnDestroy 
     // Display current temperature and conditions
     this.displayLatestTime = this.formatTime(weatherData.timestamp);
     this.displayCurrentTemp = current?.temperature ?? '';
-    this.displayHighestTemp = current?.maxTemp ?? '';
-    this.displayLowestTemp = current?.minTemp ?? '';
     this.displayRain = this.extractRainAmount(current?.rainSinceMidnight ?? '');
   }
 
@@ -205,5 +201,10 @@ export class Header extends BomWeatherConsumerBase implements OnInit, OnDestroy 
 
   onRefreshWeather(): void {
     this.bomWeatherService.forceRefresh().subscribe();
+  }
+
+  onRefreshWeatherMobile(): void {
+    this.onRefreshWeather();
+    this.closeMobileMenu();
   }
 }

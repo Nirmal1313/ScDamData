@@ -268,24 +268,37 @@
     font-weight: 900;
     color: #ffffff;
     display: inline-flex;
-    align-items: flex-start;
-    padding: 0.3rem 0.6rem;
+    align-items: baseline;
+    justify-content: center;
+    padding: 0.25rem 0.5rem;
     border-radius: 0.25rem;
-    gap: 0.1rem;
+    gap: 0.4rem;
+    white-space: nowrap;
 
-    .temp-value {
-      font-size: 2.5rem;
+    strong {
+      font-size: 1.75rem;
       font-weight: 700;
       line-height: 1;
       color: #ffffff;
+      display: inline-flex;
+      align-items: baseline;
+
+      .unit {
+        font-size: 0.8rem;
+        font-weight: 600;
+        margin-left: 0.1rem;
+        vertical-align: super;
+        position: relative;
+        top: -0.3rem;
+      }
     }
 
-    .temp-unit {
-      font-size: 0.7rem;
-      font-weight: 700;
-      color: #ffffff;
-      margin-left: 0.1rem;
-      margin-top: 0.2rem;
+    .weather-icon {
+      width: 1.4rem;
+      height: 1.4rem;
+      flex-shrink: 0;
+      filter: brightness(0) invert(1);
+      align-self: center;
     }
   }
 
@@ -425,7 +438,7 @@
 
 // Breakpoints
 $breakpoint-mobile: 36rem;
-$breakpoint-tablet: 48rem;
+$breakpoint-tablet: 60rem;  // 960px - covers landscape phones
 $breakpoint-desktop: 64rem;
 $breakpoint-large: 80rem;
 
@@ -460,17 +473,30 @@ $breakpoint-large: 80rem;
     flex-wrap: nowrap;
     overflow-x: auto;
 
+    // Hide refresh button on mobile
+    :host ::ng-deep .refresh-weather-btn,
+    ::ng-deep .refresh-weather-btn {
+      display: none !important;
+    }
+
     &.mobile-layout {
       // Current temp - slightly smaller
       .air-temp {
         padding: 0.2rem 0.4rem;
+        gap: 0.3rem;
 
-        .temp-value {
-          font-size: 1.8rem;
+        strong {
+          font-size: 1.5rem;
+
+          .unit {
+            font-size: 0.7rem;
+            top: -0.25rem;
+          }
         }
 
-        .temp-unit {
-          font-size: 0.6rem;
+        .weather-icon {
+          width: 1.2rem;
+          height: 1.2rem;
         }
       }
 
@@ -568,13 +594,20 @@ $breakpoint-large: 80rem;
     &.mobile-layout {
       .air-temp {
         padding: 0.15rem 0.3rem;
+        gap: 0.25rem;
 
-        .temp-value {
-          font-size: 1.5rem;
+        strong {
+          font-size: 1.3rem;
+
+          .unit {
+            font-size: 0.6rem;
+            top: -0.2rem;
+          }
         }
 
-        .temp-unit {
-          font-size: 0.5rem;
+        .weather-icon {
+          width: 1rem;
+          height: 1rem;
         }
       }
 
@@ -617,6 +650,12 @@ $breakpoint-large: 80rem;
 @media (min-width: $breakpoint-tablet) and (max-width: $breakpoint-desktop) {
   .header-right {
     gap: 0.75rem;
+
+    // Hide refresh button on tablet
+    :host ::ng-deep .refresh-weather-btn,
+    ::ng-deep .refresh-weather-btn {
+      display: none !important;
+    }
 
     &.tablet-layout {
       .temp-display {
@@ -752,7 +791,7 @@ $breakpoint-large: 80rem;
   @media (max-width: $breakpoint-tablet) {
     display: block;
     background: #0284c7;
-    padding: 0.75rem 1rem;
+    padding: 0.5rem 0.75rem;
   }
 }
 
@@ -761,41 +800,67 @@ $breakpoint-large: 80rem;
   justify-content: space-between;
   align-items: center;
   width: 100%;
+  gap: 0.5rem;
 }
 
 .mobile-header-left {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.35rem;
+  flex-shrink: 1;
+  min-width: 0;
 
   .title {
     color: #ffffff;
-    font-size: 1.1rem;
+    font-size: 0.95rem;
     font-weight: 700;
     margin: 0;
     white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .menu-toggle {
+    flex-shrink: 0;
   }
 }
 
 .mobile-header-right {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
+  gap: 0.4rem;
+  flex-wrap: nowrap;
+  flex-shrink: 0;
 
   .air-temp {
-    display: flex;
+    display: inline-flex;
     align-items: center;
-    gap: 0.25rem;
+    gap: 0.2rem;
     color: #ffffff;
-    font-size: 0.95rem;
+    font-size: 0.85rem;
+    white-space: nowrap;
+    padding: 0.1rem 0.25rem;
 
-    .temp-value {
+    strong {
+      font-size: 1rem;
       font-weight: 700;
-      font-size: 1.1rem;
+      display: inline-flex;
+      align-items: baseline;
+
+      .unit {
+        font-size: 0.55rem;
+        font-weight: 600;
+        position: relative;
+        top: -0.15rem;
+        margin-left: 0.05rem;
+      }
     }
 
-    .temp-unit {
-      font-weight: 500;
+    .weather-icon {
+      width: 0.9rem;
+      height: 0.9rem;
+      flex-shrink: 0;
+      filter: brightness(0) invert(1);
     }
   }
 
@@ -818,7 +883,7 @@ $breakpoint-large: 80rem;
 .desktop-header {
   display: block;
 
-  @media (max-width: $breakpoint-tablet) {
+  @media (max-width: 59.9375rem) {
     display: none;
   }
 }
@@ -886,9 +951,18 @@ $breakpoint-large: 80rem;
   }
 }
 
+.mobile-menu-action {
+  padding: 0.75rem 1.25rem;
+  border-top: 1px solid #e2e8f0;
+
+  .mobile-refresh-btn {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
 .mobile-menu-footer {
-  margin-top: auto;
-  padding: 1rem 1.25rem;
+  padding: 0.75rem 1.25rem;
   border-top: 1px solid #e2e8f0;
 
   .mobile-logout-btn {

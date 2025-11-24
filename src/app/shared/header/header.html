@@ -23,67 +23,54 @@
         </a>
       </ng-template>
       <ng-template #end>
-      <div
-        class="header-right"
-        [ngClass]="{
-          'mobile-layout': isMobileView,
-          'tablet-layout': isTabletView,
-          'desktop-layout': isDesktopView
-        }"
-      >
-        <!-- Current Temperature (Always visible) -->
-        <span class="air-temp" *ngIf="displayCurrentTemp">
-          <strong class="temp-value">{{ getTemperatureParts(displayCurrentTemp).value }}</strong>
-          <span class="temp-unit">°C</span>
-        </span>
-
-        <!-- High/Low Temps (Hidden on mobile < 768px) -->
-        <ng-container *ngIf="!showMinimalWeatherInfo">
-          <span class="temp-display temp-high" *ngIf="displayHighestTemp">
-            <img src="temperature-high-solid-full.svg" alt="high" class="weather-icon" />
-            <strong class="temp-value">{{ getTemperatureParts(displayHighestTemp).value }}</strong>
-            <span class="temp-unit">°C</span>
-          </span>
-          <span class="temp-display temp-low" *ngIf="displayLowestTemp">
-            <img src="temperature-low-solid-full.svg" alt="low" class="weather-icon" />
-            <strong class="temp-value">{{ getTemperatureParts(displayLowestTemp).value }}</strong>
-            <span class="temp-unit">°C</span>
-          </span>
-        </ng-container>
-
-        <!-- Rain Info (Hidden on mobile and tablet) -->
-        <span class="rain-info" *ngIf="showFullWeatherInfo && displayRain">
-          <img src="cloud-showers-heavy-solid-full.svg" alt="rain" class="weather-icon" />
-          <strong>{{ displayRain }}</strong>
-        </span>
-
-        <!-- Refresh Button (Hidden on mobile and tablet) -->
-        <p-button
-          *ngIf="showFullWeatherInfo"
-          icon="pi pi-sync"
-          [rounded]="true"
-          [text]="true"
-          severity="secondary"
-          [pTooltip]="'Latest weather update: ' + displayLatestTime"
-          tooltipPosition="bottom"
-          (click)="onRefreshWeather()"
+        <div
+          class="header-right"
+          [ngClass]="{
+            'mobile-layout': isMobileView,
+            'tablet-layout': isTabletView,
+            'desktop-layout': isDesktopView
+          }"
         >
-        </p-button>
+          <!-- Current Temperature (Always visible) -->
+          <span class="air-temp" *ngIf="displayCurrentTemp">
+            <img src="temperature-high-solid-full.svg" alt="temperature" class="weather-icon" />
+            <strong>{{ getTemperatureParts(displayCurrentTemp).value }}<span class="unit">°C</span></strong>
+          </span>
 
-        <!-- Logout Button (Always visible) -->
-        <p-button
-          label=""
-          variant="outlined"
-          [raised]="true"
-          severity="help"
-          icon="pi pi-sign-out"
-          tooltipPosition="bottom"
-          (click)="onLogout()"
-          (mousedown)="onLogout()"
-        >
-        </p-button>
-      </div>
-    </ng-template>
+          <!-- Rain Info (Hidden on mobile and tablet) -->
+          <span class="air-temp" *ngIf="displayRain">
+            <img src="cloud-showers-heavy-solid-full.svg" alt="rain" class="weather-icon" />
+            <strong>{{ getRainParts(displayRain).value }}<span class="unit">{{ getRainParts(displayRain).unit }}</span></strong>
+          </span>
+
+          <!-- Refresh Button (Hidden on mobile and tablet) -->
+          <p-button
+            *ngIf="showFullWeatherInfo"
+            class="refresh-weather-btn"
+            icon="pi pi-sync"
+            [rounded]="true"
+            [text]="true"
+            severity="secondary"
+            [pTooltip]="'Latest weather update: ' + displayLatestTime"
+            tooltipPosition="bottom"
+            (click)="onRefreshWeather()"
+          >
+          </p-button>
+
+          <!-- Logout Button (Always visible) -->
+          <p-button
+            label=""
+            variant="outlined"
+            [raised]="true"
+            severity="help"
+            icon="pi pi-sign-out"
+            tooltipPosition="bottom"
+            (click)="onLogout()"
+            (mousedown)="onLogout()"
+          >
+          </p-button>
+        </div>
+      </ng-template>
     </p-menubar>
   </div>
 
@@ -96,10 +83,16 @@
       </div>
 
       <div class="mobile-header-right">
-        <!-- Current Temperature Only -->
+        <!-- Current Temperature -->
         <span class="air-temp" *ngIf="displayCurrentTemp">
-          <strong class="temp-value">{{ getTemperatureParts(displayCurrentTemp).value }}</strong>
-          <span class="temp-unit">°C</span>
+          <img src="temperature-high-solid-full.svg" alt="temperature" class="weather-icon" />
+          <strong>{{ getTemperatureParts(displayCurrentTemp).value }}<span class="unit">°C</span></strong>
+        </span>
+
+        <!-- Rain Info -->
+        <span class="air-temp" *ngIf="displayRain">
+          <img src="cloud-showers-heavy-solid-full.svg" alt="rain" class="weather-icon" />
+          <strong>{{ getRainParts(displayRain).value }}<span class="unit">{{ getRainParts(displayRain).unit }}</span></strong>
         </span>
 
         <!-- Mobile Menu Toggle -->
@@ -114,11 +107,7 @@
   </div>
 
   <!-- Mobile Drawer Menu -->
-  <p-drawer
-    [(visible)]="mobileMenuVisible"
-    position="right"
-    styleClass="mobile-menu-drawer"
-  >
+  <p-drawer [(visible)]="mobileMenuVisible" position="right" styleClass="mobile-menu-drawer">
     <ng-template #header>
       <h3 class="mobile-menu-title">Menu</h3>
     </ng-template>
@@ -137,6 +126,18 @@
         <i class="menu-item-icon" [class]="item.icon" *ngIf="item.icon"></i>
         <span>{{ item.label }}</span>
       </a>
+
+      <!-- Refresh Weather Button in Mobile Menu -->
+      <div class="mobile-menu-action">
+        <p-button
+          label="Refresh Weather"
+          icon="pi pi-sync"
+          severity="secondary"
+          [outlined]="true"
+          (click)="onRefreshWeatherMobile()"
+          styleClass="mobile-refresh-btn"
+        />
+      </div>
 
       <!-- Logout Button in Mobile Menu -->
       <div class="mobile-menu-footer">

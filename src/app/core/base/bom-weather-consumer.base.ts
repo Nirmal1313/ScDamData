@@ -95,6 +95,18 @@ export abstract class BomWeatherConsumerBase implements OnInit, OnDestroy {
   }
 
   /**
+   * Split rain value and unit for styling purposes
+   */
+  protected getRainParts(rain: string | undefined): { value: string; unit: string } {
+    if (!rain) return { value: '', unit: '' };
+    const match = rain.match(/([\d.]+)\s*(mm)?/);
+    if (match) {
+      return { value: match[1], unit: match[2] || 'mm' };
+    }
+    return { value: rain, unit: '' };
+  }
+
+  /**
    * Format time string (e.g., "12:00 PM") and convert to Australia/Sydney timezone
    */
   protected formatTime(timeString: string | undefined): string {
