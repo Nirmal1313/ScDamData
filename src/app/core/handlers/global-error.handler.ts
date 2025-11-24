@@ -1,8 +1,11 @@
 import { ErrorHandler, Injectable, inject } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
+import { LoggerService } from '../services/logger.service';
 
 @Injectable()
 export class GlobalErrorHandler implements ErrorHandler {
+  private logger = inject(LoggerService);
+
   handleError(error: Error | HttpErrorResponse): void {
     let errorMessage = '';
     let errorStack = '';
@@ -10,7 +13,7 @@ export class GlobalErrorHandler implements ErrorHandler {
     if (error instanceof HttpErrorResponse) {
       // Server-side error
       errorMessage = `HTTP Error: ${error.status} - ${error.message}`;
-      console.error('HTTP Error:', {
+      this.logger.error('HTTP Error:', {
         status: error.status,
         message: error.message,
         url: error.url,
@@ -20,7 +23,7 @@ export class GlobalErrorHandler implements ErrorHandler {
       // Client-side error
       errorMessage = error.message || 'An unexpected error occurred';
       errorStack = error.stack || '';
-      console.error('Client Error:', {
+      this.logger.error('Client Error:', {
         message: errorMessage,
         stack: errorStack,
         error: error
@@ -52,6 +55,6 @@ export class GlobalErrorHandler implements ErrorHandler {
       url: typeof window !== 'undefined' ? window.location.href : 'SSR',
     };
 
-    console.error('Error Report:', errorReport);
+    this.logger.error('Error Report:', errorReport);
   }
 }

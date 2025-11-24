@@ -21,9 +21,8 @@ export class CalendarTaskApiService {
    * @returns Observable of CalendarTaskDTO array
    */
   getAllCalendarTasks(): Observable<CalendarTaskDTO[]> {
-    const endpoint = this.configService.getApiUrl('calendarEvent');
-
-    return this.apiService.get<CalendarTaskDTO[]>(`${endpoint}/all`, {}, 'main').pipe(
+    // Use just the endpoint path, ApiService will combine with base URL
+    return this.apiService.get<CalendarTaskDTO[]>('calendarTask/all', {}, 'main').pipe(
       map((response: ApiResponse<CalendarTaskDTO[]>) => {
 
         // Handle the response - if data is directly in response, return it

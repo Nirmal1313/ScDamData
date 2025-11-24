@@ -1,4 +1,5 @@
-import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject } from '@angular/core';
+import { LoggerService } from '../../core/services/logger.service';
 import { PanelModule } from 'primeng/panel';
 import { TableModule } from 'primeng/table';
 import { CommonModule } from '@angular/common';
@@ -56,7 +57,7 @@ export class ERRTSData implements OnInit, OnDestroy {
 
   // Auto-refresh
   private refreshInterval: Subscription | null = null;
-  private readonly REFRESH_INTERVAL_MS = 7 * 60 * 1000; // 5 minutes
+  private readonly REFRESH_INTERVAL_MS = 5 * 60 * 1000; // 5 minutes
 
   // Highlighted CommsIds for discharge sum calculation
   private readonly highlightedCommsIds = ['3349', '3351', '3419'];
@@ -70,10 +71,11 @@ export class ERRTSData implements OnInit, OnDestroy {
   filterDateTo: Date | null = null;
   private unfilteredRowData: any = null;
 
+  private logger = inject(LoggerService);
+
   constructor(
     private errtsWeatherService: ErrtsWeatherService,
     private configService: ConfigService,
-    private cdr: ChangeDetectorRef,
     private http: HttpClient
   ) {}
 
@@ -95,21 +97,19 @@ export class ERRTSData implements OnInit, OnDestroy {
   /**
    * Load ERRTS weather data from the service
    */
-  loadErrtsWeatherData(): void {
+  loadErrtsWeatherData(bypassCache = false): void {
     this.loading = true;
     this.error = '';
 
-    this.errtsWeatherService.getErrtsData().subscribe({
+    this.errtsWeatherService.getErrtsData(bypassCache).subscribe({
       next: (data: ErrtsWeatherResult) => {
         this.processErrtsWeatherData(data);
         this.loading = false;
-        this.cdr.detectChanges();
       },
       error: (err) => {
         this.error = 'Failed to load ERRTS weather data. Please try again.';
         this.loading = false;
-        console.error('Error loading ERRTS data:', err);
-        this.cdr.detectChanges();
+        this.logger.error('Error loading ERRTS data:', err);
       },
     });
   }
@@ -118,7 +118,7 @@ export class ERRTSData implements OnInit, OnDestroy {
    * Manual refresh triggered by user
    */
   refreshData(): void {
-    this.loadErrtsWeatherData();
+    this.loadErrtsWeatherData(true); // Force bypass cache on manual refresh
   }
 
   /**
@@ -150,10 +150,8 @@ export class ERRTSData implements OnInit, OnDestroy {
         return rowData;
       });
 
-      // Store current values as previous for next comparison (after a delay to allow rendering)
-      setTimeout(() => {
-        this.storePreviousDischargeValues();
-      }, 0);
+      // Store current values as previous for next comparison
+      this.storePreviousDischargeValues();
     } else {
       this.waterLevelColumns = [];
       this.waterLevelData = [];
@@ -215,7 +213,7 @@ export class ERRTSData implements OnInit, OnDestroy {
   private setupAutoRefresh(): void {
     // Refresh data every 5 minutes
     this.refreshInterval = interval(this.REFRESH_INTERVAL_MS).subscribe(() => {
-      this.loadErrtsWeatherData();
+      this.loadErrtsWeatherData(true); // Bypass cache on auto-refresh
     });
   }
 
@@ -325,13 +323,11 @@ export class ERRTSData implements OnInit, OnDestroy {
           }
 
           this.loadingResourceData = false;
-          this.cdr.detectChanges();
         },
         error: (err) => {
-          console.error('Error fetching resource data:', err);
+          this.logger.error('Error fetching resource data:', err);
           this.selectedRowData = { error: 'Failed to load data from API' };
           this.loadingResourceData = false;
-          this.cdr.detectChanges();
         }
       });
     }

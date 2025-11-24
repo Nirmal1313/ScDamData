@@ -1,278 +1,137 @@
 
-
-import { Injectable, OnDestroy } from '@angular/core';
-import { BehaviorSubject, Observable, throwError, timer, Subscription } from 'rxjs';
-import { tap, catchError, shareReplay, switchMap, filter, map } from 'rxjs/operators';
+import { Injectable, inject, OnDestroy } from '@angular/core';
+import { BehaviorSubject, Observable, throwError, interval, Subscription } from 'rxjs';
+import { catchError, map, tap } from 'rxjs/operators';
 import { ApiService } from './api.service';
-import { ConfigService } from './config.service';
-import { AuthService } from './auth.service';
 import { NewBomWeatherModel } from '../models/weatherBOM.module';
 import { ApiResponse } from '../models/api.model';
+import { LoggerService } from './logger.service';
 
-// State interface for BOM weather data
 export interface BomWeatherState {
   data: NewBomWeatherModel | null;
   loading: boolean;
   error: string | null;
   lastUpdated: Date | null;
-  callCount: number;
-}
-
-// Configuration interface
-export interface BomWeatherCacheConfig {
-  maxCallCount: number;
-  cacheExpiryMinutes: number;
 }
 
 @Injectable({
   providedIn: 'root',
 })
 export class BomWeatherService implements OnDestroy {
-  // Configuration for caching behavior
-  private readonly config: BomWeatherCacheConfig = {
-    maxCallCount: 5, // Refresh after 5 component accesses
-    cacheExpiryMinutes: 5, // Cache expires after 5 minutes
-  };
+  private logger = inject(LoggerService);
 
-  // State management using BehaviorSubject for reactive data sharing
   private weatherStateSubject = new BehaviorSubject<BomWeatherState>({
     data: null,
     loading: false,
     error: null,
     lastUpdated: null,
-    callCount: 0,
   });
 
-  // Public observable for components to subscribe to
   public weatherState$ = this.weatherStateSubject.asObservable();
 
-  // Shared observable for the actual weather data
-  private weatherDataCache$: Observable<NewBomWeatherModel> | null = null;
+  // Auto-refresh configuration
+  private refreshSubscription?: Subscription;
+  private readonly REFRESH_INTERVAL = 5 * 60 * 1000; // 5 minutes in milliseconds
+  private isAutoRefreshEnabled = false;
 
-  private autoRefreshSubscription?: Subscription;
-
-  constructor(
-    private apiService: ApiService,
-    private configService: ConfigService,
-    private authService: AuthService
-  ) {
-    // Initialize weather fetch when user logs in
-    this.initializeWeatherOnLogin();
-  }
+  constructor(private apiService: ApiService) {}
 
   ngOnDestroy(): void {
     this.stopAutoRefresh();
   }
 
   /**
-   * Initialize weather data fetch when user successfully logs in
+   * Get weather data - makes a fresh API call each time
+   * Automatically starts auto-refresh on first call if not already started
    */
-  private initializeWeatherOnLogin(): void {
-    this.authService.authState$
-      .pipe(filter((state) => state.isAuthenticated && state.user !== null))
-      .subscribe(() => {
-        // Start auto-refresh every 5 minutes after login
-        this.startAutoRefresh(5);
-      });
-  }
+  public getWeatherData(bypassCache = false): Observable<NewBomWeatherModel> {
+    this.weatherStateSubject.next({
+      ...this.weatherStateSubject.value,
+      loading: true,
+      error: null,
+    });
 
-  /**
-   * Get weather data - main method for components to use
-   * Implements smart caching:
-   * - Returns cached data if available and fresh
-   * - Increments call count
-   * - Refreshes data after maxCallCount or cache expiry
-   * - Prevents duplicate concurrent calls by setting cache immediately
-   */
-  public getWeatherData(): Observable<NewBomWeatherModel> {
-    const currentState = this.weatherStateSubject.value;
-
-    // Check if we need to refresh the data
-    const shouldRefresh = this.shouldRefreshData(currentState);
-
-    if (shouldRefresh || !this.weatherDataCache$) {
-      // Reset call count and fetch fresh data
-      this.resetCallCount();
-      return this.fetchWeatherData();
-    }
-
-    // Increment call count for cached data access
-    this.incrementCallCount();
-
-    // Return cached observable
-    return this.weatherDataCache$;
-  }
-
-  /**
-   * Force refresh the weather data regardless of cache state
-   */
-  public forceRefresh(): Observable<NewBomWeatherModel> {
-    this.resetCallCount();
-    return this.fetchWeatherData();
-  }
-
-  /**
-   * Fetch weather data from API
-   * Sets cache immediately to prevent duplicate concurrent calls
-   */
-  private fetchWeatherData(): Observable<NewBomWeatherModel> {
-    // If already loading, return the existing cached observable
-    if (this.weatherDataCache$ && this.weatherStateSubject.value.loading) {
-      return this.weatherDataCache$;
-    }
-
-    // Update loading state
-    this.updateState({ loading: true, error: null });
-
-    // Get the API endpoint from config
-    const endpoint = this.configService.getApiUrl('weatherBOM' as any);
-
-    // Create new observable and cache it IMMEDIATELY to prevent duplicate calls
-    this.weatherDataCache$ = this.apiService.get<NewBomWeatherModel>(endpoint, undefined, 'main').pipe(
-      tap((response: ApiResponse<NewBomWeatherModel>) => {
-        // Check if response has data property or is the data itself
-        const weatherData = response.data || (response as any);
-        // Update state with successful data
-        this.updateState({
-          data: weatherData,
+    const params = bypassCache ? { 'Cache-Control': 'no-cache' } : undefined;
+    return this.apiService.get<NewBomWeatherModel>('WeatherForecast/latestBomWeather', params, 'main').pipe(
+      map((response: ApiResponse<NewBomWeatherModel>) => response.data || (response as any)),
+      tap((data: NewBomWeatherModel) => {
+        this.weatherStateSubject.next({
+          data,
           loading: false,
           error: null,
           lastUpdated: new Date(),
         });
+
+        // Start auto-refresh after first successful fetch
+        if (!this.isAutoRefreshEnabled) {
+          this.startAutoRefresh();
+        }
       }),
       catchError((error) => {
-        console.error('BomWeatherService: Error fetching data:', error);
-        // Update state with error
-        this.updateState({
+        this.logger.error('BomWeatherService: Error fetching data:', error);
+        this.weatherStateSubject.next({
+          ...this.weatherStateSubject.value,
           loading: false,
           error: error.message || 'Failed to fetch BOM weather data',
         });
-        return throwError(() => error);
-      }),
-      map((response: ApiResponse<NewBomWeatherModel>) => response.data || (response as any)),
-      shareReplay(1)
+        return throwError(() => new Error('Failed to fetch BOM weather data'));
+      })
     );
-
-    return this.weatherDataCache$;
   }
 
   /**
-   * Check if data should be refreshed based on call count and cache expiry
+   * Force refresh - alias for getWeatherData for backward compatibility
    */
-  private shouldRefreshData(state: BomWeatherState): boolean {
-    // Refresh if no data exists
-    if (!state.data) {
-      return true;
-    }
-
-    // Refresh if call count exceeds max
-    if (state.callCount >= this.config.maxCallCount) {
-      return true;
-    }
-
-    // Refresh if cache has expired
-    if (state.lastUpdated) {
-      const now = new Date();
-      const diffMinutes = (now.getTime() - state.lastUpdated.getTime()) / (1000 * 60);
-      if (diffMinutes >= this.config.cacheExpiryMinutes) {
-        return true;
-      }
-    }
-
-    return false;
+  public forceRefresh(): Observable<NewBomWeatherModel> {
+    return this.getWeatherData(true);
   }
 
   /**
-   * Start automatic refresh timer
+   * Start automatic refresh every 5 minutes
+   * Automatically bypasses cache to get fresh data
    */
-  private startAutoRefresh(intervalMinutes: number): void {
-    // Stop any existing refresh
-    this.stopAutoRefresh();
+  private startAutoRefresh(): void {
+    if (this.isAutoRefreshEnabled) {
+      return;
+    }
 
-    // Create new refresh subscription
-    this.autoRefreshSubscription = timer(0, intervalMinutes * 60 * 1000)
-      .pipe(switchMap(() => this.fetchWeatherData()))
-      .subscribe({
-        next: () => {
-        },
+    this.logger.info('BomWeatherService: Starting auto-refresh (every 5 minutes)');
+    this.isAutoRefreshEnabled = true;
+
+    this.refreshSubscription = interval(this.REFRESH_INTERVAL).subscribe(() => {
+      this.logger.debug('BomWeatherService: Auto-refresh triggered');
+      // Bypass cache on auto-refresh to ensure fresh data
+      this.getWeatherData(true).subscribe({
         error: (error) => {
-          console.error('Error during BOM weather auto-refresh:', error);
-        },
+          this.logger.warn('BomWeatherService: Auto-refresh failed', error);
+        }
       });
+    });
   }
 
   /**
    * Stop automatic refresh
    */
-  private stopAutoRefresh(): void {
-    if (this.autoRefreshSubscription) {
-      this.autoRefreshSubscription.unsubscribe();
-      this.autoRefreshSubscription = undefined;
+  public stopAutoRefresh(): void {
+    if (this.refreshSubscription) {
+      this.logger.info('BomWeatherService: Stopping auto-refresh');
+      this.refreshSubscription.unsubscribe();
+      this.refreshSubscription = undefined;
+      this.isAutoRefreshEnabled = false;
     }
   }
 
   /**
-   * Increment the call count
+   * Get the last update timestamp
    */
-  private incrementCallCount(): void {
-    const currentState = this.weatherStateSubject.value;
-    this.updateState({
-      callCount: currentState.callCount + 1,
-    });
+  public getLastUpdated(): Date | null {
+    return this.weatherStateSubject.value.lastUpdated;
   }
 
   /**
-   * Reset the call count
+   * Check if auto-refresh is currently enabled
    */
-  private resetCallCount(): void {
-    this.updateState({
-      callCount: 0,
-    });
-  }
-
-  /**
-   * Update the weather state
-   */
-  private updateState(partialState: Partial<BomWeatherState>): void {
-    const currentState = this.weatherStateSubject.value;
-    this.weatherStateSubject.next({
-      ...currentState,
-      ...partialState,
-    });
-  }
-
-  /**
-   * Get current weather state (synchronous)
-   */
-  public getCurrentState(): BomWeatherState {
-    return this.weatherStateSubject.value;
-  }
-
-  /**
-   * Clear cached data
-   */
-  public clearCache(): void {
-    this.weatherDataCache$ = null;
-    this.updateState({
-      data: null,
-      callCount: 0,
-      lastUpdated: null,
-      error: null,
-    });
-  }
-
-  /**
-   * Get a specific location's data from the current state
-   */
-  public getLocationData(locationKey: string): Observable<any> {
-    return this.weatherState$.pipe(
-      filter((state) => state.data !== null),
-      tap((state) => {
-        if (state.data && state.data.locations[locationKey]) {
-          return state.data.locations[locationKey];
-        }
-        throw new Error(`Location ${locationKey} not found`);
-      })
-    );
+  public isAutoRefreshActive(): boolean {
+    return this.isAutoRefreshEnabled;
   }
 }

@@ -1,4 +1,5 @@
-import { Pipe, PipeTransform } from '@angular/core';
+import { Pipe, PipeTransform, inject } from '@angular/core';
+import { LoggerService } from '../../../core/services/logger.service';
 import moment from 'moment';
 import { DATE_FORMATS } from '../constants/project-note.constants';
 
@@ -18,6 +19,7 @@ import { DATE_FORMATS } from '../constants/project-note.constants';
   standalone: true
 })
 export class DateFormatPipe implements PipeTransform {
+  private logger = inject(LoggerService);
 
   /**
    * Transform date to formatted string using Moment.js
@@ -38,7 +40,7 @@ export class DateFormatPipe implements PipeTransform {
 
       // Check if date is valid
       if (!momentDate.isValid()) {
-        console.warn(`Invalid date provided to dateFormat pipe: ${value}`);
+        this.logger.warn(`Invalid date provided to dateFormat pipe: ${value}`);
         return '';
       }
 
@@ -47,7 +49,7 @@ export class DateFormatPipe implements PipeTransform {
 
       return momentDate.format(formatString);
     } catch (error) {
-      console.error('Error formatting date:', error);
+      this.logger.error('Error formatting date:', error);
       return '';
     }
   }

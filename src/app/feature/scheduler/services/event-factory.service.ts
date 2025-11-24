@@ -1,13 +1,15 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { CalendarEvent } from 'angular-calendar';
 import moment from 'moment';
 import { EventFormData, CalendarTaskDTO, UpsertCalendarTaskCommand, TaskPriority, TaskStatus } from '../models';
 import { IEventFactoryService } from '../interfaces/scheduler-service.interfaces';
+import { LoggerService } from '../../../core/services/logger.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class EventFactoryService implements IEventFactoryService {
+  private readonly logger = inject(LoggerService);
 
   createEmptyEvent(): EventFormData {
     return {
@@ -98,14 +100,14 @@ export class EventFactoryService implements IEventFactoryService {
     try {
       startDate = this.parseCronExpressionToDate(task.startCronExpression);
     } catch (error) {
-      console.error('Error parsing start cron expression:', error);
+      this.logger.error('Error parsing start cron expression:', error);
       startDate = moment(task.createdDate);
     }
 
     try {
       endDate = this.parseCronExpressionToDate(task.endCronExpression);
     } catch (error) {
-      console.error('Error parsing end cron expression:', error);
+      this.logger.error('Error parsing end cron expression:', error);
       endDate = undefined;
     }
 
@@ -238,7 +240,7 @@ export class EventFactoryService implements IEventFactoryService {
       }
 
     } catch (error) {
-      console.error('Error generating recurring instances:', error);
+      this.logger.error('Error generating recurring instances:', error);
       // Fallback to single instance
       instances.push(this.convertCalendarTaskToEvent(task, actions));
     }
@@ -399,7 +401,7 @@ export class EventFactoryService implements IEventFactoryService {
         endDate = startDate.clone().add(duration, 'milliseconds');
       }
     } catch (error) {
-      console.error('Error parsing cron expression for event duration:', error);
+      this.logger.error('Error parsing cron expression for event duration:', error);
       endDate = undefined;
     }
 
@@ -745,7 +747,7 @@ export class EventFactoryService implements IEventFactoryService {
    */
   private parseCronExpressionToDate(cronExpression: string): moment.Moment {
     if (!cronExpression || cronExpression.trim() === '') {
-      console.warn('Empty cron expression, using current time');
+      this.logger.warn('Empty cron expression, using current time');
       return moment();
     }
 
@@ -777,7 +779,7 @@ export class EventFactoryService implements IEventFactoryService {
         month = parts[3];
         dayOfWeek = parts[4];
       } else {
-        console.warn('Invalid cron expression format (expected 5 or 6 parts):', cronExpression);
+        this.logger.warn('Invalid cron expression format (expected 5 or 6 parts):', cronExpression);
         return moment();
       }
 
@@ -847,7 +849,7 @@ export class EventFactoryService implements IEventFactoryService {
 
       return date;
     } catch (error) {
-      console.error('Error parsing cron expression:', error);
+      this.logger.error('Error parsing cron expression:', error);
       return moment();
     }
   }

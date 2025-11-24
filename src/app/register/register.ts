@@ -1,7 +1,8 @@
 import { RegistrationModel } from './../core/models/register.model';
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { LoggerService } from '../core/services/logger.service';
 import {
   ReactiveFormsModule,
   FormBuilder,
@@ -149,7 +150,8 @@ export class Register {
           }, 2000);
         },
         error: (err) => {
-          console.error('Registration error:', err);
+          const logger = inject(LoggerService);
+          logger.error('Registration error', err);
           this.errorMessage = err.error || 'Registration failed. Please try again.';
           this.messageService.add({
             severity: 'error',

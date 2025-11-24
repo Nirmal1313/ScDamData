@@ -1,6 +1,7 @@
-import { Directive, OnDestroy, OnInit } from '@angular/core';
+import { Directive, OnDestroy, OnInit, inject } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { BomWeatherService } from '../services/bom-weather.service';
+import { LoggerService } from '../services/logger.service';
 import { NewBomWeatherModel, LocationData, CurrentWeather } from '../models/weatherBOM.module';
 
 /**
@@ -15,15 +16,12 @@ export abstract class BomWeatherConsumerBase implements OnInit, OnDestroy {
   bomWeatherData: NewBomWeatherModel | null = null;
   primaryLocation: LocationData | null = null;
   protected weatherSubscription?: Subscription;
+  private logger = inject(LoggerService);
 
   constructor(protected bomWeatherService: BomWeatherService) {}
 
   ngOnInit(): void {
     this.subscribeToWeather();
-    // Trigger initial data fetch
-    this.bomWeatherService.getWeatherData().subscribe({
-      error: (err) => console.error('Error fetching BOM weather data:', err)
-    });
   }
 
   ngOnDestroy(): void {

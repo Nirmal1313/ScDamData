@@ -1,18 +1,28 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <meta charset="utf-8"/>
+    <meta charset="utf-8" />
     <title>ScrivenerDam</title>
-    <base href="/"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <base href="/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <!-- Prevent MIME type sniffing -->
+    <meta http-equiv="X-Content-Type-Options" content="nosniff" />
+
+    <!-- Enable XSS protection -->
+    <meta http-equiv="X-XSS-Protection" content="1; mode=block" />
+
+    <!-- Referrer policy -->
+    <meta name="referrer" content="strict-origin-when-cross-origin" />
+
     <link rel="icon" type="image/x-icon" href="dam.svg" />
-</head>
+  </head>
   <body>
     <app-root></app-root>
-    <footer >
+    <footer>
       <div class="footer-text">
         <p>© 2025 ScrivenerDam. All rights reserved.</p>
       </div>
-</footer>
-</body>
+    </footer>
+  </body>
 </html>

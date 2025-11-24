@@ -1,6 +1,7 @@
 // src/app/core/services/storage.service.ts
-import { Injectable, PLATFORM_ID, Inject } from '@angular/core';
+import { Injectable, PLATFORM_ID, Inject, inject } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
+import { LoggerService } from './logger.service';
 
 @Injectable({
   providedIn: 'root'
@@ -9,6 +10,7 @@ export class StorageService {
   private storageType: 'localStorage' | 'sessionStorage' = 'localStorage';
   private isBrowser: boolean;
   private memoryStorage: Map<string, string> = new Map();
+  private logger = inject(LoggerService);
 
   constructor(@Inject(PLATFORM_ID) platformId: Object) {
     // Check if we're running in the browser or on the server
@@ -27,7 +29,7 @@ export class StorageService {
     try {
       return window[this.storageType].getItem(key);
     } catch (error) {
-      console.error('Error accessing storage:', error);
+      this.logger.error('Error accessing storage', error);
       return null;
     }
   }
@@ -41,7 +43,7 @@ export class StorageService {
     try {
       window[this.storageType].setItem(key, value);
     } catch (error) {
-      console.error('Error setting item in storage:', error);
+      this.logger.error('Error setting item in storage:', error);
     }
   }
 
@@ -54,7 +56,7 @@ export class StorageService {
     try {
       window[this.storageType].removeItem(key);
     } catch (error) {
-      console.error('Error removing item from storage:', error);
+      this.logger.error('Error removing item from storage:', error);
     }
   }
 
@@ -67,7 +69,7 @@ export class StorageService {
     try {
       window[this.storageType].clear();
     } catch (error) {
-      console.error('Error clearing storage:', error);
+      this.logger.error('Error clearing storage:', error);
     }
   }
 }

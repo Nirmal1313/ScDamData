@@ -1,7 +1,8 @@
-import { Component, OnInit, OnDestroy, ChangeDetectorRef, AfterViewInit, ElementRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectorRef, AfterViewInit, ElementRef, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { Subject, takeUntil } from 'rxjs';
+import { LoggerService } from '../../core/services/logger.service';
 import { PanelModule } from 'primeng/panel';
 import { ButtonModule } from 'primeng/button';
 import { DialogModule } from 'primeng/dialog';
@@ -100,6 +101,8 @@ export class Notes implements OnInit, OnDestroy, AfterViewInit {
 
   // Dynamic field labels for expandable view
   fieldLabels: { [key: string]: string } = {};
+
+  private logger = inject(LoggerService);
 
   // Main table columns configuration (what should be visible in the main table)
   mainTableColumns = [
@@ -303,7 +306,7 @@ export class Notes implements OnInit, OnDestroy, AfterViewInit {
       // Force change detection
       this.cdr.detectChanges();
     } catch (error) {
-      console.error('Error initializing columns:', error);
+      this.logger.error('Error initializing columns:', error);
 
       // Fallback to basic columns if service fails
       this.columns = [

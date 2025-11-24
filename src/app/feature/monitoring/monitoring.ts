@@ -1,4 +1,5 @@
-import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject } from '@angular/core';
+import { LoggerService } from '../../core/services/logger.service';
 import { PanelModule } from 'primeng/panel';
 import { DividerModule } from 'primeng/divider';
 import { TableModule } from 'primeng/table';
@@ -63,13 +64,14 @@ export class Monitoring implements OnInit, OnDestroy {
   // Auto-refresh subscription
   private refreshSubscription?: Subscription;
   private authSubscription?: Subscription;
-  private readonly REFRESH_INTERVAL = 7 * 60 * 1000; // 7 minutes in milliseconds
+  private readonly REFRESH_INTERVAL = 5 * 60 * 1000; // 5 minutes in milliseconds
+
+  private logger = inject(LoggerService);
 
   constructor(
     private waterLevelService: WaterLevelService,
     private authService: AuthService,
-    private configService: ConfigService,
-    private cdr: ChangeDetectorRef
+    private configService: ConfigService
   ) {}
 
   ngOnInit() {
@@ -102,7 +104,7 @@ export class Monitoring implements OnInit, OnDestroy {
     this.refreshSubscription = interval(this.REFRESH_INTERVAL)
       .pipe(filter(() => this.authService.isLoggedIn()))
       .subscribe(() => {
-        this.loadWaterLevelData();
+        this.loadWaterLevelData(true); // Bypass cache on auto-refresh
       });
   }
 
@@ -120,20 +122,18 @@ export class Monitoring implements OnInit, OnDestroy {
    * Manual refresh triggered by user
    */
   refreshData(): void {
-    this.loadWaterLevelData();
+    this.loadWaterLevelData(true); // Force bypass cache on manual refresh
   }
 
-  private loadWaterLevelData() {
+  private loadWaterLevelData(bypassCache = false) {
     this.loading = true;
     this.error = '';
-    this.cdr.detectChanges();
 
-    this.waterLevelService.getWaterLevelData().subscribe({
+    this.waterLevelService.getWaterLevelData(bypassCache).subscribe({
       next: (data: ScrivenerCR1000Result) => {
         if (!data) {
           this.error = 'No data received from server';
           this.loading = false;
-          this.cdr.detectChanges();
           return;
         }
 
@@ -152,13 +152,11 @@ export class Monitoring implements OnInit, OnDestroy {
         }
 
         this.loading = false;
-        this.cdr.detectChanges();
       },
       error: (err) => {
-        console.error('Error fetching water level data:', err);
+        this.logger.error('Error fetching water level data:', err);
         this.error = err.message || 'Failed to load water level data';
         this.loading = false;
-        this.cdr.detectChanges();
       },
     });
   }

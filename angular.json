@@ -65,6 +65,10 @@
         },
         "serve": {
           "builder": "@angular/build:dev-server",
+          "options": {
+            "host": "127.0.0.1",
+            "port": 8080
+          },
           "configurations": {
             "production": {
               "buildTarget": "ScrivenerDam-FrontEnd-App:build:production"

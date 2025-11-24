@@ -9,6 +9,7 @@ import {
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { LoggerService } from '../../core/services/logger.service';
 import {
   DateAdapter,
   provideCalendar,
@@ -115,6 +116,7 @@ export class Scheduler implements OnInit, AfterViewInit {
   private readonly messageService = inject(MessageService);
   private readonly orchestrator = inject(SchedulerOrchestratorService);
   private readonly calendarTaskApi = inject(CalendarTaskApiService);
+  private readonly logger = inject(LoggerService);
 
   readonly CalendarView = CalendarView;
   readonly weekStartsOn = DAYS_OF_WEEK.MONDAY;
@@ -224,7 +226,7 @@ export class Scheduler implements OnInit, AfterViewInit {
         });
       },
       error: (error) => {
-        console.error('Error loading calendar tasks from API:', error);
+        this.logger.error('Error loading calendar tasks from API:', error);
         setTimeout(() => {
           const initialization = this.orchestrator.initializeScheduler();
           this.events = initialization.events;
@@ -269,7 +271,7 @@ export class Scheduler implements OnInit, AfterViewInit {
         });
       },
       error: (error) => {
-        console.error('Failed to reload events from server:', error);
+        this.logger.error('Failed to reload events from server:', error);
         this.showMessage('warn', 'Warning', 'Failed to refresh calendar events. Please reload the page.');
       }
     });
@@ -786,7 +788,7 @@ export class Scheduler implements OnInit, AfterViewInit {
       this.validateCurrentEvent();
       this.cdr.detectChanges();
     } catch (error) {
-      console.error('Error applying weekday and date range:', error);
+      this.logger.error('Error applying weekday and date range:', error);
       this.showMessage(
         'error',
         'Apply Failed',
@@ -829,7 +831,7 @@ export class Scheduler implements OnInit, AfterViewInit {
 
       this.cdr.detectChanges();
     } catch (error) {
-      console.error('Error clearing selections:', error);
+      this.logger.error('Error clearing selections:', error);
       this.showMessage(
         'error',
         'Clear Failed',
@@ -1495,7 +1497,7 @@ export class Scheduler implements OnInit, AfterViewInit {
         },
         error: (error) => {
           this.isSaving = false;
-          console.error('Error saving recurring event:', error);
+          this.logger.error('Error saving recurring event:', error);
 
           const errorMessage = error?.error?.message || error?.message || 'Unknown error occurred';
           this.showMessage(
@@ -1506,7 +1508,7 @@ export class Scheduler implements OnInit, AfterViewInit {
         },
       });
     } catch (error) {
-      console.error('Error saving recurring event:', error);
+      this.logger.error('Error saving recurring event:', error);
       this.isSaving = false;
       const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
       this.showMessage(
@@ -1857,7 +1859,7 @@ export class Scheduler implements OnInit, AfterViewInit {
         },
         error: (error) => {
           this.isSaving = false;
-          console.error('Error saving event:', error);
+          this.logger.error('Error saving event:', error);
 
           const errorMessage = error?.error?.message || error?.message || 'Unknown error occurred';
           this.showMessage(
@@ -1868,7 +1870,7 @@ export class Scheduler implements OnInit, AfterViewInit {
         },
       });
     } catch (error) {
-      console.error('Error saving event:', error);
+      this.logger.error('Error saving event:', error);
       this.isSaving = false;
       const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
       this.showMessage(
@@ -1978,7 +1980,7 @@ export class Scheduler implements OnInit, AfterViewInit {
             },
             error: (error) => {
               this.isDeleting = false;
-              console.error('Error deleting event:', error);
+              this.logger.error('Error deleting event:', error);
 
               const errorMessage = error?.error?.message || error?.message || 'Unknown error occurred';
               this.showMessage('error', 'Delete Failed', `Failed to delete the event: ${errorMessage}`);

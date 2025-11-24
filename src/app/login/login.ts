@@ -13,6 +13,7 @@ import { MessageModule } from 'primeng/message';
 import { CardModule } from 'primeng/card';
 import { Router } from '@angular/router';
 import { AuthService } from '../core/services/auth.service';
+import { LoggerService } from '../core/services/logger.service';
 import { finalize } from 'rxjs/operators';
 import { RippleModule } from 'primeng/ripple';
 import { DividerModule } from 'primeng/divider';
@@ -98,8 +99,8 @@ export class Login {
    */
   onImageError(): void {
     this.imageLoadError = true;
-    console.error('❌ Failed to load background image, using placeholder');
-    console.error('Attempted path:', this.backgroundImage);
+    const logger = inject(LoggerService);
+    logger.error('Failed to load background image, using placeholder', { path: this.backgroundImage });
   }
 
   onSubmit() {
@@ -121,7 +122,8 @@ export class Login {
           this.router.navigate(['/dashboard']);
         },
         error: (err) => {
-          console.error('Login error:', err);
+          const logger = inject(LoggerService);
+          logger.error('Login error', err);
           this.errorMessage = err.error || 'Login failed. Please check your credentials.';
           // No need for manual change detection in zoneless mode
         }

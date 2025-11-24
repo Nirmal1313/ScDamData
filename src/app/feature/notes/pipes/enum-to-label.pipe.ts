@@ -1,4 +1,5 @@
-import { Pipe, PipeTransform } from '@angular/core';
+import { Pipe, PipeTransform, inject } from '@angular/core';
+import { LoggerService } from '../../../core/services/logger.service';
 import {
   ProjectStatus,
   TaskPriority,
@@ -25,6 +26,7 @@ import {
   standalone: true
 })
 export class EnumToLabelPipe implements PipeTransform {
+  private logger = inject(LoggerService);
 
   /**
    * Transform enum value to readable label
@@ -49,7 +51,7 @@ export class EnumToLabelPipe implements PipeTransform {
       // Return label or original value if not found
       return labelMap[value] || value.toString();
     } catch (error) {
-      console.error('Error converting enum to label:', error);
+      this.logger.error('Error converting enum to label:', error);
       return value.toString();
     }
   }
@@ -73,7 +75,7 @@ export class EnumToLabelPipe implements PipeTransform {
       case 'noteType':
         return NoteTypeLabels;
       default:
-        console.warn(`Unknown enum type: ${enumType}`);
+        this.logger.warn(`Unknown enum type: ${enumType}`);
         return {};
     }
   }

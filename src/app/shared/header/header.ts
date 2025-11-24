@@ -153,6 +153,8 @@ export class Header extends BomWeatherConsumerBase implements OnInit, OnDestroy 
   override ngOnInit(): void {
     // Call parent's ngOnInit to handle weather subscription
     super.ngOnInit();
+    // Trigger initial weather data fetch for header display
+    this.bomWeatherService.getWeatherData().subscribe();
   }
 
   /**
