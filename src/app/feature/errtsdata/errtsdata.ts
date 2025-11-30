@@ -69,7 +69,10 @@ export class ERRTSData implements OnInit, OnDestroy {
   // Date range filter properties
   filterDateFrom: Date | null = null;
   filterDateTo: Date | null = null;
+  filterDateFromString: string = '';
+  filterDateToString: string = '';
   private unfilteredRowData: any = null;
+  dateRangeError: string = '';
 
   private logger = inject(LoggerService);
 
@@ -285,7 +288,10 @@ export class ERRTSData implements OnInit, OnDestroy {
     // Reset date filters when opening popup
     this.filterDateFrom = null;
     this.filterDateTo = null;
+    this.filterDateFromString = '';
+    this.filterDateToString = '';
     this.unfilteredRowData = null;
+    this.dateRangeError = '';
 
     const baseUrl = this.configService.getApiUrl('main');
 
@@ -573,9 +579,38 @@ export class ERRTSData implements OnInit, OnDestroy {
   }
 
   /**
+   * Handle mobile date input changes
+   */
+  onMobileDateChange(type: 'from' | 'to', value: string): void {
+    if (type === 'from') {
+      this.filterDateFrom = value ? new Date(value) : null;
+    } else {
+      this.filterDateTo = value ? new Date(value) : null;
+    }
+    this.applyDateRangeFilter();
+  }
+
+  /**
    * Apply date range filter to the table data
    */
   applyDateRangeFilter(): void {
+    // Clear previous error
+    this.dateRangeError = '';
+
+    // Validate date range: From date must be less than To date
+    if (this.filterDateFrom && this.filterDateTo) {
+      if (this.filterDateFrom > this.filterDateTo) {
+        this.dateRangeError = 'From date must be less than or equal to To date';
+        // Restore unfiltered data on error
+        if (this.unfilteredRowData) {
+          this.selectedRowData = Array.isArray(this.unfilteredRowData)
+            ? [...this.unfilteredRowData]
+            : { ...this.unfilteredRowData };
+        }
+        return;
+      }
+    }
+
     // Store unfiltered data on first filter
     if (!this.unfilteredRowData && this.selectedRowData) {
       this.unfilteredRowData = Array.isArray(this.selectedRowData)
@@ -601,14 +636,22 @@ export class ERRTSData implements OnInit, OnDestroy {
 
         const rowDate = new Date(timestamp);
 
-        // Check from date
-        if (this.filterDateFrom && rowDate < this.filterDateFrom) {
-          return false;
+        // Check from date (start of day)
+        if (this.filterDateFrom) {
+          const fromDate = new Date(this.filterDateFrom);
+          fromDate.setHours(0, 0, 0, 0);
+          if (rowDate < fromDate) {
+            return false;
+          }
         }
 
-        // Check to date
-        if (this.filterDateTo && rowDate > this.filterDateTo) {
-          return false;
+        // Check to date (end of day - 23:59:59.999)
+        if (this.filterDateTo) {
+          const toDate = new Date(this.filterDateTo);
+          toDate.setHours(23, 59, 59, 999);
+          if (rowDate > toDate) {
+            return false;
+          }
         }
 
         return true;

@@ -4,6 +4,7 @@ import { PanelModule } from 'primeng/panel';
 import { DividerModule } from 'primeng/divider';
 import { TableModule } from 'primeng/table';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { WaterLevelService } from '../../core/services/water-level.service';
 import { ScrivenerCR1000Result } from '../../core/models/water-level.model';
 import { AuthService } from '../../core/services/auth.service';
@@ -15,10 +16,12 @@ import { DialogModule } from 'primeng/dialog';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { ButtonModule } from 'primeng/button';
 import { TooltipModule } from 'primeng/tooltip';
+import { DatePickerModule } from 'primeng/datepicker';
+import { HttpClient } from '@angular/common/http';
 
 @Component({
   selector: 'app-monitoring',
-  imports: [PanelModule, DividerModule, TableModule, CommonModule, SplitterModule, DialogModule, ProgressSpinnerModule, ButtonModule, TooltipModule],
+  imports: [PanelModule, DividerModule, TableModule, CommonModule, FormsModule, SplitterModule, DialogModule, ProgressSpinnerModule, ButtonModule, TooltipModule, DatePickerModule],
   templateUrl: './monitoring.html',
   styleUrl: './monitoring.scss',
 })
@@ -58,6 +61,19 @@ export class Monitoring implements OnInit, OnDestroy {
   selectedImageUrl: string = '';
   selectedCommsId: string = '';
 
+  // Resource dialog for lake level data
+  showLakeLevelDialog: boolean = false;
+  selectedRowData: any = null;
+  loadingResourceData: boolean = false;
+
+  // Date range filter properties
+  filterDateFrom: Date | null = null;
+  filterDateTo: Date | null = null;
+  filterDateFromString: string = '';
+  filterDateToString: string = '';
+  private unfilteredRowData: any = null;
+  dateRangeError: string = '';
+
   loading: boolean = false;
   error: string = '';
 
@@ -71,7 +87,8 @@ export class Monitoring implements OnInit, OnDestroy {
   constructor(
     private waterLevelService: WaterLevelService,
     private authService: AuthService,
-    private configService: ConfigService
+    private configService: ConfigService,
+    private http: HttpClient
   ) {}
 
   ngOnInit() {
@@ -548,6 +565,192 @@ export class Monitoring implements OnInit, OnDestroy {
         return 'trend-steady';
       default:
         return '';
+    }
+  }
+
+  /**
+   * Open lake level data popup - shows table data from GetProxiedResource API
+   */
+  openLakeLevelData(): void {
+    // Reset date filters when opening popup
+    this.filterDateFrom = null;
+    this.filterDateTo = null;
+    this.filterDateFromString = '';
+    this.filterDateToString = '';
+    this.unfilteredRowData = null;
+    this.dateRangeError = '';
+
+    this.selectedRowData = null;
+    this.loadingResourceData = true;
+    this.showLakeLevelDialog = true;
+
+    const baseUrl = this.configService.getApiUrl('main');
+    const resourceUrl = 'QDataH'; // CommsId for Scrivener Dam
+    const apiUrl = `${baseUrl}/WeatherForecast/getProxiedResource?resourceUrl=${resourceUrl}&resourceType=logger`;
+
+    this.http.get(apiUrl).subscribe({
+      next: (response: any) => {
+        // If response is an array, sort by timestamp descending
+        if (Array.isArray(response)) {
+          this.selectedRowData = [...response].sort((a, b) => {
+            // Get timestamp with case-insensitive field name check
+            const timestampA = a.timestamp || a.Timestamp || a.TimeStamp || a.TIMESTAMP;
+            const timestampB = b.timestamp || b.Timestamp || b.TimeStamp || b.TIMESTAMP;
+
+            const dateA = new Date(timestampA || 0).getTime();
+            const dateB = new Date(timestampB || 0).getTime();
+            return dateB - dateA; // Descending order (newest first)
+          });
+        } else {
+          this.selectedRowData = response;
+        }
+
+        this.loadingResourceData = false;
+      },
+      error: (err) => {
+        this.logger.error('Error fetching lake level data:', err);
+        this.selectedRowData = { error: 'Failed to load data from API' };
+        this.loadingResourceData = false;
+      }
+    });
+  }
+
+  /**
+   * Get keys from selected row data for table display
+   */
+  getRowDataKeys(): string[] {
+    if (!this.selectedRowData) return [];
+
+    // If it's an array, get keys from first item
+    if (Array.isArray(this.selectedRowData) && this.selectedRowData.length > 0) {
+      return Object.keys(this.selectedRowData[0]);
+    }
+
+    return Object.keys(this.selectedRowData);
+  }
+
+  /**
+   * Check if selected data is an array (multiple records)
+   */
+  isArrayData(): boolean {
+    return Array.isArray(this.selectedRowData);
+  }
+
+  /**
+   * Format timestamp for display
+   */
+  formatTimestamp(timestamp: string): string {
+    if (!timestamp) return 'N/A';
+    try {
+      const date = new Date(timestamp);
+      return date.toLocaleString('en-AU', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: false
+      });
+    } catch {
+      return timestamp;
+    }
+  }
+
+  /**
+   * Format column headers - convert to proper case with spaces
+   */
+  formatColumnHeader(column: string): string {
+    if (!column) return '';
+
+    // If already contains spaces, return as is
+    if (column.includes(' ')) return column;
+
+    // Convert camelCase or PascalCase to spaced words
+    return column
+      .replace(/([A-Z])/g, ' $1') // Add space before capital letters
+      .replace(/^./, (str) => str.toUpperCase()) // Capitalize first letter
+      .trim();
+  }
+
+  /**
+   * Handle mobile date input changes
+   */
+  onMobileDateChange(type: 'from' | 'to', value: string): void {
+    if (type === 'from') {
+      this.filterDateFrom = value ? new Date(value) : null;
+    } else {
+      this.filterDateTo = value ? new Date(value) : null;
+    }
+    this.applyDateRangeFilter();
+  }
+
+  /**
+   * Apply date range filter to the table data
+   */
+  applyDateRangeFilter(): void {
+    // Clear previous error
+    this.dateRangeError = '';
+
+    // Validate date range: From date must be less than To date
+    if (this.filterDateFrom && this.filterDateTo) {
+      if (this.filterDateFrom > this.filterDateTo) {
+        this.dateRangeError = 'From date must be less than or equal to To date';
+        // Restore unfiltered data on error
+        if (this.unfilteredRowData) {
+          this.selectedRowData = Array.isArray(this.unfilteredRowData)
+            ? [...this.unfilteredRowData]
+            : { ...this.unfilteredRowData };
+        }
+        return;
+      }
+    }
+
+    // Store unfiltered data on first filter
+    if (!this.unfilteredRowData && this.selectedRowData) {
+      this.unfilteredRowData = Array.isArray(this.selectedRowData)
+        ? [...this.selectedRowData]
+        : { ...this.selectedRowData };
+    }
+
+    // If no filters, restore original data
+    if (!this.filterDateFrom && !this.filterDateTo) {
+      if (this.unfilteredRowData) {
+        this.selectedRowData = Array.isArray(this.unfilteredRowData)
+          ? [...this.unfilteredRowData]
+          : { ...this.unfilteredRowData };
+      }
+      return;
+    }
+
+    // Filter the data based on date range
+    if (Array.isArray(this.unfilteredRowData)) {
+      this.selectedRowData = this.unfilteredRowData.filter((row: any) => {
+        const timestamp = row.timestamp || row.Timestamp;
+        if (!timestamp) return true;
+
+        const rowDate = new Date(timestamp);
+
+        // Check from date (start of day)
+        if (this.filterDateFrom) {
+          const fromDate = new Date(this.filterDateFrom);
+          fromDate.setHours(0, 0, 0, 0);
+          if (rowDate < fromDate) {
+            return false;
+          }
+        }
+
+        // Check to date (end of day - 23:59:59.999)
+        if (this.filterDateTo) {
+          const toDate = new Date(this.filterDateTo);
+          toDate.setHours(23, 59, 59, 999);
+          if (rowDate > toDate) {
+            return false;
+          }
+        }
+
+        return true;
+      });
     }
   }
 }

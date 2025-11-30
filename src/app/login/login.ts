@@ -104,28 +104,31 @@ export class Login {
   }
 
   onSubmit() {
+    // Clear previous error message to allow retry
+    this.errorMessage = null;
+
     if (this.loginForm.invalid) {
       this.markFormGroupTouched(this.loginForm);
       return;
     }
 
     this.isLoading = true;
-    this.errorMessage = null;
 
     this.authService.login(this.loginForm.value)
-      .pipe(finalize(() => {
-        this.isLoading = false;
-        // No need for manual change detection in zoneless mode
-      }))
+      .pipe(
+        finalize(() => {
+          this.isLoading = false;
+        })
+      )
       .subscribe({
         next: () => {
           this.router.navigate(['/dashboard']);
         },
         error: (err) => {
+          this.isLoading = false; // Ensure loading stops immediately on error
+          this.errorMessage = this.extractErrorMessage(err);
           const logger = inject(LoggerService);
-          logger.error('Login error', err);
-          this.errorMessage = err.error || 'Login failed. Please check your credentials.';
-          // No need for manual change detection in zoneless mode
+          logger.error('Login failed:', this.errorMessage);
         }
       });
   }
@@ -137,5 +140,57 @@ export class Login {
         this.markFormGroupTouched(control);
       }
     });
+  }
+
+  /**
+   * Extract user-friendly error message from error response
+   * Prevents displaying API URLs or technical error details to users
+   */
+  private extractErrorMessage(error: any): string {
+    // Check for specific error message from API
+    if (error.error && typeof error.error === 'object') {
+      if (error.error.message) {
+        return error.error.message;
+      }
+
+      // Handle validation errors
+      if (error.error.errors) {
+        const errors = Object.values(error.error.errors).flat();
+        return (errors as string[]).join(', ');
+      }
+
+      // Handle simple error string
+      if (error.error.error && typeof error.error.error === 'string') {
+        return error.error.error;
+      }
+    }
+
+    // Check for error message string directly
+    if (typeof error.error === 'string' && !error.error.includes('http')) {
+      return error.error;
+    }
+
+    // Check for timeout error
+    if (error.name === 'TimeoutError' || error.error === 'timeout') {
+      return 'Request timed out. The server is taking too long to respond. Please try again.';
+    }
+
+    // Handle HTTP status codes with user-friendly messages
+    switch (error.status) {
+      case 400:
+        return 'Invalid request. Please check your input.';
+      case 401:
+        return 'Invalid username or password.';
+      case 403:
+        return 'Access denied.';
+      case 404:
+        return 'Service not found. Please contact support.';
+      case 500:
+        return 'Server error. Please try again later.';
+      case 0:
+        return 'Network error. Please check your internet connection.';
+      default:
+        return 'Login failed. Please check your credentials and try again.';
+    }
   }
 }

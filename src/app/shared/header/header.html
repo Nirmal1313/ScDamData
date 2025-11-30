@@ -47,11 +47,12 @@
           <p-button
             *ngIf="showFullWeatherInfo"
             class="refresh-weather-btn"
-            icon="pi pi-sync"
+            [icon]="isRefreshing ? 'pi pi-spin pi-spinner' : 'pi pi-sync'"
             [rounded]="true"
             [text]="true"
-            severity="secondary"
-            [pTooltip]="'Latest weather update: ' + displayLatestTime"
+            [severity]="refreshCooldown ? 'secondary' : 'secondary'"
+            [disabled]="isRefreshing || refreshCooldown"
+            [pTooltip]="refreshCooldown ? 'Wait 3 seconds...' : (isRefreshing ? 'Refreshing...' : 'Latest: ' + displayLatestTime)"
             tooltipPosition="bottom"
             (click)="onRefreshWeather()"
           >
@@ -130,10 +131,11 @@
       <!-- Refresh Weather Button in Mobile Menu -->
       <div class="mobile-menu-action">
         <p-button
-          label="Refresh Weather"
-          icon="pi pi-sync"
+          [label]="isRefreshing ? 'Refreshing...' : (refreshCooldown ? 'Please wait...' : 'Refresh Weather')"
+          [icon]="isRefreshing ? 'pi pi-spin pi-spinner' : 'pi pi-sync'"
           severity="secondary"
           [outlined]="true"
+          [disabled]="isRefreshing || refreshCooldown"
           (click)="onRefreshWeatherMobile()"
           styleClass="mobile-refresh-btn"
         />

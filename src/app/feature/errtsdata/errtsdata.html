@@ -280,7 +280,8 @@
     <div class="api-response-content">
       <div class="date-filter-container">
         <div class="date-filter-wrapper">
-          <div class="date-filter-group">
+          <!-- Desktop View: Calendar Picker -->
+          <div class="date-filter-group desktop-only">
             <label class="date-filter-label">From:</label>
             <p-datepicker
               [(ngModel)]="filterDateFrom"
@@ -293,9 +294,10 @@
               (onSelect)="applyDateRangeFilter()"
               (onClear)="applyDateRangeFilter()"
               [showClear]="true"
+              [ngClass]="{'date-error': dateRangeError}"
             />
           </div>
-          <div class="date-filter-group">
+          <div class="date-filter-group desktop-only">
             <label class="date-filter-label">To:</label>
             <p-datepicker
               [(ngModel)]="filterDateTo"
@@ -308,8 +310,37 @@
               (onSelect)="applyDateRangeFilter()"
               (onClear)="applyDateRangeFilter()"
               [showClear]="true"
+              [ngClass]="{'date-error': dateRangeError}"
             />
           </div>
+
+          <!-- Mobile View: Text Input with Date Type -->
+          <div class="date-filter-group mobile-only">
+            <label class="date-filter-label">From:</label>
+            <input
+              type="date"
+              [(ngModel)]="filterDateFromString"
+              (ngModelChange)="onMobileDateChange('from', $event)"
+              class="mobile-date-input"
+              [ngClass]="{'date-error': dateRangeError}"
+              placeholder="yyyy-mm-dd"
+            />
+          </div>
+          <div class="date-filter-group mobile-only">
+            <label class="date-filter-label">To:</label>
+            <input
+              type="date"
+              [(ngModel)]="filterDateToString"
+              (ngModelChange)="onMobileDateChange('to', $event)"
+              class="mobile-date-input"
+              [ngClass]="{'date-error': dateRangeError}"
+              placeholder="yyyy-mm-dd"
+            />
+          </div>
+        </div>
+        <div *ngIf="dateRangeError" class="date-error-message">
+          <i class="pi pi-exclamation-triangle"></i>
+          <span>{{ dateRangeError }}</span>
         </div>
       </div>
       <p-table

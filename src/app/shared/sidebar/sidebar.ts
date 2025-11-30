@@ -127,32 +127,30 @@ export class Sidebar implements OnInit, OnDestroy {
     // Subscribe to BOM weather state
     this.weatherSubscription = this.bomWeatherService.weatherState$.subscribe((state) => {
       if (state.data && state.data.locations) {
-        // Get Canberra weather data from the three sources
-        const canberraToday = state.data.locations['canberra-today'];
-        const canberra7day = state.data.locations['canberra-7day'];
-        const canberraHourly = state.data.locations['canberra-hourly'];
+        // Get Canberra weather data - the API returns a single 'canberra' key with all data
+        const canberra = state.data.locations['canberra'];
 
         // Store for template access
-        this.weatherSummary = canberraToday;
+        this.weatherSummary = canberra;
         this.lastUpdated = this.formatTime(state.data.timestamp || 'N/A');
 
-        // Map data to tables
-        this.mapWeatherReportTable(canberraToday);
-        this.mapWeekdaysTable(canberra7day);
-        this.mapForecastTable(canberraHourly);
+        // Map data to tables - all data comes from the single canberra location
+        this.mapWeatherReportTable(canberra);
+        this.mapWeekdaysTable(canberra);
+        this.mapForecastTable(canberra);
       }
     });
 
-    // Trigger initial data fetch
-    this.bomWeatherService.getWeatherData().subscribe();
+    // Note: No need to trigger fetch here - header component already does it
+    // We'll receive data via weatherState$ subscription
   }
 
   /**
    * Map current weather data to Weather Report table (rowsWeather)
    */
   private mapWeatherReportTable(todayData: LocationData | undefined): void {
-    if (!todayData || !todayData.current || !todayData.sunInfo) {
-      this.rowsWeather = [];
+    if (!todayData || !todayData.current) {
+      this.rowsWeather = [{ key: 'Status', value: 'No current weather data available' }];
       return;
     }
 
@@ -162,16 +160,16 @@ export class Sidebar implements OnInit, OnDestroy {
       todayData.forecast && todayData.forecast.length > 0 ? todayData.forecast[0] : null;
 
     this.rowsWeather = [
-      { key: 'Condition', value: todayForecast?.conditions || current.conditions },
-      { key: 'Feels Like', value: current.feelsLike },
-      { key: 'Min Temp', value: current.minTemp },
-      { key: 'Max Temp', value: current.maxTemp },
-      { key: 'Wind', value: current.wind },
-      { key: 'Gust', value: current.gust },
-      { key: 'Humidity', value: current.humidity },
-      { key: 'Dew Point', value: current.dewPoint },
-      { key: 'Rain Since Midnight', value: current.rainSinceMidnight },
-      { key: 'Rain Chance', value: current.rainChance },
+      { key: 'Condition', value: todayForecast?.conditions || current.conditions || 'N/A' },
+      { key: 'Feels Like', value: current.feelsLike || 'N/A' },
+      { key: 'Min Temp', value: current.minTemp || 'N/A' },
+      { key: 'Max Temp', value: current.maxTemp || 'N/A' },
+      { key: 'Wind', value: current.wind || 'N/A' },
+      { key: 'Gust', value: current.gust || 'N/A' },
+      { key: 'Humidity', value: current.humidity || 'N/A' },
+      { key: 'Dew Point', value: current.dewPoint || 'N/A' },
+      { key: 'Rain Since Midnight', value: current.rainSinceMidnight || 'N/A' },
+      { key: 'Rain Chance', value: current.rainChance || 'N/A' },
     ];
   }
 
@@ -179,7 +177,7 @@ export class Sidebar implements OnInit, OnDestroy {
    * Map 7-day forecast data to Week Days Report table (weekdaysWeather)
    */
   private mapWeekdaysTable(weekData: LocationData | undefined): void {
-    if (!weekData || !weekData.forecast) {
+    if (!weekData || !weekData.forecast || weekData.forecast.length === 0) {
       this.weekdaysWeather = [];
       return;
     }
@@ -192,14 +190,14 @@ export class Sidebar implements OnInit, OnDestroy {
       maxTemp: day.maxTemp,
     }));
     // Keep only the next 6 days
-    this.weekdaysWeather = this.weekdaysWeather.splice(0, 6);
+    this.weekdaysWeather = this.weekdaysWeather.splice(0, 7);
   }
 
   /**
    * Map hourly forecast data to Forecast Report table (forecastWeather)
    */
   private mapForecastTable(hourlyData: LocationData | undefined): void {
-    if (!hourlyData || !hourlyData.hourlyForecast) {
+    if (!hourlyData || !hourlyData.hourlyForecast || hourlyData.hourlyForecast.length === 0) {
       this.forecastWeather = [];
       return;
     }

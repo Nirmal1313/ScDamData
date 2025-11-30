@@ -51,9 +51,13 @@ export class BomWeatherService implements OnDestroy {
       error: null,
     });
 
-    const params = bypassCache ? { 'Cache-Control': 'no-cache' } : undefined;
-    return this.apiService.get<NewBomWeatherModel>('WeatherForecast/latestBomWeather', params, 'main').pipe(
-      map((response: ApiResponse<NewBomWeatherModel>) => response.data || (response as any)),
+    // Pass cache bypass flag as both query parameter (for API) and header (for HTTP interceptor cache)
+    const params = bypassCache ? { bypassCache: 'true' } : undefined;
+    const headers = bypassCache ? { 'Cache-Control': 'no-cache' } : undefined;
+    return this.apiService.get<NewBomWeatherModel>('WeatherForecast/latestBomWeather', params, 'main', headers).pipe(
+      map((response: ApiResponse<NewBomWeatherModel>) => {
+       return response.data || (response as any);
+      }),
       tap((data: NewBomWeatherModel) => {
         this.weatherStateSubject.next({
           data,

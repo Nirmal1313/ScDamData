@@ -20,9 +20,10 @@ export class ApiService {
    * @param endpoint - The endpoint path
    * @param params - Optional query parameters
    * @param apiName - The name of the API to use (defaults to 'main')
+   * @param headers - Optional HTTP headers
    * @returns Observable of the API response
    */
-  get<T>(endpoint: string, params?: any, apiName: string = 'main'): Observable<ApiResponse<T>> {
+  get<T>(endpoint: string, params?: any, apiName: string = 'main', headers?: any): Observable<ApiResponse<T>> {
     let httpParams = new HttpParams();
     if (params) {
       Object.keys(params).forEach(key => {
@@ -33,7 +34,7 @@ export class ApiService {
     }
 
     const apiUrl = this.configService.getApiUrl(apiName as any);
-    return this.http.get<ApiResponse<T>>(`${apiUrl}/${endpoint}`, { params: httpParams });
+    return this.http.get<ApiResponse<T>>(`${apiUrl}/${endpoint}`, { params: httpParams, headers });
   }
 
   /**

@@ -1,4 +1,4 @@
-import { ApplicationConfig, provideBrowserGlobalErrorListeners, provideZonelessChangeDetection, ErrorHandler } from '@angular/core';
+import { ApplicationConfig, provideBrowserGlobalErrorListeners, ErrorHandler } from '@angular/core';
 import { provideRouter } from '@angular/router';
 import { provideHttpClient, withInterceptors, withFetch } from '@angular/common/http';
 
@@ -10,6 +10,7 @@ import { provideAnimationsAsync } from '@angular/platform-browser/animations/asy
 import { authInterceptor } from './core/interceptors/auth.interceptor.functional';
 import { retryInterceptor } from './core/interceptors/retry.interceptor';
 import { cachingInterceptor } from './core/interceptors/caching.interceptor';
+import { timeoutInterceptor } from './core/interceptors/timeout.interceptor';
 import { GlobalErrorHandler } from './core/handlers/global-error.handler';
 import { API_BASE_URL } from './core/tokens/api-base-url.token';
 import { environment } from '../environments/environment';
@@ -19,13 +20,14 @@ export const appConfig: ApplicationConfig = {
     { provide: ErrorHandler, useClass: GlobalErrorHandler },
     { provide: API_BASE_URL, useValue: environment.apiUrl },
     provideBrowserGlobalErrorListeners(),
-    provideZonelessChangeDetection(),
+    // Using zone-based change detection for automatic UI updates after async operations
     provideRouter(routes),
     provideClientHydration(withEventReplay()),
     provideAnimationsAsync(),
     provideHttpClient(
       withFetch(),
       withInterceptors([
+        timeoutInterceptor,  // 30-second timeout for all requests
         retryInterceptor,    // Retry transient errors with exponential backoff
         cachingInterceptor,  // Cache GET requests with 5-minute TTL
         authInterceptor      // Add auth token to requests

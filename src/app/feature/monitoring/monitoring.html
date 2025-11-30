@@ -21,8 +21,11 @@
       <div class="monitoring-header-center" *ngIf="waterLevelData.length > 0">
         <div class="monitoring-metrics-row">
           <span
-            class="monitoring-info-item monitoring-metric-with-trend"
+            class="monitoring-info-item monitoring-metric-with-trend monitoring-clickable-metric"
             [ngClass]="getTrendColorClass(lakeLevelChangeStatus)"
+            (click)="openLakeLevelData()"
+            pTooltip="Click to view historical data"
+            tooltipPosition="bottom"
           >
             <i class="pi pi-chart-scatter monitoring-metric-icon"></i>
             <span class="monitoring-metric-value">{{ formattedLakeLevel }}</span>
@@ -33,9 +36,14 @@
             ></i>
           </span>
 
-          <span
-            class="monitoring-info-item monitoring-metric-with-trend"
+          <a
+            href="https://errts-web.s3.ap-southeast-2.amazonaws.com/logger/ScrivDamDailyData.csv"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="monitoring-info-item monitoring-metric-with-trend monitoring-clickable-metric"
             [ngClass]="getTrendColorClass(lakeStorageChangeStatus)"
+            pTooltip="Click to view daily data CSV"
+            tooltipPosition="bottom"
           >
             <i class="pi pi-inbox monitoring-metric-icon"></i>
             <span class="monitoring-metric-value">{{ formattedLakeStorage }}</span>
@@ -44,7 +52,7 @@
               [class]="getTrendIcon(lakeStorageChangeStatus)"
               class="monitoring-trend-icon"
             ></i>
-          </span>
+          </a>
 
           <span
             class="monitoring-info-item monitoring-metric-with-trend"
@@ -203,3 +211,139 @@
     </ng-template>
   </p-splitter>
 </p-panel>
+
+<!-- Lake Level Data Dialog -->
+<p-dialog
+  [(visible)]="showLakeLevelDialog"
+  header="Lake Level Historical Data - Scrivener Dam"
+  [modal]="true"
+  [dismissableMask]="true"
+  [draggable]="false"
+  [resizable]="true"
+  [style]="{ width: '80vw', maxWidth: '1200px' }"
+  styleClass="image-dialog"
+>
+  <!-- Table View - API Response Details -->
+  <div *ngIf="!loadingResourceData && selectedRowData" class="table-container">
+    <div class="api-response-content">
+      <div class="date-filter-container">
+        <div class="date-filter-wrapper">
+          <!-- Desktop View: Calendar Picker -->
+          <div class="date-filter-group desktop-only">
+            <label class="date-filter-label">From:</label>
+            <p-datepicker
+              [(ngModel)]="filterDateFrom"
+              dateFormat="yy-mm-dd"
+              [showTime]="false"
+              [showSeconds]="true"
+              hourFormat="24"
+              placeholder="Start date/time"
+              [showIcon]="true"
+              (onSelect)="applyDateRangeFilter()"
+              (onClear)="applyDateRangeFilter()"
+              [showClear]="true"
+              [ngClass]="{'date-error': dateRangeError}"
+            />
+          </div>
+          <div class="date-filter-group desktop-only">
+            <label class="date-filter-label">To:</label>
+            <p-datepicker
+              [(ngModel)]="filterDateTo"
+              dateFormat="yy-mm-dd"
+              [showTime]="false"
+              [showSeconds]="true"
+              hourFormat="24"
+              placeholder="End date/time"
+              [showIcon]="true"
+              (onSelect)="applyDateRangeFilter()"
+              (onClear)="applyDateRangeFilter()"
+              [showClear]="true"
+              [ngClass]="{'date-error': dateRangeError}"
+            />
+          </div>
+
+          <!-- Mobile View: Text Input with Date Type -->
+          <div class="date-filter-group mobile-only">
+            <label class="date-filter-label">From:</label>
+            <input
+              type="date"
+              [(ngModel)]="filterDateFromString"
+              (ngModelChange)="onMobileDateChange('from', $event)"
+              class="mobile-date-input"
+              [ngClass]="{'date-error': dateRangeError}"
+              placeholder="yyyy-mm-dd"
+            />
+          </div>
+          <div class="date-filter-group mobile-only">
+            <label class="date-filter-label">To:</label>
+            <input
+              type="date"
+              [(ngModel)]="filterDateToString"
+              (ngModelChange)="onMobileDateChange('to', $event)"
+              class="mobile-date-input"
+              [ngClass]="{'date-error': dateRangeError}"
+              placeholder="yyyy-mm-dd"
+            />
+          </div>
+        </div>
+        <div *ngIf="dateRangeError" class="date-error-message">
+          <i class="pi pi-exclamation-triangle"></i>
+          <span>{{ dateRangeError }}</span>
+        </div>
+      </div>
+      <p-table
+        #lakeLevelTable
+        [value]="isArrayData() ? selectedRowData : [selectedRowData]"
+        [scrollable]="true"
+        scrollHeight="500px"
+        styleClass="station-detail-table"
+        [rowHover]="true"
+        [lazy]="false"
+        [virtualScroll]="true"
+        [virtualScrollItemSize]="46"
+        [rows]="100"
+        showGridlines
+        sortMode="multiple"
+        [sortField]="'timestamp'"
+        [sortOrder]="-1"
+        [globalFilterFields]="getRowDataKeys()">
+        <ng-template #header>
+          <tr>
+            <th *ngFor="let key of getRowDataKeys()" [pSortableColumn]="key">
+              <div class="flex items-center gap-2">
+                {{ formatColumnHeader(key) }}
+                <p-sortIcon [field]="key" />
+              </div>
+            </th>
+          </tr>
+        </ng-template>
+        <ng-template #body let-row>
+          <tr>
+            <td *ngFor="let key of getRowDataKeys()">
+              <span *ngIf="key.toLowerCase() === 'timestamp'">{{ formatTimestamp(row[key]) }}</span>
+              <span *ngIf="key.toLowerCase() !== 'timestamp'">{{ row[key] !== null && row[key] !== undefined ? row[key] : '-' }}</span>
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </div>
+    <div class="api-response-footer">
+      <span class="record-count">
+        <i class="pi pi-list"></i>
+        {{ isArrayData() ? 'Total Records: ' + selectedRowData.length : 'Total Fields: ' + getRowDataKeys().length }}
+      </span>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="loadingResourceData" class="loading-container">
+    <p-progressSpinner styleClass="custom-spinner" strokeWidth="4" animationDuration="1s"></p-progressSpinner>
+    <p class="loading-text">Loading lake level data...</p>
+  </div>
+
+  <!-- No Data Message -->
+  <div *ngIf="!loadingResourceData && !selectedRowData" class="no-data-message">
+    <i class="pi pi-info-circle"></i>
+    <span>No data available for this station</span>
+  </div>
+</p-dialog>

@@ -116,13 +116,15 @@ export class Register {
   }
 
   onSubmit() {
+    // Clear previous error message to allow retry
+    this.errorMessage = undefined;
+
     if (this.registerForm.invalid) {
       this.markFormGroupTouched(this.registerForm);
       return;
     }
 
     this.isLoading = true;
-    this.errorMessage = undefined;
 
     const registrationData: RegistrationModel = {
       firstName: this.registerForm.value.firstName,
@@ -136,7 +138,11 @@ export class Register {
 
     this.authService
       .register(registrationData)
-      .pipe(finalize(() => (this.isLoading = false)))
+      .pipe(
+        finalize(() => {
+          this.isLoading = false;
+        })
+      )
       .subscribe({
         next: () => {
           this.messageService.add({
@@ -150,9 +156,10 @@ export class Register {
           }, 2000);
         },
         error: (err) => {
+          this.isLoading = false; // Ensure loading stops immediately on error
+          this.errorMessage = this.extractErrorMessage(err);
           const logger = inject(LoggerService);
-          logger.error('Registration error', err);
-          this.errorMessage = err.error || 'Registration failed. Please try again.';
+          logger.error('Registration failed:', this.errorMessage);
           this.messageService.add({
             severity: 'error',
             summary: 'Registration Failed',
@@ -171,5 +178,59 @@ export class Register {
         this.markFormGroupTouched(control);
       }
     });
+  }
+
+  /**
+   * Extract user-friendly error message from error response
+   * Prevents displaying API URLs or technical error details to users
+   */
+  private extractErrorMessage(error: any): string {
+    // Check for specific error message from API
+    if (error.error && typeof error.error === 'object') {
+      if (error.error.message) {
+        return error.error.message;
+      }
+
+      // Handle validation errors
+      if (error.error.errors) {
+        const errors = Object.values(error.error.errors).flat();
+        return (errors as string[]).join(', ');
+      }
+
+      // Handle simple error string
+      if (error.error.error && typeof error.error.error === 'string') {
+        return error.error.error;
+      }
+    }
+
+    // Check for error message string directly
+    if (typeof error.error === 'string' && !error.error.includes('http')) {
+      return error.error;
+    }
+
+    // Check for timeout error
+    if (error.name === 'TimeoutError' || error.error === 'timeout') {
+      return 'Request timed out. The server is taking too long to respond. Please try again.';
+    }
+
+    // Handle HTTP status codes with user-friendly messages
+    switch (error.status) {
+      case 400:
+        return 'Invalid registration data. Please check your input.';
+      case 401:
+        return 'Unauthorized access.';
+      case 403:
+        return 'Access denied.';
+      case 404:
+        return 'Service not found. Please contact support.';
+      case 409:
+        return 'An account with this username or email already exists.';
+      case 500:
+        return 'Server error. Please try again later.';
+      case 0:
+        return 'Network error. Please check your internet connection.';
+      default:
+        return 'Registration failed. Please try again.';
+    }
   }
 }

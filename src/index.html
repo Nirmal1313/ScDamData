@@ -15,6 +15,16 @@
     <!-- Referrer policy -->
     <meta name="referrer" content="strict-origin-when-cross-origin" />
 
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self';
+               connect-src 'self' http://localhost:7107 https://localhost:7107 https://scrivenerdam-api.braveocean-4ca6a2d4.eastus2.azurecontainerapps.io http://reg.bom.gov.au https://water.data.sa.gov.au;
+               script-src 'self' 'unsafe-inline' 'unsafe-eval';
+               style-src 'self' 'unsafe-inline';
+               img-src 'self' data: https:;
+               font-src 'self' data:;"
+    />
+
     <link rel="icon" type="image/x-icon" href="dam.svg" />
   </head>
   <body>

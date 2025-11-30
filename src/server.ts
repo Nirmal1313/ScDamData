@@ -51,7 +51,7 @@ app.use((req, res, next) => {
     "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
     "font-src 'self' https://fonts.gstatic.com data:",
     "img-src 'self' data: https: blob:",
-    "connect-src 'self' https://scrivenerdam-api.braveocean-4ca6a2d4.eastus2.azurecontainerapps.io http://reg.bom.gov.au https://water.data.sa.gov.au",
+    "connect-src 'self' http://localhost:7107 https://localhost:7107 https://scrivenerdam-api.braveocean-4ca6a2d4.eastus2.azurecontainerapps.io http://reg.bom.gov.au https://water.data.sa.gov.au",
     "frame-ancestors 'none'",
     "base-uri 'self'",
     "form-action 'self'",

@@ -43,6 +43,11 @@ export class Header extends BomWeatherConsumerBase implements OnInit, OnDestroy 
   displayLowestTime: string = '';
   displayRain: string = '';
 
+  // Refresh state management
+  isRefreshing: boolean = false;
+  refreshCooldown: boolean = false;
+  private readonly COOLDOWN_DURATION = 3000; // 3 seconds cooldown
+
   @Output() sidebarToggle = new EventEmitter<void>();
 
   // Responsive breakpoints
@@ -200,7 +205,32 @@ export class Header extends BomWeatherConsumerBase implements OnInit, OnDestroy 
   }
 
   onRefreshWeather(): void {
-    this.bomWeatherService.forceRefresh().subscribe();
+    // Prevent rapid repeated clicks
+    if (this.isRefreshing || this.refreshCooldown) {
+      return;
+    }
+
+    this.isRefreshing = true;
+
+    this.bomWeatherService.forceRefresh().subscribe({
+      next: (data) => {
+        this.isRefreshing = false;
+        this.startCooldown();
+      },
+      error: (err) => {
+        this.isRefreshing = false;
+        this.startCooldown();
+      },
+      complete: () => {
+      },
+    });
+  }
+
+  private startCooldown(): void {
+    this.refreshCooldown = true;
+    setTimeout(() => {
+      this.refreshCooldown = false;
+    }, this.COOLDOWN_DURATION);
   }
 
   onRefreshWeatherMobile(): void {
