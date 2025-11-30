@@ -9,7 +9,7 @@
         },
         {
           "key": "Content-Security-Policy",
-          "value": "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://sc-dam-data.vercel.app; style-src 'self' 'unsafe-inline' https://sc-dam-data.vercel.app; img-src 'self' data: https: blob:; font-src 'self' data: https://sc-dam-data.vercel.app; connect-src 'self' https://sc-dam-data.vercel.app https://scrivenerdam-api.braveocean-4ca6a2d4.eastus2.azurecontainerapps.io https://errts-web.s3.ap-southeast-2.amazonaws.com; frame-ancestors 'none'; base-uri 'self'; form-action 'self'"
+          "value": "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://sc-dam-data.vercel.app; style-src 'self' 'unsafe-inline' https://sc-dam-data.vercel.app; img-src 'self' data: https: blob:; font-src 'self' data: https://sc-dam-data.vercel.app; connect-src 'self' http://localhost:7107 https://localhost:7107 https://sc-dam-data.vercel.app https://scrivenerdam-api.braveocean-4ca6a2d4.eastus2.azurecontainerapps.io https://errts-web.s3.ap-southeast-2.amazonaws.com http://reg.bom.gov.au https://water.data.sa.gov.au; frame-ancestors 'none'; base-uri 'self'; form-action 'self'"
         },
         {
           "key": "X-Frame-Options",
