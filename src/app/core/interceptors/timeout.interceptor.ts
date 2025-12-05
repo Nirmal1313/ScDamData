@@ -6,15 +6,16 @@ import { LoggerService } from '../services/logger.service';
 /**
  * HTTP Timeout Interceptor
  *
- * Implements a 30-second timeout for all HTTP requests to prevent
- * long waits and improve user experience.
- *
- * If a request takes longer than 30 seconds, it will be cancelled
- * and an error will be thrown.
+ * Implements timeouts for all HTTP requests to prevent long waits.
+ * Weather endpoints get 3 minutes for Playwright browser initialization.
+ * Other endpoints timeout after 60 seconds.
  */
 export const timeoutInterceptor: HttpInterceptorFn = (req, next) => {
   const logger = inject(LoggerService);
-  const TIMEOUT_MS = 30000; // 30 seconds
+
+  // Weather endpoints need more time for Playwright browser initialization
+  const isWeatherEndpoint = req.url.includes('WeatherForecast') || req.url.includes('weather');
+  const TIMEOUT_MS = isWeatherEndpoint ? 180000 : 60000; // 3 minutes for weather, 60 seconds for others
 
   return next(req).pipe(
     timeout(TIMEOUT_MS),
